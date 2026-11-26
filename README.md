@@ -69,7 +69,7 @@ Thứ tự: deploy API → lấy URL API → deploy web với URL đó → lấy
 
 | Chỉ số | Cách đo | Local (Docker, 26/11) | Render |
 |---|---|---|---|
-| Kích thước image | `docker images` / log build Render | 579 MB (arm64) | |
+| Kích thước image | `docker images` / log build Render | 579 MB (arm64), 584 MB (amd64) | |
 | RAM nhàn rỗi | `docker stats` / Render Metrics | ~59 MiB | |
 | Thời gian sẵn sàng | container start → `/health` 200 | ~1 s | |
 | Cold start | dòng "phản hồi sau … ms" trên trang chủ sau khi service nghỉ | — | |
