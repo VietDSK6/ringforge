@@ -91,9 +91,10 @@ def get_audit(sid: str, db: Db) -> dict[str, Any]:
 
 # ---------- biên dịch bằng AI (T1) ----------
 
+# Lỗi này chỉ xảy ra khi câu KHÔNG có kết quả đã lưu (cache trúng thì không gọi AI) → không hứa "kết quả đã lưu".
 LLM_DOWN_VI = (
-    "AI tạm thời không khả dụng — đang dùng kết quả đã lưu cho câu mẫu; "
-    "bạn vẫn có thể sửa luật bằng JSON hoặc dùng sửa tất định."
+    "AI tạm thời không khả dụng và câu này chưa có kết quả đã lưu. "
+    "Bạn vẫn có thể viết luật bằng JSON; kiểm chứng và backtest không cần AI."
 )
 
 
