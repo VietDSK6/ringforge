@@ -43,15 +43,17 @@ RingForge là "CI/CD cho chính sách rủi ro" dành cho đội vận hành ch�
 
 ## Lệnh (cập nhật khi repo có)
 ```bash
-# API
-cd services/api && python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
+# API (máy dev không có sẵn Python 3.11 → dùng uv để khớp image python:3.11-slim)
+cd services/api && uv venv --python 3.11 .venv && source .venv/bin/activate
+uv pip install -r requirements-dev.txt         # runtime pin ở requirements.txt; dev thêm pytest, httpx
 pytest -q
 uvicorn app.main:app --reload --port 8000      # http://localhost:8000/docs
-python -m app.data.generate                    # sinh data/seed/transactions.parquet
+python -m app.data.generate                    # (Ngày 1) sinh data/seed/transactions.parquet
+docker build -t ringforge-api . && docker run --rm -p 8000:8000 ringforge-api
 
 # Web
 cd apps/web && npm install && npm run dev      # http://localhost:3000
+npm run lint && npm run build
 ```
 
 ## Ghi chú cho README nộp bài
