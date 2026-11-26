@@ -1,0 +1,160 @@
+[
+  {
+    "id": "REG-01",
+    "version": 1,
+    "name": "Sinh trắc học theo ngưỡng mỗi giao dịch",
+    "description": "Hiện thực INV-AUTH-01: giao dịch trên ngưỡng sinh trắc học/lần phải xác thực sinh trắc học.",
+    "kind": "REGULATORY",
+    "status": "ACTIVE",
+    "locked": true,
+    "when": { "field": "amount", "op": ">", "value": { "param": "biometric_per_tx_threshold" } },
+    "then": { "auth": "BIOMETRIC" },
+    "provenance": { "created_by": "human" }
+  },
+  {
+    "id": "REG-02",
+    "version": 1,
+    "name": "Sinh trắc học theo tổng chi trong ngày",
+    "description": "Hiện thực INV-AUTH-02: tổng chi trong ngày vượt ngưỡng sinh trắc học/ngày phải xác thực sinh trắc học.",
+    "kind": "REGULATORY",
+    "status": "ACTIVE",
+    "locked": true,
+    "when": { "field": "daily_total_after", "op": ">", "value": { "param": "biometric_daily_threshold" } },
+    "then": { "auth": "BIOMETRIC" },
+    "provenance": { "created_by": "human" }
+  },
+  {
+    "id": "FR-01",
+    "version": 1,
+    "name": "Tài khoản mới gom-tẩu nhanh",
+    "description": "Tài khoản mới nhận tiền từ nhiều người rồi chuyển gần hết đi trong 60 phút (dấu hiệu mule).",
+    "kind": "FRAUD",
+    "status": "ACTIVE",
+    "locked": false,
+    "when": {
+      "all": [
+        { "field": "sender_account_age_days", "op": "<", "value": 14 },
+        { "field": "sender_distinct_inbound_60m", "op": ">=", "value": 3 },
+        { "field": "sender_outbound_ratio_60m_pct", "op": ">=", "value": 80 },
+        { "field": "channel", "op": "in", "value": ["P2P", "WITHDRAW"] }
+      ]
+    },
+    "then": { "decision": "HOLD", "hold_seconds": 120 },
+    "provenance": { "created_by": "human" }
+  },
+  {
+    "id": "FR-02",
+    "version": 1,
+    "name": "Tài khoản ngủ đông chuyển tiền đêm trên thiết bị mới",
+    "description": "Dấu hiệu chiếm tài khoản: tài khoản ngủ đông lâu, thiết bị mới, chuyển tiền lúc 0–5 giờ.",
+    "kind": "FRAUD",
+    "status": "ACTIVE",
+    "locked": false,
+    "when": {
+      "all": [
+        { "field": "sender_dormant_days", "op": ">=", "value": 90 },
+        { "field": "is_new_device", "op": "==", "value": true },
+        { "field": "hour", "op": "between", "value": [0, 5] },
+        { "field": "channel", "op": "in", "value": ["P2P", "WITHDRAW"] }
+      ]
+    },
+    "then": { "decision": "HOLD", "hold_seconds": 180, "auth": "BIOMETRIC" },
+    "provenance": { "created_by": "human" }
+  },
+  {
+    "id": "FR-03",
+    "version": 1,
+    "name": "Chuyển lớn ban đêm cho tài khoản nhận rất mới",
+    "description": "Giám sát giao dịch từ 5 triệu ban đêm tới tài khoản nhận dưới 7 ngày tuổi, không quen.",
+    "kind": "FRAUD",
+    "status": "ACTIVE",
+    "locked": false,
+    "when": {
+      "all": [
+        { "field": "amount", "op": ">=", "value": 5000000 },
+        { "field": "receiver_account_age_days", "op": "<", "value": 7 },
+        { "field": "receiver_is_familiar", "op": "==", "value": false },
+        {
+          "any": [
+            { "field": "hour", "op": "between", "value": [22, 23] },
+            { "field": "hour", "op": "between", "value": [0, 5] }
+          ]
+        }
+      ]
+    },
+    "then": { "decision": "MONITOR" },
+    "provenance": { "created_by": "human" }
+  },
+  {
+    "id": "FR-04",
+    "version": 1,
+    "name": "Người nhận gom tiền từ nhiều người",
+    "description": "Người nhận (không phải merchant đã xác minh) nhận từ 30 người khác nhau trở lên trong 30 phút.",
+    "kind": "FRAUD",
+    "status": "ACTIVE",
+    "locked": false,
+    "when": {
+      "all": [
+        { "field": "receiver_distinct_senders_30m", "op": ">=", "value": 30 },
+        { "field": "receiver_is_verified_merchant", "op": "==", "value": false }
+      ]
+    },
+    "then": { "decision": "HOLD", "hold_seconds": 60 },
+    "provenance": { "created_by": "human" }
+  },
+  {
+    "id": "FX-01",
+    "version": 1,
+    "name": "Thanh toán nhỏ cho merchant đã xác minh",
+    "description": "Giảm ma sát: thanh toán QR nhỏ cho merchant đã xác minh luôn cho qua.",
+    "kind": "FRICTION",
+    "status": "ACTIVE",
+    "locked": false,
+    "when": {
+      "all": [
+        { "field": "receiver_is_verified_merchant", "op": "==", "value": true },
+        { "field": "channel", "op": "==", "value": "MERCHANT_QR" },
+        { "field": "amount", "op": "<=", "value": { "param": "small_merchant_payment_max" } }
+      ]
+    },
+    "then": { "decision": "ALLOW" },
+    "provenance": { "created_by": "human" }
+  },
+  {
+    "id": "LG-07",
+    "version": 1,
+    "name": "Giao dịch sát ngưỡng ban đêm (luật cũ)",
+    "description": "Luật cũ giám sát giao dịch 9–10 triệu lúc 0–5 giờ. Viết cứng 10.000.000 thay vì tham chiếu tham số.",
+    "kind": "FRAUD",
+    "status": "ACTIVE",
+    "locked": false,
+    "when": {
+      "all": [
+        { "field": "amount", "op": ">", "value": 9000000 },
+        { "field": "amount", "op": "<", "value": 10000000 },
+        { "field": "hour", "op": "between", "value": [0, 5] }
+      ]
+    },
+    "then": { "decision": "MONITOR" },
+    "provenance": { "created_by": "human" }
+  },
+  {
+    "id": "LG-09",
+    "version": 1,
+    "name": "Tài khoản rất mới chuyển tiếp P2P (luật cũ)",
+    "description": "Luật cũ bắt mule P2P; đã bị FR-01 bao trùm.",
+    "kind": "FRAUD",
+    "status": "ACTIVE",
+    "locked": false,
+    "when": {
+      "all": [
+        { "field": "sender_account_age_days", "op": "<", "value": 7 },
+        { "field": "sender_distinct_inbound_60m", "op": ">=", "value": 5 },
+        { "field": "sender_outbound_ratio_60m_pct", "op": ">=", "value": 90 },
+        { "field": "channel", "op": "==", "value": "P2P" }
+      ]
+    },
+    "then": { "decision": "HOLD", "hold_seconds": 60 },
+    "provenance": { "created_by": "human" }
+  }
+]

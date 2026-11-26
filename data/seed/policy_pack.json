@@ -1,0 +1,64 @@
+{
+  "id": "VN-PAYMENTS-SIM",
+  "version": "2026.11-sim.1",
+  "disclaimer": "Giả lập phục vụ thử nghiệm, không phải diễn giải pháp lý chính thức.",
+  "params": {
+    "biometric_per_tx_threshold": {
+      "value": 10000000,
+      "unit": "VND",
+      "source": "QĐ 2345/QĐ-NHNN — đối chiếu văn bản gốc về 'trên' hay 'từ'"
+    },
+    "biometric_daily_threshold": {
+      "value": 20000000,
+      "unit": "VND",
+      "source": "QĐ 2345/QĐ-NHNN"
+    },
+    "small_merchant_payment_max": {
+      "value": 2000000,
+      "unit": "VND",
+      "source": "Chính sách nội bộ giả lập"
+    },
+    "hold_min_seconds": {
+      "value": 60,
+      "unit": "s",
+      "source": "Chính sách nội bộ giả lập"
+    },
+    "hold_max_seconds": {
+      "value": 180,
+      "unit": "s",
+      "source": "Chính sách nội bộ giả lập"
+    }
+  },
+  "invariants": [
+    {
+      "id": "INV-AUTH-01",
+      "type": "AUTH_AT_LEAST",
+      "level": "BIOMETRIC",
+      "when": { "field": "amount", "op": ">", "value": { "param": "biometric_per_tx_threshold" } },
+      "source": "QĐ 2345/QĐ-NHNN",
+      "severity": "HARD"
+    },
+    {
+      "id": "INV-AUTH-02",
+      "type": "AUTH_AT_LEAST",
+      "level": "BIOMETRIC",
+      "when": { "field": "daily_total_after", "op": ">", "value": { "param": "biometric_daily_threshold" } },
+      "source": "QĐ 2345/QĐ-NHNN",
+      "severity": "HARD"
+    },
+    {
+      "id": "INV-CX-01",
+      "type": "DECISION_AT_MOST",
+      "level": "MONITOR",
+      "when": {
+        "all": [
+          { "field": "receiver_is_verified_merchant", "op": "==", "value": true },
+          { "field": "channel", "op": "==", "value": "MERCHANT_QR" },
+          { "field": "amount", "op": "<=", "value": { "param": "small_merchant_payment_max" } }
+        ]
+      },
+      "source": "Chính sách trải nghiệm khách hàng giả lập",
+      "severity": "HARD"
+    }
+  ]
+}

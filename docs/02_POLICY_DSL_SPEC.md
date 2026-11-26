@@ -174,7 +174,7 @@ Luật REGULATORY trong seed hiện thực các invariant (ví dụ `REG-01: amo
 | REG-01 | REGULATORY, locked | `amount > {biometric_per_tx_threshold}` | auth BIOMETRIC | |
 | REG-02 | REGULATORY, locked | `daily_total_after > {biometric_daily_threshold}` | auth BIOMETRIC | |
 | FR-01 | FRAUD | tuổi gửi < 14 ∧ distinct_inbound_60m ≥ 3 ∧ outbound_ratio ≥ 80 ∧ channel ∈ {P2P, WITHDRAW} | HOLD 120 s | Mule; Demo 3 có biến thể |
-| FR-02 | FRAUD | dormant ≥ 90 ∧ is_new_device ∧ hour ∈ [0,5] | HOLD 180 s + auth BIOMETRIC | Chiếm tài khoản |
+| FR-02 | FRAUD | dormant ≥ 90 ∧ is_new_device ∧ hour ∈ [0,5] ∧ channel ∈ {P2P, WITHDRAW} | HOLD 180 s + auth BIOMETRIC | Chiếm tài khoản. Giới hạn kênh (chốt 26/11) để seed không vi phạm INV-CX-01 (HOLD thanh toán QR nhỏ cho merchant đã xác minh) |
 | FR-03 | FRAUD | amount ≥ 5.000.000 ∧ receiver_age < 7 ∧ ¬familiar ∧ hour ∈ [22,23] ∪ [0,5] | MONITOR | |
 | FR-04 | FRAUD | receiver_distinct_senders_30m ≥ 30 ∧ ¬receiver_is_verified_merchant | HOLD 60 s | Fan-in; có thể bắt nhầm flash-sale nếu merchant chưa xác minh |
 | FX-01 | FRICTION | verified_merchant ∧ MERCHANT_QR ∧ amount ≤ {small_merchant_payment_max} | ALLOW | Giảm ma sát |
