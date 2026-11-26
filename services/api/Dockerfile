@@ -15,6 +15,8 @@ RUN pip install -r requirements.txt
 
 COPY services/api/app ./app
 COPY data/seed/*.json ./data/seed/
+# Dữ liệu tổng hợp sinh một lần lúc build (seed cố định → tất định), docs/04 mục 1.
+RUN python -m app.data.generate
 
 RUN useradd --create-home --uid 10001 appuser
 USER appuser
