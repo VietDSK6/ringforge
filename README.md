@@ -35,9 +35,8 @@ npm install && npm run dev
 Biến môi trường: xem [`.env.example`](.env.example) (đầy đủ), `services/api/.env.example`, `apps/web/.env.example`.
 
 ```bash
-# API bằng Docker (giống môi trường deploy)
-cd services/api
-docker build -t ringforge-api .
+# API bằng Docker (giống môi trường deploy) — chạy từ GỐC REPO vì image cần data/seed/
+docker build -f services/api/Dockerfile -t ringforge-api .
 docker run --rm -p 8000:8000 -e CORS_ORIGINS=http://localhost:3000 ringforge-api
 ```
 
@@ -48,7 +47,7 @@ Thứ tự: deploy API → lấy URL API → deploy web với URL đó → lấy
 ### API trên Render (Docker)
 
 1. **New → Web Service** → chọn repo GitHub.
-2. **Root Directory**: `services/api` · **Language/Runtime**: Docker (Render tự dùng `services/api/Dockerfile`).
+2. **Language/Runtime**: Docker · **Root Directory**: để trống (gốc repo) · **Dockerfile Path**: `./services/api/Dockerfile` · **Docker Build Context Directory**: `.` — image cần `data/seed/` ở gốc repo. **Build Filters → Included Paths**: `services/api/**`, `data/seed/**` để sửa web không làm API deploy lại.
 3. **Instance type**: gói trả phí thấp nhất, **không sleep** (docs/06 mục 5). Nếu dùng Free: service ngủ sau 15 phút không có request (thức lại mất khoảng 1 phút) → tạo monitor UptimeRobot HTTP(s) gọi `https://<service>.onrender.com/health` mỗi 5 phút (`/health` nhận cả GET và HEAD), giữ đến hết 11/12. Free có 750 giờ/tháng cho mỗi workspace: chỉ đủ cho **một** service chạy 24/7.
 4. **Health Check Path**: `/health`.
 5. **Environment**:

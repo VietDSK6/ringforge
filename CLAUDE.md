@@ -49,7 +49,8 @@ uv pip install -r requirements-dev.txt         # runtime pin ở requirements.tx
 pytest -q
 uvicorn app.main:app --reload --port 8000      # http://localhost:8000/docs
 python -m app.data.generate                    # (Ngày 1) sinh data/seed/transactions.parquet
-docker build -t ringforge-api . && docker run --rm -p 8000:8000 ringforge-api
+# Docker: build context là gốc repo (image cần data/seed/)
+cd ../.. && docker build -f services/api/Dockerfile -t ringforge-api . && docker run --rm -p 8000:8000 ringforge-api
 
 # Web
 cd apps/web && npm install && npm run dev      # http://localhost:3000

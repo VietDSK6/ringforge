@@ -1,0 +1,8 @@
+# Build context = gốc repo (Dockerfile: services/api/Dockerfile).
+# Chỉ cho phép những gì image API cần; mọi thứ khác (web, docs, .env, .venv…) bị loại.
+*
+!services/api/requirements.txt
+!services/api/app
+!data/seed/*.json
+**/__pycache__
+**/*.pyc
