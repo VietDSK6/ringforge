@@ -15,8 +15,18 @@ def error_body(code: str, message_vi: str, details: Any = None) -> dict[str, Any
     return {"error_code": code, "message_vi": message_vi, "details": details}
 
 
+class AppError(Exception):
+    def __init__(self, status: int, code: str, message_vi: str, details: Any = None):
+        super().__init__(message_vi)
+        self.status, self.code, self.message_vi, self.details = status, code, message_vi, details
+
+
 def install(app: FastAPI) -> None:
     from app.store.repo import Forbidden, NotFound
+
+    @app.exception_handler(AppError)
+    async def _app_error(_: Request, exc: AppError) -> JSONResponse:
+        return JSONResponse(status_code=exc.status, content=error_body(exc.code, exc.message_vi, exc.details))
 
     @app.exception_handler(NotFound)
     async def _not_found(_: Request, exc: NotFound) -> JSONResponse:

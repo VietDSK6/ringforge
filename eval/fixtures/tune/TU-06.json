@@ -1,0 +1,40 @@
+{
+  "id": "TU-06",
+  "requirement_vi": "Nạp tiền điện thoại khoản lớn vào lúc nửa đêm thì gắn cờ giám sát.",
+  "category": "AMBIGUOUS",
+  "gold_status": "OK",
+  "gold_rule": {
+    "when": {
+      "all": [
+        {
+          "field": "channel",
+          "op": "==",
+          "value": "TOPUP"
+        },
+        {
+          "field": "amount",
+          "op": ">=",
+          "value": 500000
+        },
+        {
+          "field": "hour",
+          "op": "between",
+          "value": [
+            0,
+            2
+          ]
+        }
+      ]
+    },
+    "then": {
+      "decision": "MONITOR"
+    }
+  },
+  "gold_assumptions": [
+    "khoản lớn",
+    "nửa đêm"
+  ],
+  "gold_violations": [],
+  "gold_repair_must": null,
+  "notes": "Gold chọn khoản lớn ≥ 500.000 đ, nửa đêm = 0–2 giờ; đo chủ yếu việc nêu giả định."
+}

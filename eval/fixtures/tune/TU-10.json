@@ -1,0 +1,11 @@
+{
+  "id": "TU-10",
+  "requirement_vi": "Viết giúp tôi một email chúc mừng sinh nhật khách hàng thân thiết.",
+  "category": "OUT_OF_SCOPE",
+  "gold_status": "OUT_OF_SCOPE",
+  "gold_rule": null,
+  "gold_assumptions": [],
+  "gold_violations": [],
+  "gold_repair_must": null,
+  "notes": "Không phải luật rủi ro → OUT_OF_SCOPE."
+}

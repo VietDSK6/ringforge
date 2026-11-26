@@ -1,0 +1,36 @@
+{
+  "id": "TU-07",
+  "requirement_vi": "Chuyển P2P từ 7 triệu rưỡi trở lên cho người lạ thì yêu cầu OTP.",
+  "category": "AMBIGUOUS",
+  "gold_status": "OK",
+  "gold_rule": {
+    "when": {
+      "all": [
+        {
+          "field": "channel",
+          "op": "==",
+          "value": "P2P"
+        },
+        {
+          "field": "amount",
+          "op": ">=",
+          "value": 7500000
+        },
+        {
+          "field": "receiver_is_familiar",
+          "op": "==",
+          "value": false
+        }
+      ]
+    },
+    "then": {
+      "auth": "OTP"
+    }
+  },
+  "gold_assumptions": [
+    "người lạ"
+  ],
+  "gold_violations": [],
+  "gold_repair_must": null,
+  "notes": "Kiểm '7 triệu rưỡi' → 7.500.000."
+}

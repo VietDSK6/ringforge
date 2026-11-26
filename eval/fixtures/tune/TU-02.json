@@ -1,0 +1,34 @@
+{
+  "id": "TU-02",
+  "requirement_vi": "Tài khoản không hoạt động từ 180 ngày trở lên, dùng thiết bị mới để chuyển tiền P2P thì yêu cầu sinh trắc học.",
+  "category": "CLEAN",
+  "gold_status": "OK",
+  "gold_rule": {
+    "when": {
+      "all": [
+        {
+          "field": "sender_dormant_days",
+          "op": ">=",
+          "value": 180
+        },
+        {
+          "field": "is_new_device",
+          "op": "==",
+          "value": true
+        },
+        {
+          "field": "channel",
+          "op": "==",
+          "value": "P2P"
+        }
+      ]
+    },
+    "then": {
+      "auth": "BIOMETRIC"
+    }
+  },
+  "gold_assumptions": [],
+  "gold_violations": [],
+  "gold_repair_must": null,
+  "notes": ""
+}

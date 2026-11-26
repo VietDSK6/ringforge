@@ -1,0 +1,42 @@
+{
+  "id": "TU-09",
+  "requirement_vi": "Tài khoản dưới 5 ngày tuổi nhận từ 6 người trong 1 giờ rồi chuyển ra từ 95% trở lên qua P2P thì giữ 60 giây.",
+  "category": "REDUNDANT",
+  "gold_status": "OK",
+  "gold_rule": {
+    "when": {
+      "all": [
+        {
+          "field": "sender_account_age_days",
+          "op": "<",
+          "value": 5
+        },
+        {
+          "field": "sender_distinct_inbound_60m",
+          "op": ">=",
+          "value": 6
+        },
+        {
+          "field": "sender_outbound_ratio_60m_pct",
+          "op": ">=",
+          "value": 95
+        },
+        {
+          "field": "channel",
+          "op": "==",
+          "value": "P2P"
+        }
+      ]
+    },
+    "then": {
+      "decision": "HOLD",
+      "hold_seconds": 60
+    }
+  },
+  "gold_assumptions": [],
+  "gold_violations": [
+    "VC-05"
+  ],
+  "gold_repair_must": null,
+  "notes": "Bị FR-01 bao trùm (VC-05, P1)."
+}

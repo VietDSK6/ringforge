@@ -1,0 +1,22 @@
+{
+  "id": "TU-05",
+  "requirement_vi": "Giao dịch trên 600 triệu đồng thì chặn.",
+  "category": "DEAD",
+  "gold_status": "OK",
+  "gold_rule": {
+    "when": {
+      "field": "amount",
+      "op": ">",
+      "value": 600000000
+    },
+    "then": {
+      "decision": "BLOCK"
+    }
+  },
+  "gold_assumptions": [],
+  "gold_violations": [
+    "VC-03"
+  ],
+  "gold_repair_must": null,
+  "notes": "Miền amount tối đa 500.000.000 → luật chết."
+}

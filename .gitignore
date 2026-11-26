@@ -26,3 +26,6 @@ next-env.d.ts
 
 # Dữ liệu tổng hợp: sinh bằng python -m app.data.generate (tất định, seed cố định)
 data/seed/transactions.parquet
+
+# Kết quả chạy eval (sinh lại được)
+eval/*_report.json

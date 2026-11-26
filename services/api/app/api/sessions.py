@@ -9,7 +9,11 @@ from fastapi import APIRouter, Body, Depends
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
+from app.ai.client import LLMError, get_client
+from app.ai.tasks import MAX_TEXT, cache_key, compile_requirement, lookup_cache
+from app.api.errors import AppError
 from app.backtest.metrics import Assumptions, delta, run_backtest
+from app.config import settings
 from app.data.loader import transactions
 from app.dsl.render_vi import render_rule
 from app.dsl.validator import Issue, check_rule, check_rules
@@ -83,6 +87,43 @@ def get_audit(sid: str, db: Db) -> dict[str, Any]:
     repo.get_session(db, sid)
     db.commit()
     return {"events": repo.list_audit(db, sid)}
+
+
+# ---------- biên dịch bằng AI (T1) ----------
+
+LLM_DOWN_VI = (
+    "AI tạm thời không khả dụng — đang dùng kết quả đã lưu cho câu mẫu; "
+    "bạn vẫn có thể sửa luật bằng JSON hoặc dùng sửa tất định."
+)
+
+
+class CompileRequest(BaseModel):
+    text: str = Field(min_length=1, max_length=MAX_TEXT, description="Yêu cầu luật bằng tiếng Việt")
+
+
+@router.post("/{sid}/compile", summary="Biên dịch yêu cầu tiếng Việt thành luật DSL (AI đề xuất, server kiểm VC-01)")
+def compile_session(sid: str, req: CompileRequest, db: Db) -> dict[str, Any]:
+    repo.get_session(db, sid)
+    pack = repo.current_pack(db, sid)
+    rules = repo.current_rules(db, sid)
+    client = get_client()
+    cached = lookup_cache(db, cache_key(req.text, pack, rules)) is not None
+    if not cached:
+        if not client.available:
+            raise AppError(503, "LLM_UNAVAILABLE", LLM_DOWN_VI)
+        if not repo.use_llm_quota(db, sid, settings.llm_session_daily_cap, settings.llm_daily_call_cap):
+            db.commit()
+            raise AppError(429, "LLM_QUOTA", "Đã hết lượt gọi AI hôm nay cho phiên này. " + LLM_DOWN_VI)
+    try:
+        result = compile_requirement(db, sid, req.text, pack, rules, client)
+    except LLMError as e:
+        raise AppError(503, "LLM_UNAVAILABLE", LLM_DOWN_VI, {"reason": e.code}) from e
+    repo.audit(db, sid, "ai", "rule.compile", {
+        "ai_call_id": result.ai_call_id, "status": result.status, "source": result.source,
+        "rule_id": result.rule["id"] if result.rule else None, "model": result.model,
+    })
+    db.commit()
+    return result.to_dict(pack)
 
 
 # ---------- kiểm chứng ----------

@@ -1,0 +1,104 @@
+[
+  {
+    "requirement": "Tài khoản mới dưới 10 ngày mà trong 1 giờ nhận tiền từ 4 người trở lên rồi chuyển đi từ 85% số tiền đó qua P2P thì giữ lại 2 phút để xác minh.",
+    "output": {
+      "status": "OK",
+      "rule": {
+        "name": "Tài khoản mới nhận nhiều nguồn rồi chuyển đi nhanh",
+        "description": "Dấu hiệu tài khoản trung gian (mule): tài khoản mới gom tiền từ nhiều người rồi chuyển tiếp gần hết.",
+        "kind": "FRAUD",
+        "when": {
+          "all": [
+            { "field": "sender_account_age_days", "op": "<", "value": 10 },
+            { "field": "sender_distinct_inbound_60m", "op": ">=", "value": 4 },
+            { "field": "sender_outbound_ratio_60m_pct", "op": ">=", "value": 85 },
+            { "field": "channel", "op": "==", "value": "P2P" }
+          ]
+        },
+        "then": { "decision": "HOLD", "auth": null, "exempt_auth": false, "hold_seconds": 120 }
+      },
+      "assumptions": [
+        { "phrase": "trong 1 giờ", "interpretation": "cửa sổ 60 phút của các trường sender_*_60m", "editable": false },
+        { "phrase": "chuyển đi từ 85% số tiền đó", "interpretation": "tỷ lệ chuyển ra/nhận vào trong 60 phút ≥ 85% (gồm giao dịch hiện tại)", "editable": true }
+      ],
+      "clarifying_questions": [],
+      "unsupported_parts": []
+    }
+  },
+  {
+    "requirement": "Chuyển khoản ban đêm từ 3 triệu trở lên cho tài khoản nhận mới mở thì gắn cờ giám sát.",
+    "output": {
+      "status": "OK",
+      "rule": {
+        "name": "Chuyển khoản đêm cho tài khoản nhận mới",
+        "description": "Giám sát chuyển khoản lớn ban đêm tới tài khoản vừa mở.",
+        "kind": "FRAUD",
+        "when": {
+          "all": [
+            { "field": "channel", "op": "==", "value": "P2P" },
+            { "field": "hour", "op": "between", "value": [0, 5] },
+            { "field": "amount", "op": ">=", "value": 3000000 },
+            { "field": "receiver_account_age_days", "op": "<", "value": 7 }
+          ]
+        },
+        "then": { "decision": "MONITOR", "auth": null, "exempt_auth": false, "hold_seconds": null }
+      },
+      "assumptions": [
+        { "phrase": "ban đêm", "interpretation": "giờ giao dịch từ 0 đến 5", "editable": true },
+        { "phrase": "tài khoản nhận mới mở", "interpretation": "tuổi tài khoản nhận dưới 7 ngày", "editable": true },
+        { "phrase": "chuyển khoản", "interpretation": "kênh chuyển tiền cá nhân (P2P)", "editable": true }
+      ],
+      "clarifying_questions": [],
+      "unsupported_parts": []
+    }
+  },
+  {
+    "requirement": "Rút tiền trên ngưỡng sinh trắc học mỗi lần khi đang dùng thiết bị mới thì chặn lại.",
+    "output": {
+      "status": "OK",
+      "rule": {
+        "name": "Rút tiền lớn trên thiết bị mới",
+        "description": "Chặn rút tiền vượt ngưỡng sinh trắc học/lần khi thiết bị mới xuất hiện gần đây.",
+        "kind": "FRAUD",
+        "when": {
+          "all": [
+            { "field": "channel", "op": "==", "value": "WITHDRAW" },
+            { "field": "amount", "op": ">", "value": { "param": "biometric_per_tx_threshold" } },
+            { "field": "is_new_device", "op": "==", "value": true }
+          ]
+        },
+        "then": { "decision": "BLOCK", "auth": null, "exempt_auth": false, "hold_seconds": null }
+      },
+      "assumptions": [
+        { "phrase": "thiết bị mới", "interpretation": "thiết bị xuất hiện trong 7 ngày gần đây (trường is_new_device)", "editable": false }
+      ],
+      "clarifying_questions": [],
+      "unsupported_parts": []
+    }
+  },
+  {
+    "requirement": "Thanh toán QR từ địa chỉ IP nước ngoài lúc 1 đến 3 giờ sáng thì yêu cầu OTP.",
+    "output": {
+      "status": "OK",
+      "rule": {
+        "name": "Thanh toán QR rạng sáng yêu cầu OTP",
+        "description": "Yêu cầu OTP cho thanh toán QR lúc 1–3 giờ sáng.",
+        "kind": "FRAUD",
+        "when": {
+          "all": [
+            { "field": "channel", "op": "==", "value": "MERCHANT_QR" },
+            { "field": "hour", "op": "between", "value": [1, 3] }
+          ]
+        },
+        "then": { "decision": null, "auth": "OTP", "exempt_auth": false, "hold_seconds": null }
+      },
+      "assumptions": [
+        { "phrase": "1 đến 3 giờ sáng", "interpretation": "giờ giao dịch từ 1 đến 3 (gồm cả khung 3:00–3:59)", "editable": true }
+      ],
+      "clarifying_questions": [],
+      "unsupported_parts": [
+        "\"địa chỉ IP nước ngoài\" — danh mục trường không có thông tin IP/quốc gia nên luật đang áp dụng cho mọi thanh toán QR trong khung giờ này"
+      ]
+    }
+  }
+]

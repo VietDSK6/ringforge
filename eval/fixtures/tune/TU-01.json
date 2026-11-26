@@ -1,0 +1,40 @@
+{
+  "id": "TU-01",
+  "requirement_vi": "Tài khoản dưới 14 ngày tuổi nhận tiền từ 3 người khác nhau trong 60 phút và rút đi từ 80% số tiền nhận trở lên thì giữ 150 giây.",
+  "category": "CLEAN",
+  "gold_status": "OK",
+  "gold_rule": {
+    "when": {
+      "all": [
+        {
+          "field": "sender_account_age_days",
+          "op": "<",
+          "value": 14
+        },
+        {
+          "field": "sender_distinct_inbound_60m",
+          "op": ">=",
+          "value": 3
+        },
+        {
+          "field": "sender_outbound_ratio_60m_pct",
+          "op": ">=",
+          "value": 80
+        },
+        {
+          "field": "channel",
+          "op": "==",
+          "value": "WITHDRAW"
+        }
+      ]
+    },
+    "then": {
+      "decision": "HOLD",
+      "hold_seconds": 150
+    }
+  },
+  "gold_assumptions": [],
+  "gold_violations": [],
+  "gold_repair_must": null,
+  "notes": ""
+}

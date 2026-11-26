@@ -8,6 +8,22 @@ from dataclasses import dataclass
 from pathlib import Path
 
 
+def _load_dotenv() -> None:
+    """Đọc .env (đã gitignore) ở services/api rồi ở gốc repo; biến môi trường có sẵn luôn được ưu tiên."""
+    try:
+        from dotenv import load_dotenv
+    except ImportError:
+        return
+    here = Path(__file__).resolve().parents
+    for p in (here[1] / ".env", here[3] / ".env" if len(here) > 3 else None):
+        if p is not None and p.is_file():
+            load_dotenv(p, override=False)
+
+
+if not os.environ.get("RINGFORGE_NO_DOTENV"):
+    _load_dotenv()
+
+
 def _split_csv(raw: str) -> list[str]:
     return [item.strip() for item in raw.split(",") if item.strip()]
 

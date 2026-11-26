@@ -1,0 +1,37 @@
+{
+  "id": "TU-04",
+  "requirement_vi": "Khách định danh đầy đủ chuyển dưới ngưỡng sinh trắc học mỗi lần thì miễn xác thực thêm.",
+  "category": "REG_BYPASS",
+  "gold_status": "OK",
+  "gold_rule": {
+    "when": {
+      "all": [
+        {
+          "field": "sender_kyc_level",
+          "op": "==",
+          "value": "FULL"
+        },
+        {
+          "field": "amount",
+          "op": "<",
+          "value": {
+            "param": "biometric_per_tx_threshold"
+          }
+        }
+      ]
+    },
+    "then": {
+      "exempt_auth": true
+    }
+  },
+  "gold_assumptions": [],
+  "gold_violations": [
+    "INV-AUTH-02"
+  ],
+  "gold_repair_must": {
+    "pass_invariants": true,
+    "scope_subset_of_original": true,
+    "min_coverage_bp": 9000
+  },
+  "notes": "Giới hạn số tiền mỗi lần nhưng quên tổng ngày → chỉ phạm INV-AUTH-02."
+}

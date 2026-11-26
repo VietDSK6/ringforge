@@ -6,6 +6,7 @@ import z3
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.ai.client import get_client
 from app.api import errors
 from app.api.sessions import router as sessions_router
 from app.api.verify import router as verify_router
@@ -47,4 +48,5 @@ def health() -> dict[str, str]:
         "status": "ok",
         "z3_version": z3.get_version_string(),
         "app_env": settings.app_env,
+        "llm": "ready" if get_client().available else "fallback",
     }

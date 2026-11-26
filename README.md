@@ -33,7 +33,12 @@ cp .env.example .env.local        # NEXT_PUBLIC_API_URL=http://localhost:8000
 npm install && npm run dev
 ```
 
-Biến môi trường: xem [`.env.example`](.env.example) (đầy đủ), `services/api/.env.example`, `apps/web/.env.example`.
+Biến môi trường: xem [`.env.example`](.env.example) (đầy đủ), `services/api/.env.example`, `apps/web/.env.example`. API tự đọc `services/api/.env` và `.env` ở gốc repo (đã gitignore) — đặt `LLM_API_KEY`, `LLM_MODEL` ở đó. Không có key, API vẫn chạy: biên dịch bằng AI trả lỗi `LLM_UNAVAILABLE`, mọi phần kiểm chứng/backtest vẫn hoạt động.
+
+```bash
+# Đo biên dịch trên 10 câu tune với LLM thật (DoD T2.3: ≥ 8/10 hợp lệ schema) → eval/tune_report.md
+services/api/.venv/bin/python eval/run_tune.py
+```
 
 ```bash
 # API bằng Docker (giống môi trường deploy) — chạy từ GỐC REPO vì image cần data/seed/
@@ -104,7 +109,7 @@ Thứ tự: deploy API → lấy URL API → deploy web với URL đó → lấy
 ## Công cụ AI dùng khi phát triển
 
 - **Claude Code** (Anthropic, model Claude Opus 5.5): hỗ trợ dựng khung dự án, viết mã và test theo đặc tả trong `docs/`. Các prompt phiên làm việc lưu ở [`KICKOFF_PROMPTS.md`](KICKOFF_PROMPTS.md).
-- Model LLM dùng trong sản phẩm: sẽ ghi khi tích hợp (Ngày 2).
+- **Model LLM dùng trong sản phẩm:** OpenAI qua Responses API với Structured Outputs (JSON Schema strict); tên model đặt bằng `LLM_MODEL`/`LLM_MODEL_FALLBACK`. Model cụ thể sẽ chốt sau khi chạy `eval/run_tune.py` (docs/05 mục 1) và ghi lại tại đây. LLM chỉ biên dịch tiếng Việt → DSL và đề xuất bản sửa; mọi kết luận PASS/FAIL, số liệu tiền và số giao dịch do code tất định (Z3, pandas) tính.
 
 ## Thư viện mã nguồn mở
 
@@ -117,6 +122,10 @@ Thứ tự: deploy API → lấy URL API → deploy web với URL đó → lấy
 | pandas | Backtest | BSD-3-Clause |
 | NumPy | Tính toán mảng | BSD-3-Clause |
 | PyArrow | Đọc/ghi Parquet | Apache-2.0 |
+| SQLAlchemy | Truy cập CSDL (SQLite/Postgres) | MIT |
+| psycopg 3 | Driver Postgres | LGPL-3.0 |
+| OpenAI Python SDK | Gọi LLM | Apache-2.0 |
+| python-dotenv | Đọc `.env` | BSD-3-Clause |
 | pytest, HTTPX | Kiểm thử | MIT, BSD-3-Clause |
 | Next.js, React | Giao diện | MIT |
 | Tailwind CSS | Style | MIT |
