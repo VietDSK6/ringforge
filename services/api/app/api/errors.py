@@ -16,6 +16,22 @@ def error_body(code: str, message_vi: str, details: Any = None) -> dict[str, Any
 
 
 def install(app: FastAPI) -> None:
+    from app.store.repo import Forbidden, NotFound
+
+    @app.exception_handler(NotFound)
+    async def _not_found(_: Request, exc: NotFound) -> JSONResponse:
+        return JSONResponse(
+            status_code=404,
+            content=error_body("NOT_FOUND", "Không tìm thấy phiên sandbox (có thể đã hết hạn). Bấm \"Vào sandbox\" để tạo phiên mới."),
+        )
+
+    @app.exception_handler(Forbidden)
+    async def _forbidden(_: Request, exc: Forbidden) -> JSONResponse:
+        return JSONResponse(
+            status_code=403,
+            content=error_body("FORBIDDEN", f"Luật {exc} là luật pháp lý bị khóa, không sửa qua giao diện.", {"rule_id": str(exc)}),
+        )
+
     @app.exception_handler(RequestValidationError)
     async def _validation(_: Request, exc: RequestValidationError) -> JSONResponse:
         details = [{"loc": [str(p) for p in e["loc"]], "type": e["type"]} for e in exc.errors()]

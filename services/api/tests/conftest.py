@@ -1,6 +1,14 @@
-import pytest
+import os
+import tempfile
+from pathlib import Path
 
-from app.data.generate import generate
+# DB riêng cho test (SQLite tạm) — đặt trước khi import app để settings đọc được.
+os.environ["DATABASE_URL"] = f"sqlite:///{Path(tempfile.mkdtemp(prefix='rf-test-')) / 'test.sqlite3'}"
+os.environ.pop("LLM_API_KEY", None)
+
+import pytest  # noqa: E402
+
+from app.data.generate import generate  # noqa: E402
 
 
 @pytest.fixture(scope="session")

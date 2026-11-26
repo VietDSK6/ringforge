@@ -1,14 +1,28 @@
 from __future__ import annotations
 
+from contextlib import asynccontextmanager
+
 import z3
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api import errors
+from app.api.sessions import router as sessions_router
 from app.api.verify import router as verify_router
 from app.config import settings
+from app.store import repo
+from app.store.db import session_factory
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    with session_factory()() as db:  # tạo bảng nếu chưa có + dọn phiên quá 3 ngày (docs/06 mục 3)
+        repo.cleanup_stale_sessions(db)
+    yield
+
 
 app = FastAPI(
+    lifespan=lifespan,
     title="RingForge API",
     version="0.1.0",
     description="CI/CD cho chính sách rủi ro: kiểm chứng hình thức bộ luật chống gian lận (dữ liệu tổng hợp).",
@@ -23,6 +37,7 @@ app.add_middleware(
     allow_headers=["Content-Type"],
 )
 app.include_router(verify_router)
+app.include_router(sessions_router)
 
 
 # HEAD để dịch vụ ping giữ ấm (UptimeRobot) không nhận 405 → báo "down" sai.

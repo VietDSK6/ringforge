@@ -38,6 +38,24 @@ def seed_pack() -> dict[str, Any]:
 
 
 @lru_cache(maxsize=1)
+def transactions() -> Any:
+    """Bảng giao dịch tổng hợp trong RAM (docs/04 mục 1). Thiếu file (máy dev) thì sinh và ghi ra."""
+    import pandas as pd
+
+    path = seed_path(TX_FILE)
+    if path.exists():
+        return pd.read_parquet(path)
+    from app.data.generate import generate, write_parquet
+
+    df = generate()
+    try:
+        write_parquet(df, path)
+    except OSError:
+        pass  # thư mục chỉ đọc: vẫn dùng bản trong RAM
+    return df
+
+
+@lru_cache(maxsize=1)
 def seed_rules() -> list[dict[str, Any]]:
     """Bộ luật seed đã qua VC-01 (dạng dict chuẩn hóa)."""
     from app.dsl.validator import check_rules
