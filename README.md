@@ -21,6 +21,7 @@ Yêu cầu: Python 3.11 (khuyến nghị [uv](https://docs.astral.sh/uv/)), Node
 cd services/api
 uv venv --python 3.11 .venv && source .venv/bin/activate
 uv pip install -r requirements-dev.txt
+python -m app.data.generate        # sinh data/seed/transactions.parquet (tất định, seed 20261203)
 pytest -q
 uvicorn app.main:app --reload --port 8000
 ```
@@ -40,6 +41,32 @@ docker build -f services/api/Dockerfile -t ringforge-api .
 docker run --rm -p 8000:8000 -e CORS_ORIGINS=http://localhost:3000 ringforge-api
 ```
 
+## Dùng API
+
+Tài liệu tương tác (OpenAPI, có ví dụ): `<API>/docs`. Mọi số tiền là số nguyên VNĐ.
+
+```bash
+# Danh mục trường của Policy DSL (17 trường, toán tử, nhãn tiếng Việt)
+curl -s http://localhost:8000/catalog
+```
+
+```bash
+# Kiểm chứng: luật Demo 1 + toàn bộ luật seed đang chạy → FAIL kèm phản ví dụ amount = 10.000.001
+curl -s -X POST http://localhost:8000/verify -H 'Content-Type: application/json' -d '{
+  "include_seed_rules": true,
+  "rules": [{
+    "id": "DRAFT-0001", "name": "Fast-path khách thân thiết", "kind": "FRICTION", "status": "CANDIDATE",
+    "when": {"all": [
+      {"field": "sender_account_age_days", "op": ">", "value": 365},
+      {"field": "receiver_is_familiar", "op": "==", "value": true}
+    ]},
+    "then": {"exempt_auth": true}
+  }]
+}'
+```
+
+`/verify` nhận `rules` (tối đa 50 luật), `include_seed_rules` (gộp luật seed; luật gửi lên cùng `id` thay luật seed) và `policy_pack` (bỏ trống = Policy Pack seed). Kết quả: `verdict` (`PASS` · `PASS_WITH_WARNINGS` · `FAIL` · `UNKNOWN` khi Z3 hết thời gian — không bao giờ coi là đạt), `checks` (VC-01 lỗi cú pháp/kiểu, VC-03 luật chết, VC-04 vi phạm invariant kèm phản ví dụ và luật gây lỗi), `rules_vi` (câu tiếng Việt của từng luật).
+
 ## Deploy
 
 Thứ tự: deploy API → lấy URL API → deploy web với URL đó → lấy domain web → cập nhật `CORS_ORIGINS` của API.
@@ -54,7 +81,7 @@ Thứ tự: deploy API → lấy URL API → deploy web với URL đó → lấy
    - `APP_ENV` = `staging` (bản nộp: `production`)
    - `CORS_ORIGINS` = `https://<project>.vercel.app` (nhiều origin phân tách bằng dấu phẩy, ví dụ thêm `http://localhost:3000` khi cần gọi từ máy local; không dùng `*`)
    - Không cần đặt `PORT`: Render tự cấp, container đọc `${PORT:-8000}`.
-6. Deploy xong kiểm tra: `curl https://<service>.onrender.com/health` và `/spike/z3`.
+6. Deploy xong kiểm tra: `curl https://<service>.onrender.com/health` và lệnh `/verify` ở mục "Dùng API" (đổi `localhost:8000` thành URL Render).
 
 ### Web trên Vercel
 
@@ -72,7 +99,7 @@ Thứ tự: deploy API → lấy URL API → deploy web với URL đó → lấy
 | RAM nhàn rỗi | `docker stats` / Render Metrics | ~59 MiB | |
 | Thời gian sẵn sàng | container start → `/health` 200 | ~1 s | |
 | Cold start | dòng "phản hồi sau … ms" trên trang chủ sau khi service nghỉ | — | |
-| `/spike/z3` | trường `ms` trong response | 22 ms | |
+| `/verify` Demo 1 | trường `ms` trong response | (đo sau) | |
 
 ## Công cụ AI dùng khi phát triển
 
