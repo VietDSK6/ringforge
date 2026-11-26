@@ -17,7 +17,8 @@ app.add_middleware(
 )
 
 
-@app.get("/health")
+# HEAD để dịch vụ ping giữ ấm (UptimeRobot) không nhận 405 → báo "down" sai.
+@app.api_route("/health", methods=["GET", "HEAD"])
 def health() -> dict[str, str]:
     return {
         "status": "ok",

@@ -49,7 +49,7 @@ Thứ tự: deploy API → lấy URL API → deploy web với URL đó → lấy
 
 1. **New → Web Service** → chọn repo GitHub.
 2. **Root Directory**: `services/api` · **Language/Runtime**: Docker (Render tự dùng `services/api/Dockerfile`).
-3. **Instance type**: gói trả phí thấp nhất, **không sleep** (docs/06 mục 5). Free tier sleep sau một lúc không có request → giám khảo phải chờ cold start.
+3. **Instance type**: gói trả phí thấp nhất, **không sleep** (docs/06 mục 5). Nếu dùng Free: service ngủ sau 15 phút không có request (thức lại mất khoảng 1 phút) → tạo monitor UptimeRobot HTTP(s) gọi `https://<service>.onrender.com/health` mỗi 5 phút (`/health` nhận cả GET và HEAD), giữ đến hết 11/12. Free có 750 giờ/tháng cho mỗi workspace: chỉ đủ cho **một** service chạy 24/7.
 4. **Health Check Path**: `/health`.
 5. **Environment**:
    - `APP_ENV` = `staging` (bản nộp: `production`)

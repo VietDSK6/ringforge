@@ -16,6 +16,12 @@ def test_health_ok():
     assert body["app_env"]
 
 
+def test_health_accepts_head_for_uptime_pings():
+    res = client.head("/health")
+    assert res.status_code == 200
+    assert res.content == b""
+
+
 def test_cors_allows_configured_origin_only():
     ok = client.get("/health", headers={"Origin": "http://localhost:3000"})
     assert ok.headers.get("access-control-allow-origin") == "http://localhost:3000"
