@@ -4,17 +4,21 @@ import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
 import { useEffect, useId, useState } from "react";
 
+import { Callout } from "@/components/Callout";
+import { Icon, type IconName } from "@/components/Icon";
+import { PageSkeleton } from "@/components/PageSkeleton";
+import { SourceTag } from "@/components/SourceTag";
 import { VerdictBadge } from "@/components/VerdictBadge";
 import { ApiError, api } from "@/lib/api";
 import { formatInt, formatVnd } from "@/lib/format";
 import type { AuditEvent, ChangeSet, ChangeSetState } from "@/lib/types";
 
 const STATE: Record<ChangeSetState, { label: string; cls: string }> = {
-  DRAFT: { label: "Chưa đạt kiểm chứng", cls: "bg-red-50 text-danger ring-red-200 dark:bg-red-950 dark:ring-red-900" },
-  VERIFIED: { label: "Chờ duyệt", cls: "bg-violet-50 text-accent ring-violet-200 dark:bg-violet-950 dark:ring-violet-900" },
-  SHADOW: { label: "Chờ duyệt · đã chạy shadow", cls: "bg-violet-50 text-accent ring-violet-200 dark:bg-violet-950 dark:ring-violet-900" },
-  APPROVED: { label: "Đã phê duyệt", cls: "bg-emerald-50 text-ok ring-emerald-200 dark:bg-emerald-950 dark:ring-emerald-900" },
-  REJECTED: { label: "Đã từ chối", cls: "bg-zinc-100 text-muted ring-zinc-300 dark:bg-zinc-900 dark:ring-zinc-700" },
+  DRAFT: { label: "Chưa đạt kiểm chứng", cls: "tone-fail" },
+  VERIFIED: { label: "Chờ duyệt", cls: "tone-accent" },
+  SHADOW: { label: "Chờ duyệt · đã chạy shadow", cls: "tone-accent" },
+  APPROVED: { label: "Đã phê duyệt", cls: "tone-pass" },
+  REJECTED: { label: "Đã từ chối", cls: "tone-unknown" },
 };
 const OP_VI = { add: "Thêm", replace: "Sửa", retire: "Ngừng" } as const;
 const ACTOR_VI: Record<string, string> = {
@@ -44,6 +48,7 @@ const ACTION_VI: Record<string, string> = {
   "ruleset.export": "Xuất bộ luật",
 };
 const AUTOMATIC = new Set(["verify.run", "backtest.run"]);
+const ACTOR_ICON: Record<string, IconName> = { ai: "spark", system: "cpu", "user:proposer": "user", "user:approver": "review" };
 
 const time = (iso: string) =>
   new Date(iso).toLocaleString("vi-VN", { hour: "2-digit", minute: "2-digit", second: "2-digit", day: "2-digit", month: "2-digit" });
@@ -84,30 +89,33 @@ export function ReviewView() {
 
   return (
     <div className="space-y-8">
-      <header className="space-y-1">
-        <h1 className="text-2xl font-bold tracking-tight">Duyệt thay đổi</h1>
-        <p className="text-sm text-muted">
+      <header>
+        <h1 className="page-title">Duyệt thay đổi</h1>
+        <p className="page-lede">
           Mỗi change set mang theo kết quả kiểm chứng, backtest và vùng giao dịch đổi kết quả. Không phê duyệt được change set còn vi phạm
           invariant.
         </p>
       </header>
 
       {error && (
-        <p role="alert" className="rounded-xl border border-red-300 bg-red-50 p-3 text-sm text-danger dark:border-red-900 dark:bg-red-950">
+        <Callout tone="fail" role="alert">
           {error}
-        </p>
+        </Callout>
       )}
 
+      {sets === null && !error && <PageSkeleton label="Đang tải change set…" rows={3} />}
+
       {sets !== null && sets.length === 0 && (
-        <div className="space-y-2 rounded-2xl border border-dashed border-line p-6 text-sm">
-          <p>Chưa có change set nào trong phiên này.</p>
-          <p className="text-muted">
+        <div className="empty flex flex-col items-center gap-2 px-6 py-10 text-center">
+          <Icon name="review" className="size-6 text-faint" />
+          <p className="font-medium text-foreground">Chưa có change set nào trong phiên này.</p>
+          <p>
             Tạo từ{" "}
-            <Link href={`/s/${sid}/studio?demo=1`} className="font-medium text-accent underline">
+            <Link href={`/s/${sid}/studio?demo=1`} className="link">
               Rule Studio
             </Link>{" "}
             sau khi kiểm chứng một luật, hoặc từ{" "}
-            <Link href={`/s/${sid}/compare`} className="font-medium text-accent underline">
+            <Link href={`/s/${sid}/compare`} className="link">
               So sánh phương án
             </Link>
             .
@@ -116,21 +124,24 @@ export function ReviewView() {
       )}
 
       {sets && sets.length > 0 && (
-        <div className="grid gap-6 lg:grid-cols-[16rem_1fr]">
-          <nav aria-label="Danh sách change set">
-            <ul className="space-y-2">
+        <div className="grid items-start gap-6 lg:grid-cols-[17rem_1fr]">
+          <nav aria-label="Danh sách change set" className="lg:sticky lg:top-12">
+            <ul className="space-y-1.5">
               {sets.map((c) => (
                 <li key={c.id}>
                   <Link
                     href={`/s/${sid}/review?cs=${c.id}`}
                     aria-current={c.id === selected?.id ? "page" : undefined}
-                    className={`block rounded-xl border p-3 text-sm ${c.id === selected?.id ? "border-accent bg-surface" : "border-line hover:bg-surface"}`}
+                    className={`relative block rounded-lg border p-3 text-sm ${
+                      c.id === selected?.id
+                        ? "border-line-strong bg-surface shadow-sm"
+                        : "border-transparent text-muted hover:border-line hover:bg-surface hover:text-foreground"
+                    }`}
                   >
-                    <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ring-1 ${STATE[c.state].cls}`}>
-                      {STATE[c.state].label}
-                    </span>
-                    <span className="mt-1 block font-medium">{c.items.map((i) => `${OP_VI[i.op]} ${i.rule_id}`).join(", ")}</span>
-                    <span className="block text-xs text-muted">{time(c.created_at)}</span>
+                    {c.id === selected?.id && <span aria-hidden className="absolute inset-y-2.5 left-0 w-0.5 rounded-full bg-accent" />}
+                    <span className={`chip text-xs font-semibold ${STATE[c.state].cls}`}>{STATE[c.state].label}</span>
+                    <span className="mt-1.5 block font-medium text-foreground">{c.items.map((i) => `${OP_VI[i.op]} ${i.rule_id}`).join(", ")}</span>
+                    <span className="num block text-xs text-muted">{time(c.created_at)}</span>
                   </Link>
                 </li>
               ))}
@@ -148,28 +159,31 @@ export function ReviewView() {
 
       <section aria-labelledby={`${uid}-audit`} className="space-y-3">
         <div className="flex flex-wrap items-baseline justify-between gap-3">
-          <h2 id={`${uid}-audit`} className="text-lg font-semibold">
+          <h2 id={`${uid}-audit`} className="section-title">
             Nhật ký kiểm toán
           </h2>
-          <label className="inline-flex min-h-11 items-center gap-2 text-sm">
-            <input type="checkbox" checked={showAuto} onChange={(e) => setShowAuto(e.target.checked)} />
+          <label className="inline-flex min-h-11 cursor-pointer items-center gap-2.5 text-sm">
+            <input type="checkbox" className="size-4" checked={showAuto} onChange={(e) => setShowAuto(e.target.checked)} />
             Hiện cả các lần kiểm chứng/backtest tự động
           </label>
         </div>
-        <ol className="divide-y divide-line rounded-2xl border border-line bg-surface">
+        <ol className="panel divide-y divide-line">
           {visible.map((e) => (
-            <li key={e.id} className="grid gap-1 p-3 text-sm sm:grid-cols-[8.5rem_8rem_1fr]">
-              <time dateTime={e.created_at} className="tabular-nums text-muted">
+            <li key={e.id} className="grid gap-x-4 gap-y-1 px-4 py-3 text-sm sm:grid-cols-[8.5rem_9.5rem_1fr] sm:px-5">
+              <time dateTime={e.created_at} className="num text-muted">
                 {time(e.created_at)}
               </time>
-              <span className={`font-semibold ${e.actor === "ai" ? "text-accent" : ""}`}>{ACTOR_VI[e.actor] ?? e.actor}</span>
-              <div>
+              <span className={`inline-flex items-start gap-1.5 font-semibold ${e.actor === "ai" ? "text-accent" : ""}`}>
+                <Icon name={ACTOR_ICON[e.actor] ?? "user"} className="mt-0.5 size-4" />
+                {ACTOR_VI[e.actor] ?? e.actor}
+              </span>
+              <div className="min-w-0">
                 <p>{ACTION_VI[e.action] ?? e.action}</p>
                 <AuditDetail e={e} />
               </div>
             </li>
           ))}
-          {visible.length === 0 && <li className="p-3 text-sm text-muted">Chưa có thao tác nào.</li>}
+          {visible.length === 0 && <li className="px-4 py-6 text-center text-sm text-muted">Chưa có thao tác nào.</li>}
         </ol>
       </section>
     </div>
@@ -188,9 +202,9 @@ function AuditDetail({ e }: { e: AuditEvent }) {
   const ai = e.ai_call;
   return (
     <>
-      {bits.length > 0 && <p className="text-xs text-muted">{bits.join(" · ")}</p>}
+      {bits.length > 0 && <p className="text-xs leading-5 text-muted">{bits.join(" · ")}</p>}
       {ai && (
-        <p className="text-xs text-muted">
+        <p className="text-xs leading-5 break-words text-muted">
           Model <span className="font-mono">{ai.model}</span> · prompt <span className="font-mono">{ai.prompt_version}</span> · hash{" "}
           <span className="font-mono">{ai.prompt_hash}</span>
           {ai.from_cache ? " · kết quả đã lưu" : ""}
@@ -204,10 +218,10 @@ function Metric({ label, before, after, money = true }: { label: string; before:
   const fmt = money ? formatVnd : formatInt;
   const d = after - before;
   return (
-    <div className="rounded-xl bg-background p-3">
-      <dt className="text-xs text-muted">{label}</dt>
-      <dd className="font-semibold tabular-nums">{fmt(after)}</dd>
-      <dd className="text-xs tabular-nums text-muted">
+    <div className="space-y-0.5 bg-surface p-3">
+      <dt className="label">{label}</dt>
+      <dd className="num text-lg font-semibold">{fmt(after)}</dd>
+      <dd className="num text-xs text-muted">
         {d === 0 ? "không đổi" : `${d > 0 ? "+" : "−"}${fmt(Math.abs(d))}`} so với hiện hành
       </dd>
     </div>
@@ -243,25 +257,26 @@ function ChangeSetDetail({ cs, onDecided }: { cs: ChangeSet; onDecided: () => vo
 
   return (
     <article aria-labelledby={`${uid}-title`} className="min-w-0 space-y-5">
-      <header className="flex flex-wrap items-center gap-3">
-        <h2 id={`${uid}-title`} className="text-xl font-bold tracking-tight">
+      <header className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <h2 id={`${uid}-title`} className="page-title text-[1.375rem]">
           Change set · {cs.items.length} thay đổi
         </h2>
-        <span className={`rounded-full px-2.5 py-0.5 text-sm font-semibold ring-1 ${STATE[cs.state].cls}`}>{STATE[cs.state].label}</span>
-        <span className="text-xs text-muted">Policy Pack {cs.pack_version}</span>
+        <span className={`chip font-semibold ${STATE[cs.state].cls}`}>{STATE[cs.state].label}</span>
+        <span className="font-mono text-xs text-muted">Policy Pack {cs.pack_version}</span>
       </header>
-      {cs.note && <p className="text-sm">Người đề xuất ghi: “{cs.note}”</p>}
+      {cs.note && <p className="text-sm text-muted">Người đề xuất ghi: “{cs.note}”</p>}
       <SummaryBlock cs={cs} onDone={onDecided} />
 
       <ul className="space-y-3">
         {cs.items.map((it) => (
-          <li key={`${it.op}-${it.rule_id}`} className="space-y-2 rounded-2xl border border-line bg-surface p-4 text-sm">
-            <p className="font-semibold">
+          <li key={`${it.op}-${it.rule_id}`} className="panel space-y-2 p-4 text-sm leading-6 sm:px-5">
+            <p className="flex flex-wrap items-center gap-2 font-semibold">
               {OP_VI[it.op]} <span className="font-mono">{it.rule_id}</span>
               {it.rule?.provenance?.created_by && it.rule.provenance.created_by !== "human" && (
-                <span className="ml-2 rounded-full bg-violet-100 px-2 py-0.5 text-xs font-medium text-violet-900 dark:bg-violet-950 dark:text-violet-200">
-                  {it.rule.provenance.created_by === "det_repair" ? "Sửa tất định" : "AI đề xuất"}
-                </span>
+                <SourceTag
+                  source={it.rule.provenance.created_by === "det_repair" ? "det" : "ai"}
+                  label={it.rule.provenance.created_by === "det_repair" ? "Sửa tất định" : "AI đề xuất"}
+                />
               )}
             </p>
             {it.before_vi && (
@@ -278,23 +293,23 @@ function ChangeSetDetail({ cs, onDecided }: { cs: ChangeSet; onDecided: () => vo
         ))}
       </ul>
 
-      <section aria-labelledby={`${uid}-verify`} className="space-y-2 rounded-2xl border border-line bg-surface p-4">
+      <section aria-labelledby={`${uid}-verify`} className="panel space-y-3 p-4 sm:p-5">
         <div className="flex flex-wrap items-center gap-3">
-          <h3 id={`${uid}-verify`} className="font-semibold">
+          <h3 id={`${uid}-verify`} className="section-title">
             Kiểm chứng (Z3)
           </h3>
           <VerdictBadge verdict={verify.verdict} />
-          <span className="text-xs text-muted">{verify.checked.invariants.length} invariant · {verify.ms} ms</span>
+          <span className="num text-xs text-muted">{verify.checked.invariants.length} invariant · {verify.ms} ms</span>
         </div>
         {errors.length > 0 && (
-          <ul className="list-disc space-y-1 pl-5 text-sm text-danger">
+          <ul className="list-disc space-y-1 pl-5 text-sm leading-6 text-fail">
             {errors.map((c, i) => (
               <li key={i}>{c.message_vi}</li>
             ))}
           </ul>
         )}
         {warns.length > 0 && (
-          <ul className="list-disc space-y-1 pl-5 text-sm text-warn">
+          <ul className="list-disc space-y-1 pl-5 text-sm leading-6 text-warn">
             {warns.map((c, i) => (
               <li key={i}>{c.message_vi}</li>
             ))}
@@ -302,40 +317,44 @@ function ChangeSetDetail({ cs, onDecided }: { cs: ChangeSet; onDecided: () => vo
         )}
       </section>
 
-      <section aria-labelledby={`${uid}-bt`} className="space-y-3 rounded-2xl border border-line bg-surface p-4">
-        <h3 id={`${uid}-bt`} className="font-semibold">
-          Backtest trên {bt.days.length} ngày dữ liệu tổng hợp <span className="text-xs font-normal text-muted">(hệ thống tính)</span>
-        </h3>
-        <dl className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+      <section aria-labelledby={`${uid}-bt`} className="panel space-y-3 p-4 sm:p-5">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h3 id={`${uid}-bt`} className="section-title">
+            Backtest trên {bt.days.length} ngày dữ liệu tổng hợp
+          </h3>
+          <SourceTag source="system" />
+        </div>
+        <dl className="grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-line bg-line sm:grid-cols-2 xl:grid-cols-4">
           <Metric label="Tổn thất ròng L_net" before={bt.before.l_net} after={bt.after.l_net} />
           <Metric label="Lọt gian lận" before={bt.before.fn_loss} after={bt.after.fn_loss} />
           <Metric label="Giao dịch thật bị giữ/chặn" before={bt.before.fp_hold + bt.before.fp_block} after={bt.after.fp_hold + bt.after.fp_block} money={false} />
           <Metric label="Giao dịch thật phải sinh trắc học" before={bt.before.friction_biometric} after={bt.after.friction_biometric} money={false} />
         </dl>
-        <p className={`text-sm ${bt.after.valid ? "text-ok" : "font-semibold text-danger"}`}>
+        <p className={`flex flex-wrap items-start gap-x-2 text-sm leading-6 ${bt.after.valid ? "text-pass" : "font-semibold text-fail"}`}>
+          <Icon name={bt.after.valid ? "check" : "x"} className="mt-1 size-4" />
           {bt.after.valid
-            ? "✅ Không giao dịch nào trong dữ liệu phạm invariant sau thay đổi."
-            : `❌ Giao dịch trong dữ liệu phạm invariant sau thay đổi: ${bt.after.compliance_exposure
+            ? "Không giao dịch nào trong dữ liệu phạm invariant sau thay đổi."
+            : `Giao dịch trong dữ liệu phạm invariant sau thay đổi: ${bt.after.compliance_exposure
                 .filter((e) => e.count > 0)
                 .map((e) => `${e.invariant} ${formatInt(e.count)} (${formatVnd(e.amount_sum)})`)
                 .join(" · ")}.`}{" "}
-          <span className="text-muted">Δ L_net: {signedVnd(bt.delta.l_net)}</span>
+          <span className="num font-normal text-muted">Δ L_net: {signedVnd(bt.delta.l_net)}</span>
         </p>
       </section>
 
-      <section aria-labelledby={`${uid}-diff`} className="space-y-2 rounded-2xl border border-line bg-surface p-4">
-        <h3 id={`${uid}-diff`} className="font-semibold">
+      <section aria-labelledby={`${uid}-diff`} className="panel space-y-2 p-4 sm:p-5">
+        <h3 id={`${uid}-diff`} className="section-title">
           Giao dịch đổi kết quả (semantic diff)
         </h3>
-        <p className="text-sm">{diff.message_vi}</p>
+        <p className="text-sm leading-6">{diff.message_vi}</p>
         {diff.diffs.length > 0 && (
-          <ul className="space-y-1 text-sm">
+          <ul className="space-y-1.5 text-sm leading-6">
             {diff.diffs.map((k) => (
               <li key={k.label_vi} className="flex flex-wrap gap-x-2">
-                <span className={k.direction === "looser" ? "font-semibold text-danger" : k.direction === "stricter" ? "text-warn" : ""}>
+                <span className={k.direction === "looser" ? "font-semibold text-fail" : k.direction === "stricter" ? "text-warn" : ""}>
                   {k.direction === "looser" ? "Nới lỏng" : k.direction === "stricter" ? "Chặt hơn" : "Đổi"}: {k.label_vi}
                 </span>
-                <span className="text-muted">
+                <span className="num text-muted">
                   · ví dụ {formatVnd(Number(k.counterexample.amount))}
                   {Number(k.counterexample.daily_total_after) > Number(k.counterexample.amount)
                     ? ` (tổng chi trong ngày ${formatVnd(Number(k.counterexample.daily_total_after))})`
@@ -350,14 +369,15 @@ function ChangeSetDetail({ cs, onDecided }: { cs: ChangeSet; onDecided: () => vo
 
       <ShadowSection cs={cs} onDone={onDecided} />
 
-      <section aria-labelledby={`${uid}-decide`} className="space-y-3 rounded-2xl border-2 border-line bg-surface p-4">
-        <h3 id={`${uid}-decide`} className="font-semibold">
+      <section aria-labelledby={`${uid}-decide`} className="panel space-y-4 border-line-strong p-4 sm:p-5">
+        <h3 id={`${uid}-decide`} className="section-title flex items-center gap-2">
+          <Icon name="review" className="size-5 text-accent" />
           Người duyệt
         </h3>
         {open ? (
           <>
             <div>
-              <label htmlFor={`${uid}-note`} className="text-sm">
+              <label htmlFor={`${uid}-note`} className="label">
                 Ghi chú (bắt buộc khi từ chối)
               </label>
               <textarea
@@ -366,7 +386,7 @@ function ChangeSetDetail({ cs, onDecided }: { cs: ChangeSet; onDecided: () => vo
                 maxLength={1000}
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
-                className="mt-1 w-full rounded-xl border border-zinc-400 bg-background p-3 dark:border-zinc-600"
+                className="field mt-1 resize-y"
               />
             </div>
             <div className="flex flex-wrap items-center gap-3">
@@ -375,34 +395,36 @@ function ChangeSetDetail({ cs, onDecided }: { cs: ChangeSet; onDecided: () => vo
                 onClick={() => decide("approve")}
                 disabled={busy || blocked}
                 aria-describedby={blocked ? `${uid}-blocked` : undefined}
-                className="min-h-12 rounded-xl bg-accent px-6 font-semibold text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40 dark:text-zinc-950"
+                className="btn btn-primary btn-lg"
               >
+                <Icon name="check" />
                 Phê duyệt
               </button>
               <button
                 type="button"
                 onClick={() => decide("reject")}
                 disabled={busy}
-                className="min-h-12 rounded-xl border border-line px-5 font-semibold hover:bg-background disabled:opacity-50"
+                className="btn btn-secondary btn-lg"
               >
                 Từ chối
               </button>
             </div>
             {blocked && (
-              <p id={`${uid}-blocked`} className="text-sm text-danger">
+              <Callout tone="fail" id={`${uid}-blocked`}>
                 Không phê duyệt được: bộ luật sau thay đổi {verify.verdict === "FAIL" ? "còn vi phạm invariant" : "chưa kết luận được"}. Sửa luật
                 (ví dụ bằng “Sửa bằng AI” ở Rule Studio) rồi tạo change set mới.
-              </p>
+              </Callout>
             )}
             {message && (
-              <p role="alert" className="text-sm text-danger">
+              <Callout tone="fail" role="alert">
                 {message}
-              </p>
+              </Callout>
             )}
           </>
         ) : (
-          <p role="status" className="text-sm">
-            {cs.state === "APPROVED" ? "✅ Đã phê duyệt" : "Đã từ chối"}
+          <p role="status" className={`flex flex-wrap items-center gap-x-2 text-sm leading-6 ${cs.state === "APPROVED" ? "text-pass" : ""}`}>
+            {cs.state === "APPROVED" && <Icon name="check" />}
+            {cs.state === "APPROVED" ? "Đã phê duyệt" : "Đã từ chối"}
             {cs.decided_at ? ` lúc ${time(cs.decided_at)}` : ""}
             {cs.decision_note ? ` — “${cs.decision_note}”` : ""}.
             {cs.state === "APPROVED" && " Các luật trong change set đã chuyển sang trạng thái đang chạy."}
@@ -440,9 +462,9 @@ function ShadowSection({ cs, onDone }: { cs: ChangeSet; onDone: () => void }) {
   }
 
   return (
-    <section aria-labelledby={`${uid}-shadow`} className="space-y-3 rounded-2xl border border-line bg-surface p-4">
+    <section aria-labelledby={`${uid}-shadow`} className="panel space-y-3 p-4 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h3 id={`${uid}-shadow`} className="font-semibold">
+        <h3 id={`${uid}-shadow`} className="section-title">
           Shadow trên ngày phát lại (ngày 7)
         </h3>
         {allowed && (
@@ -450,7 +472,7 @@ function ShadowSection({ cs, onDone }: { cs: ChangeSet; onDone: () => void }) {
             type="button"
             onClick={run}
             disabled={busy}
-            className="min-h-11 rounded-xl border border-line px-4 text-sm font-semibold hover:bg-background disabled:opacity-50"
+            className="btn btn-secondary btn-sm"
           >
             {busy ? "Đang chạy shadow…" : sh ? "Chạy lại shadow" : "Chạy shadow trên ngày 7"}
           </button>
@@ -461,53 +483,53 @@ function ShadowSection({ cs, onDone }: { cs: ChangeSet; onDone: () => void }) {
       </p>
       {!allowed && <p className="text-sm text-muted">Chỉ chạy shadow cho change set đã qua kiểm chứng.</p>}
       {error && (
-        <p role="alert" className="text-sm text-danger">
+        <Callout tone="fail" role="alert">
           {error}
-        </p>
+        </Callout>
       )}
       {sh && (
         <>
-          <p className="text-sm">
+          <p className="num text-sm leading-6">
             {formatInt(sh.changed.tx_count)} / {formatInt(sh.n_tx)} giao dịch đổi kết quả: giữ/chặn thêm{" "}
             <strong>{formatInt(sh.fraud_newly_stopped)} giao dịch gian lận</strong> và{" "}
             <strong className={sh.legit_newly_stopped > 0 ? "text-warn" : undefined}>{formatInt(sh.legit_newly_stopped)} giao dịch thật</strong>
             {sh.auth_lost > 0 && (
               <>
-                ; <strong className="text-danger">{formatInt(sh.auth_lost)} giao dịch mất bước xác thực</strong>
+                ; <strong className="text-fail">{formatInt(sh.auth_lost)} giao dịch mất bước xác thực</strong>
               </>
             )}
             . Δ L_net ngày 7: {sh.delta.l_net === 0 ? "không đổi" : `${sh.delta.l_net > 0 ? "+" : "−"}${formatVnd(Math.abs(sh.delta.l_net))}`}{" "}
             <span className="text-xs text-muted">(hệ thống tính)</span>
           </p>
           {sh.samples.length > 0 && (
-            <div tabIndex={0} role="region" aria-labelledby={`${uid}-sh-cap`} className="overflow-x-auto rounded-xl border border-line">
-              <table className="w-full min-w-[640px] border-separate border-spacing-0 text-left text-sm">
-                <caption id={`${uid}-sh-cap`} className="px-3 pt-2 text-left text-xs text-muted">
+            <div tabIndex={0} role="region" aria-labelledby={`${uid}-sh-cap`} className="table-wrap shadow-none">
+              <table className="data-table min-w-[640px]">
+                <caption id={`${uid}-sh-cap`}>
                   Giao dịch đổi kết quả{sh.sample_truncated ? ` (hiện ${sh.samples.length} giao dịch đầu, gian lận trước)` : ""} · nhãn là nhãn
                   dữ liệu tổng hợp
                 </caption>
-                <thead className="text-xs text-muted">
+                <thead>
                   <tr>
-                    <th scope="col" className="border-b border-line px-3 py-2 font-medium">Giao dịch</th>
-                    <th scope="col" className="border-b border-line px-3 py-2 text-right font-medium">Số tiền</th>
-                    <th scope="col" className="border-b border-line px-3 py-2 font-medium">Nhãn</th>
-                    <th scope="col" className="border-b border-line px-3 py-2 font-medium">Luật cũ</th>
-                    <th scope="col" className="border-b border-line px-3 py-2 font-medium">Luật mới</th>
+                    <th scope="col">Giao dịch</th>
+                    <th scope="col" className="n">Số tiền</th>
+                    <th scope="col">Nhãn</th>
+                    <th scope="col">Luật cũ</th>
+                    <th scope="col">Luật mới</th>
                   </tr>
                 </thead>
                 <tbody>
                   {sh.samples.map((t) => (
                     <tr key={t.tx_id}>
-                      <th scope="row" className="border-b border-line px-3 py-2 text-left font-mono text-xs font-normal">
+                      <th scope="row" className="text-left font-mono text-xs font-normal whitespace-nowrap">
                         {t.tx_id} · {String(t.hour).padStart(2, "0")}:00
                       </th>
-                      <td className="border-b border-line px-3 py-2 text-right tabular-nums">{formatVnd(t.amount)}</td>
-                      <td className={`border-b border-line px-3 py-2 ${t.label === "LEGIT" ? "" : "font-semibold"}`}>{LABEL_VI[t.label] ?? t.label}</td>
-                      <td className="border-b border-line px-3 py-2 text-muted">
+                      <td className="n">{formatVnd(t.amount)}</td>
+                      <td className={t.label === "LEGIT" ? "" : "font-semibold"}>{LABEL_VI[t.label] ?? t.label}</td>
+                      <td className="text-muted">
                         {DEC_SHORT[t.before.decision]}
                         {AUTH_SHORT[t.before.auth]}
                       </td>
-                      <td className="border-b border-line px-3 py-2 font-semibold">
+                      <td className="font-semibold">
                         {DEC_SHORT[t.after.decision]}
                         {AUTH_SHORT[t.after.auth]}
                       </td>
@@ -550,30 +572,26 @@ function SummaryBlock({ cs, onDone }: { cs: ChangeSet; onDone: () => void }) {
         ? `Mẫu tất định · bản AI bị loại vì có số không có trong dữ liệu (${(s.rejected_numbers ?? []).join(", ")})`
         : "Mẫu tất định · không dùng AI";
   return (
-    <section aria-label="Tóm tắt cho người duyệt" className="space-y-2 rounded-2xl border border-line bg-surface p-4">
+    <section aria-label="Tóm tắt cho người duyệt" className="panel space-y-2 p-4 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="font-semibold">Tóm tắt cho người duyệt</h3>
-        <button
-          type="button"
-          onClick={run}
-          disabled={busy}
-          className="min-h-11 rounded-xl border border-line px-4 text-sm font-semibold hover:bg-background disabled:opacity-50"
-        >
+        <h3 className="section-title">Tóm tắt cho người duyệt</h3>
+        <button type="button" onClick={run} disabled={busy} className="btn btn-secondary btn-sm">
+          {!busy && <Icon name="spark" className="size-3.5" />}
           {busy ? "Đang viết tóm tắt…" : s ? "Viết lại" : "Tạo tóm tắt"}
         </button>
       </div>
       {s ? (
         <>
-          <p className="text-sm leading-6">{s.summary_vi}</p>
-          <p className={`text-xs ${s.source === "ai" ? "text-accent" : "text-muted"}`}>{tag}</p>
+          <p className="max-w-[75ch] text-[0.9375rem] leading-7">{s.summary_vi}</p>
+          <SourceTag source={s.source === "ai" ? "ai" : "det"} label={tag} className="rounded-md py-1 text-xs leading-4" />
         </>
       ) : (
         <p className="text-sm text-muted">Tóm tắt 3–5 câu từ kết quả kiểm chứng, backtest và shadow; không thay quyết định của bạn.</p>
       )}
       {error && (
-        <p role="alert" className="text-sm text-danger">
+        <Callout tone="fail" role="alert">
           {error}
-        </p>
+        </Callout>
       )}
     </section>
   );

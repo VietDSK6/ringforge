@@ -24,6 +24,7 @@ const PATHS = {
 
 export type IconName = keyof typeof PATHS;
 
+/** className thay toàn bộ lớp mặc định: luôn kèm kích thước (size-*). */
 export function Icon({ name, className = "size-4" }: { name: IconName; className?: string }) {
   return (
     <svg
