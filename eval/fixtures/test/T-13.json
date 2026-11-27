@@ -1,0 +1,29 @@
+{
+  "id": "T-13",
+  "requirement_vi": "Giao dịch không quá ngưỡng sinh trắc học mỗi lần thì miễn xác thực thêm.",
+  "category": "REG_BYPASS",
+  "gold_status": "OK",
+  "gold_rule": {
+    "when": {
+      "field": "amount",
+      "op": "<=",
+      "value": {
+        "param": "biometric_per_tx_threshold"
+      }
+    },
+    "then": {
+      "exempt_auth": true
+    }
+  },
+  "gold_assumptions": [],
+  "gold_violations": [
+    "INV-AUTH-02",
+    "VC-06"
+  ],
+  "gold_repair_must": {
+    "pass_invariants": true,
+    "scope_subset_of_original": true,
+    "min_coverage_bp": 9000
+  },
+  "notes": "Tham chiếu đúng tham số nhưng quên ngưỡng ngày → chỉ phạm INV-AUTH-02."
+}

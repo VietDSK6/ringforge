@@ -1,0 +1,35 @@
+{
+  "id": "T-08",
+  "requirement_vi": "Người nhận không phải merchant đã xác minh, nhận từ 20 giao dịch của ít nhất 15 người khác nhau trong 15 phút, thì giữ 60 giây.",
+  "category": "CLEAN",
+  "gold_status": "OK",
+  "gold_rule": {
+    "when": {
+      "all": [
+        {
+          "field": "receiver_is_verified_merchant",
+          "op": "==",
+          "value": false
+        },
+        {
+          "field": "receiver_inbound_count_15m",
+          "op": ">=",
+          "value": 20
+        },
+        {
+          "field": "receiver_distinct_senders_15m",
+          "op": ">=",
+          "value": 15
+        }
+      ]
+    },
+    "then": {
+      "decision": "HOLD",
+      "hold_seconds": 60
+    }
+  },
+  "gold_assumptions": [],
+  "gold_violations": [],
+  "gold_repair_must": null,
+  "notes": "Cửa sổ 15 phút không suy ra được ≥ 30 người trong 30 phút nên không thừa so với FR-04."
+}

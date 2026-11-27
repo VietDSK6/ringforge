@@ -1,0 +1,42 @@
+{
+  "id": "T-02",
+  "requirement_vi": "Rút tiền từ 0 giờ đến 4 giờ sáng trên thiết bị mới mà tổng chi trong ngày trên 15 triệu thì yêu cầu sinh trắc học.",
+  "category": "CLEAN",
+  "gold_status": "OK",
+  "gold_rule": {
+    "when": {
+      "all": [
+        {
+          "field": "channel",
+          "op": "==",
+          "value": "WITHDRAW"
+        },
+        {
+          "field": "hour",
+          "op": "between",
+          "value": [
+            0,
+            4
+          ]
+        },
+        {
+          "field": "is_new_device",
+          "op": "==",
+          "value": true
+        },
+        {
+          "field": "daily_total_after",
+          "op": ">",
+          "value": 15000000
+        }
+      ]
+    },
+    "then": {
+      "auth": "BIOMETRIC"
+    }
+  },
+  "gold_assumptions": [],
+  "gold_violations": [],
+  "gold_repair_must": null,
+  "notes": ""
+}

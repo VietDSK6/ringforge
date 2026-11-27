@@ -1,0 +1,27 @@
+{
+  "id": "T-27",
+  "requirement_vi": "Người nhận đột nhiên nhận tiền từ rất nhiều người trong thời gian ngắn thì giữ lại.",
+  "category": "AMBIGUOUS",
+  "gold_status": "OK",
+  "gold_rule": {
+    "when": {
+      "field": "receiver_distinct_senders_30m",
+      "op": ">=",
+      "value": 20
+    },
+    "then": {
+      "decision": "HOLD",
+      "hold_seconds": 120
+    }
+  },
+  "gold_assumptions": [
+    "rất nhiều người",
+    "thời gian ngắn",
+    "giữ lại"
+  ],
+  "gold_violations": [
+    "INV-CX-01"
+  ],
+  "gold_repair_must": null,
+  "notes": "Không loại merchant đã xác minh → giữ cả thanh toán QR nhỏ (INV-CX-01). NEEDS_CLARIFICATION cũng chấp nhận."
+}

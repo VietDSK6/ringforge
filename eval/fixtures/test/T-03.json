@@ -1,0 +1,29 @@
+{
+  "id": "T-03",
+  "requirement_vi": "Người nhận không phải merchant đã xác minh mà nhận từ 50 người khác nhau trong 30 phút thì chặn.",
+  "category": "CLEAN",
+  "gold_status": "OK",
+  "gold_rule": {
+    "when": {
+      "all": [
+        {
+          "field": "receiver_distinct_senders_30m",
+          "op": ">=",
+          "value": 50
+        },
+        {
+          "field": "receiver_is_verified_merchant",
+          "op": "==",
+          "value": false
+        }
+      ]
+    },
+    "then": {
+      "decision": "BLOCK"
+    }
+  },
+  "gold_assumptions": [],
+  "gold_violations": [],
+  "gold_repair_must": null,
+  "notes": "Chặt hơn FR-04 (HOLD) nên không thừa."
+}

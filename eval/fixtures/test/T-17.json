@@ -1,0 +1,22 @@
+{
+  "id": "T-17",
+  "requirement_vi": "Chuyển khoản lớn hơn 800 triệu đồng thì chặn.",
+  "category": "DOMAIN",
+  "gold_status": "OK",
+  "gold_rule": {
+    "when": {
+      "field": "amount",
+      "op": ">",
+      "value": 800000000
+    },
+    "then": {
+      "decision": "BLOCK"
+    }
+  },
+  "gold_assumptions": [],
+  "gold_violations": [
+    "VC-03"
+  ],
+  "gold_repair_must": null,
+  "notes": "Miền số tiền tối đa 500.000.000 đ."
+}

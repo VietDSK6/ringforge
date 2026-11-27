@@ -1,0 +1,29 @@
+{
+  "id": "T-07",
+  "requirement_vi": "Tài khoản đã chi từ 30 giao dịch trong 24 giờ qua mà còn chuyển tiền cá nhân thì gắn cờ giám sát.",
+  "category": "CLEAN",
+  "gold_status": "OK",
+  "gold_rule": {
+    "when": {
+      "all": [
+        {
+          "field": "sender_outbound_count_24h",
+          "op": ">=",
+          "value": 30
+        },
+        {
+          "field": "channel",
+          "op": "==",
+          "value": "P2P"
+        }
+      ]
+    },
+    "then": {
+      "decision": "MONITOR"
+    }
+  },
+  "gold_assumptions": [],
+  "gold_violations": [],
+  "gold_repair_must": null,
+  "notes": ""
+}

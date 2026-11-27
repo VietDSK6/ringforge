@@ -1,0 +1,31 @@
+{
+  "id": "T-26",
+  "requirement_vi": "Tài khoản lâu không dùng bỗng rút tiền thì yêu cầu OTP.",
+  "category": "AMBIGUOUS",
+  "gold_status": "OK",
+  "gold_rule": {
+    "when": {
+      "all": [
+        {
+          "field": "sender_dormant_days",
+          "op": ">=",
+          "value": 30
+        },
+        {
+          "field": "channel",
+          "op": "==",
+          "value": "WITHDRAW"
+        }
+      ]
+    },
+    "then": {
+      "auth": "OTP"
+    }
+  },
+  "gold_assumptions": [
+    "lâu không dùng"
+  ],
+  "gold_violations": [],
+  "gold_repair_must": null,
+  "notes": ""
+}

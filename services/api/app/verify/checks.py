@@ -165,10 +165,12 @@ def _covers(s: tuple[int, int, bool, int], r: tuple[int, int, bool, int]) -> boo
 
 
 def check_redundant(
-    rules: list[dict[str, Any]], pack: dict[str, Any], ctx: z3.Context, v: dict[str, z3.ExprRef], timeout_ms: int
+    rules: list[dict[str, Any]], pack: dict[str, Any], ctx: z3.Context, v: dict[str, z3.ExprRef], timeout_ms: int,
+    dead: set[str] | None = None,
 ) -> list[dict[str, Any]]:
-    """VC-05 (docs/03 mục 3): r thừa so với s nếu r ⊆ s và hiệu ứng của s bao trùm r; chỉ xét cùng kind hoặc s pháp lý."""
-    active = [r for r in rules if r["status"] in ACTIVE_STATUSES]
+    """VC-05 (docs/03 mục 3): r thừa so với s nếu r ⊆ s và hiệu ứng của s bao trùm r; chỉ xét cùng kind hoặc s pháp lý.
+    Luật chết (VC-03) nằm trong mọi luật một cách tầm thường → không báo thừa, tránh nhiễu cạnh lỗi ERROR."""
+    active = [r for r in rules if r["status"] in ACTIVE_STATUSES and r["id"] not in (dead or set())]
     dom = domain(v, ctx)
     whens = {r["id"]: enc(r["when"], v, pack["params"], ctx) for r in active}
     findings, flagged = [], set()
@@ -246,9 +248,10 @@ def verify_rules(rules: list[dict[str, Any]], pack: dict[str, Any], timeout_ms: 
     ctx = z3.Context()
     v = make_vars(ctx)
     findings = check_dead_rules(rules, pack, ctx, v, timeout_ms)
+    dead = {f["rule_id"] for f in findings if f.get("status") == "DEAD"}
     vc04 = check_invariants(rules, pack, ctx, v, timeout_ms)
     findings += vc04
-    findings += check_redundant(rules, pack, ctx, v, timeout_ms)
+    findings += check_redundant(rules, pack, ctx, v, timeout_ms, dead)
     findings += check_exemption_conflicts(rules, pack, ctx, v, timeout_ms, vc04)
     return {
         "verdict": verdict_of(findings),

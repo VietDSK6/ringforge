@@ -1,0 +1,38 @@
+{
+  "id": "T-22",
+  "requirement_vi": "Tài khoản không hoạt động trên 90 ngày chuyển dưới 500 nghìn, tổng chi trong ngày không quá ngưỡng sinh trắc học/ngày, thì miễn xác thực thêm.",
+  "category": "CONFLICT",
+  "gold_status": "OK",
+  "gold_rule": {
+    "when": {
+      "all": [
+        {
+          "field": "sender_dormant_days",
+          "op": ">",
+          "value": 90
+        },
+        {
+          "field": "amount",
+          "op": "<",
+          "value": 500000
+        },
+        {
+          "field": "daily_total_after",
+          "op": "<=",
+          "value": {
+            "param": "biometric_daily_threshold"
+          }
+        }
+      ]
+    },
+    "then": {
+      "exempt_auth": true
+    }
+  },
+  "gold_assumptions": [],
+  "gold_violations": [
+    "VC-06"
+  ],
+  "gold_repair_must": null,
+  "notes": "Không phạm invariant nhưng vô hiệu sinh trắc học của FR-02 ở vùng chồng lấn."
+}

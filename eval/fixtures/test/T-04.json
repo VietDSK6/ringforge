@@ -1,0 +1,34 @@
+{
+  "id": "T-04",
+  "requirement_vi": "Nạp tiền điện thoại từ 2 triệu trở lên bằng tài khoản định danh cơ bản thì gắn cờ giám sát.",
+  "category": "CLEAN",
+  "gold_status": "OK",
+  "gold_rule": {
+    "when": {
+      "all": [
+        {
+          "field": "channel",
+          "op": "==",
+          "value": "TOPUP"
+        },
+        {
+          "field": "amount",
+          "op": ">=",
+          "value": 2000000
+        },
+        {
+          "field": "sender_kyc_level",
+          "op": "==",
+          "value": "BASIC"
+        }
+      ]
+    },
+    "then": {
+      "decision": "MONITOR"
+    }
+  },
+  "gold_assumptions": [],
+  "gold_violations": [],
+  "gold_repair_must": null,
+  "notes": ""
+}

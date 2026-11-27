@@ -1,0 +1,35 @@
+{
+  "id": "T-06",
+  "requirement_vi": "Chuyển tiền cá nhân từ 20 triệu trở lên cho tài khoản nhận mở dưới 2 ngày thì giữ 180 giây.",
+  "category": "CLEAN",
+  "gold_status": "OK",
+  "gold_rule": {
+    "when": {
+      "all": [
+        {
+          "field": "channel",
+          "op": "==",
+          "value": "P2P"
+        },
+        {
+          "field": "amount",
+          "op": ">=",
+          "value": 20000000
+        },
+        {
+          "field": "receiver_account_age_days",
+          "op": "<",
+          "value": 2
+        }
+      ]
+    },
+    "then": {
+      "decision": "HOLD",
+      "hold_seconds": 180
+    }
+  },
+  "gold_assumptions": [],
+  "gold_violations": [],
+  "gold_repair_must": null,
+  "notes": ""
+}

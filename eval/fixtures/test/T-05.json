@@ -1,0 +1,29 @@
+{
+  "id": "T-05",
+  "requirement_vi": "Thanh toán hóa đơn từ tài khoản không hoạt động trên 60 ngày thì yêu cầu OTP.",
+  "category": "CLEAN",
+  "gold_status": "OK",
+  "gold_rule": {
+    "when": {
+      "all": [
+        {
+          "field": "channel",
+          "op": "==",
+          "value": "BILL"
+        },
+        {
+          "field": "sender_dormant_days",
+          "op": ">",
+          "value": 60
+        }
+      ]
+    },
+    "then": {
+      "auth": "OTP"
+    }
+  },
+  "gold_assumptions": [],
+  "gold_violations": [],
+  "gold_repair_must": null,
+  "notes": ""
+}

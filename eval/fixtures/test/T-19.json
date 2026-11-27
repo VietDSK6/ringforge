@@ -1,0 +1,31 @@
+{
+  "id": "T-19",
+  "requirement_vi": "Người nhận có từ 10 người gửi khác nhau trong 30 phút nhưng nhận dưới 5 giao dịch thì chặn.",
+  "category": "DEAD",
+  "gold_status": "OK",
+  "gold_rule": {
+    "when": {
+      "all": [
+        {
+          "field": "receiver_distinct_senders_30m",
+          "op": ">=",
+          "value": 10
+        },
+        {
+          "field": "receiver_inbound_count_30m",
+          "op": "<",
+          "value": 5
+        }
+      ]
+    },
+    "then": {
+      "decision": "BLOCK"
+    }
+  },
+  "gold_assumptions": [],
+  "gold_violations": [
+    "VC-03"
+  ],
+  "gold_repair_must": null,
+  "notes": "Số người gửi khác nhau ≤ số giao dịch nhận."
+}

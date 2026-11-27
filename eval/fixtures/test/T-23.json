@@ -1,0 +1,46 @@
+{
+  "id": "T-23",
+  "requirement_vi": "Rút tiền dưới 1 triệu từ 0 giờ đến 5 giờ sáng, tổng chi trong ngày không quá ngưỡng sinh trắc học/ngày, thì miễn xác thực thêm.",
+  "category": "CONFLICT",
+  "gold_status": "OK",
+  "gold_rule": {
+    "when": {
+      "all": [
+        {
+          "field": "channel",
+          "op": "==",
+          "value": "WITHDRAW"
+        },
+        {
+          "field": "amount",
+          "op": "<",
+          "value": 1000000
+        },
+        {
+          "field": "hour",
+          "op": "between",
+          "value": [
+            0,
+            5
+          ]
+        },
+        {
+          "field": "daily_total_after",
+          "op": "<=",
+          "value": {
+            "param": "biometric_daily_threshold"
+          }
+        }
+      ]
+    },
+    "then": {
+      "exempt_auth": true
+    }
+  },
+  "gold_assumptions": [],
+  "gold_violations": [
+    "VC-06"
+  ],
+  "gold_repair_must": null,
+  "notes": "Chồng lấn FR-02."
+}

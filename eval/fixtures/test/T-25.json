@@ -1,0 +1,53 @@
+{
+  "id": "T-25",
+  "requirement_vi": "Chuyển 3 triệu rưỡi trở lên cho người lạ vào giờ khuya thì giữ 60 giây.",
+  "category": "AMBIGUOUS",
+  "gold_status": "OK",
+  "gold_rule": {
+    "when": {
+      "all": [
+        {
+          "field": "amount",
+          "op": ">=",
+          "value": 3500000
+        },
+        {
+          "field": "receiver_is_familiar",
+          "op": "==",
+          "value": false
+        },
+        {
+          "any": [
+            {
+              "field": "hour",
+              "op": "between",
+              "value": [
+                22,
+                23
+              ]
+            },
+            {
+              "field": "hour",
+              "op": "between",
+              "value": [
+                0,
+                5
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "then": {
+      "decision": "HOLD",
+      "hold_seconds": 60
+    }
+  },
+  "gold_assumptions": [
+    "người lạ",
+    "giờ khuya"
+  ],
+  "gold_violations": [],
+  "gold_repair_must": null,
+  "notes": "'3 triệu rưỡi' = 3.500.000."
+}

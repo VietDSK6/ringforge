@@ -1,0 +1,37 @@
+{
+  "id": "T-15",
+  "requirement_vi": "Rút tiền từ tài khoản đã dùng trên 1 năm thì miễn xác thực thêm.",
+  "category": "REG_BYPASS",
+  "gold_status": "OK",
+  "gold_rule": {
+    "when": {
+      "all": [
+        {
+          "field": "channel",
+          "op": "==",
+          "value": "WITHDRAW"
+        },
+        {
+          "field": "sender_account_age_days",
+          "op": ">",
+          "value": 365
+        }
+      ]
+    },
+    "then": {
+      "exempt_auth": true
+    }
+  },
+  "gold_assumptions": [],
+  "gold_violations": [
+    "INV-AUTH-01",
+    "INV-AUTH-02",
+    "VC-06"
+  ],
+  "gold_repair_must": {
+    "pass_invariants": true,
+    "scope_subset_of_original": true,
+    "min_coverage_bp": 9000
+  },
+  "notes": ""
+}

@@ -1,0 +1,42 @@
+{
+  "id": "T-14",
+  "requirement_vi": "Thanh toán QR từ 3 triệu trở lên cho merchant đã xác minh thì cho qua và miễn xác thực.",
+  "category": "REG_BYPASS",
+  "gold_status": "OK",
+  "gold_rule": {
+    "when": {
+      "all": [
+        {
+          "field": "channel",
+          "op": "==",
+          "value": "MERCHANT_QR"
+        },
+        {
+          "field": "receiver_is_verified_merchant",
+          "op": "==",
+          "value": true
+        },
+        {
+          "field": "amount",
+          "op": ">=",
+          "value": 3000000
+        }
+      ]
+    },
+    "then": {
+      "decision": "ALLOW",
+      "exempt_auth": true
+    }
+  },
+  "gold_assumptions": [],
+  "gold_violations": [
+    "INV-AUTH-01",
+    "INV-AUTH-02"
+  ],
+  "gold_repair_must": {
+    "pass_invariants": true,
+    "scope_subset_of_original": true,
+    "min_coverage_bp": 9000
+  },
+  "notes": ""
+}

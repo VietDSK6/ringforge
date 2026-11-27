@@ -1,0 +1,22 @@
+{
+  "id": "T-21",
+  "requirement_vi": "Giao dịch trên 12 triệu thì yêu cầu sinh trắc học.",
+  "category": "REDUNDANT",
+  "gold_status": "OK",
+  "gold_rule": {
+    "when": {
+      "field": "amount",
+      "op": ">",
+      "value": 12000000
+    },
+    "then": {
+      "auth": "BIOMETRIC"
+    }
+  },
+  "gold_assumptions": [],
+  "gold_violations": [
+    "VC-05"
+  ],
+  "gold_repair_must": null,
+  "notes": "Bị REG-01 bao trùm."
+}

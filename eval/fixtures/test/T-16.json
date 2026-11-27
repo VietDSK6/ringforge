@@ -1,0 +1,31 @@
+{
+  "id": "T-16",
+  "requirement_vi": "Tài khoản gửi dưới 3 ngày tuổi nhưng đã không hoạt động trên 10 ngày thì chặn.",
+  "category": "DEAD",
+  "gold_status": "OK",
+  "gold_rule": {
+    "when": {
+      "all": [
+        {
+          "field": "sender_account_age_days",
+          "op": "<",
+          "value": 3
+        },
+        {
+          "field": "sender_dormant_days",
+          "op": ">",
+          "value": 10
+        }
+      ]
+    },
+    "then": {
+      "decision": "BLOCK"
+    }
+  },
+  "gold_assumptions": [],
+  "gold_violations": [
+    "VC-03"
+  ],
+  "gold_repair_must": null,
+  "notes": "Ràng buộc miền: số ngày không hoạt động ≤ tuổi tài khoản."
+}

@@ -1,0 +1,31 @@
+{
+  "id": "T-18",
+  "requirement_vi": "Nạp tiền điện thoại cho merchant đã xác minh thì chặn.",
+  "category": "DOMAIN",
+  "gold_status": "OK",
+  "gold_rule": {
+    "when": {
+      "all": [
+        {
+          "field": "channel",
+          "op": "==",
+          "value": "TOPUP"
+        },
+        {
+          "field": "receiver_is_verified_merchant",
+          "op": "==",
+          "value": true
+        }
+      ]
+    },
+    "then": {
+      "decision": "BLOCK"
+    }
+  },
+  "gold_assumptions": [],
+  "gold_violations": [
+    "VC-03"
+  ],
+  "gold_repair_must": null,
+  "notes": "Ràng buộc miền: kênh nạp tiền ⇒ người nhận không phải merchant đã xác minh."
+}

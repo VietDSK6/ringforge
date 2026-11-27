@@ -1,0 +1,37 @@
+{
+  "id": "T-11",
+  "requirement_vi": "Chuyển dưới 15 triệu cho người nhận quen thì khỏi xác thực thêm.",
+  "category": "REG_BYPASS",
+  "gold_status": "OK",
+  "gold_rule": {
+    "when": {
+      "all": [
+        {
+          "field": "amount",
+          "op": "<",
+          "value": 15000000
+        },
+        {
+          "field": "receiver_is_familiar",
+          "op": "==",
+          "value": true
+        }
+      ]
+    },
+    "then": {
+      "exempt_auth": true
+    }
+  },
+  "gold_assumptions": [],
+  "gold_violations": [
+    "INV-AUTH-01",
+    "INV-AUTH-02",
+    "VC-06"
+  ],
+  "gold_repair_must": {
+    "pass_invariants": true,
+    "scope_subset_of_original": true,
+    "min_coverage_bp": 9000
+  },
+  "notes": "Vùng 10.000.001–14.999.999 đ phạm INV-AUTH-01."
+}

@@ -1,0 +1,39 @@
+{
+  "id": "T-01",
+  "requirement_vi": "Tài khoản gửi mở dưới 10 ngày, nhận tiền từ 4 người khác nhau trong 1 giờ và chuyển ra từ 85% trở lên qua P2P thì chặn.",
+  "category": "CLEAN",
+  "gold_status": "OK",
+  "gold_rule": {
+    "when": {
+      "all": [
+        {
+          "field": "sender_account_age_days",
+          "op": "<",
+          "value": 10
+        },
+        {
+          "field": "sender_distinct_inbound_60m",
+          "op": ">=",
+          "value": 4
+        },
+        {
+          "field": "sender_outbound_ratio_60m_pct",
+          "op": ">=",
+          "value": 85
+        },
+        {
+          "field": "channel",
+          "op": "==",
+          "value": "P2P"
+        }
+      ]
+    },
+    "then": {
+      "decision": "BLOCK"
+    }
+  },
+  "gold_assumptions": [],
+  "gold_violations": [],
+  "gold_repair_must": null,
+  "notes": ""
+}

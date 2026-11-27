@@ -1,0 +1,41 @@
+{
+  "id": "T-24",
+  "requirement_vi": "Khoản chuyển lớn ban đêm cho tài khoản nhận mới mở thì gắn cờ giám sát.",
+  "category": "AMBIGUOUS",
+  "gold_status": "OK",
+  "gold_rule": {
+    "when": {
+      "all": [
+        {
+          "field": "amount",
+          "op": ">=",
+          "value": 10000000
+        },
+        {
+          "field": "hour",
+          "op": "between",
+          "value": [
+            0,
+            5
+          ]
+        },
+        {
+          "field": "receiver_account_age_days",
+          "op": "<",
+          "value": 7
+        }
+      ]
+    },
+    "then": {
+      "decision": "MONITOR"
+    }
+  },
+  "gold_assumptions": [
+    "khoản chuyển lớn",
+    "ban đêm",
+    "mới mở"
+  ],
+  "gold_violations": [],
+  "gold_repair_must": null,
+  "notes": "Gold là một diễn giải hợp lý; nhóm này chấm việc nêu giả định, không chấm tương đương logic."
+}

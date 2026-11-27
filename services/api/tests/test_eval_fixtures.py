@@ -27,6 +27,17 @@ def test_ten_tune_cases_with_unique_ids():
     assert len({c["id"] for c in CASES}) == len(CASES)
 
 
+def test_thirty_test_cases_follow_category_plan():
+    """docs/08 mục 1: CLEAN 8, REG_BYPASS 7, DEAD/DOMAIN 4, REDUNDANT/CONFLICT 4, AMBIGUOUS 4, INJECTION 3."""
+    test = [c for c in CASES if c["id"].startswith("T-")]
+    assert len(test) == 30
+    groups = {"CLEAN": 8, "REG_BYPASS": 7, "DEAD+DOMAIN": 4, "REDUNDANT+CONFLICT": 4, "AMBIGUOUS": 4, "INJECTION": 3}
+    for group, n in groups.items():
+        assert sum(c["category"] in group.split("+") for c in test) == n, group
+    tune_texts = {c["requirement_vi"] for c in CASES if c["id"].startswith("TU-")}
+    assert not tune_texts & {c["requirement_vi"] for c in test}
+
+
 def test_tune_does_not_overlap_few_shot_examples():
     _, examples = _prompt_files("compile.v1")
     shots = {e["requirement"] for e in examples}
@@ -45,7 +56,8 @@ def test_gold_is_valid_and_violations_match(case):
     found = {c["invariant"] for c in report["checks"] if c["code"] == "VC-04"}
     found |= {"VC-03"} if any(c["code"] == "VC-03" for c in report["checks"]) else set()
     found |= {"VC-05"} if any(c.get("redundant") == "DRAFT-0001" for c in report["checks"]) else set()
-    expected = {v for v in case["gold_violations"] if v.startswith("INV-") or v in ("VC-03", "VC-05")}
+    found |= {"VC-06"} if any(c["code"] == "VC-06" and c["rule_id"] == "DRAFT-0001" for c in report["checks"]) else set()
+    expected = set(case["gold_violations"])
     assert found == expected
 
 
