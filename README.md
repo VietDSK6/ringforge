@@ -99,7 +99,7 @@ Xem [`.env.example`](.env.example) (đầy đủ), `services/api/.env.example`, 
 | `APP_ENV` | `dev` · `staging` · `production` |
 | `CORS_ORIGINS` | Origin web được gọi API, phân tách bằng dấu phẩy, không dùng `*` |
 | `DATABASE_URL` | Postgres (Neon/Supabase). Trống = SQLite trong thư mục tạm (mất khi khởi động lại) |
-| `LLM_PROVIDER`, `LLM_API_KEY`, `LLM_MODEL`, `LLM_MODEL_FALLBACK` | LLM phía server (hiện hỗ trợ OpenAI, Structured Outputs) |
+| `LLM_PROVIDER`, `LLM_API_KEY`, `LLM_MODEL`, `LLM_MODEL_FALLBACK` | LLM phía server: `openrouter` (mặc định, model `openai/gpt-6-luna`, dự phòng `openai/gpt-4o-mini`) hoặc `openai`; bắt buộc Structured Outputs |
 | `LLM_DAILY_CALL_CAP`, `LLM_SESSION_DAILY_CAP` | Hạn mức gọi LLM toàn hệ thống / mỗi phiên mỗi ngày (mặc định 500 / 40) |
 | `RATE_LIMIT_PER_MIN` | Giới hạn yêu cầu/phút/IP (mặc định 60; 0 = tắt) |
 | `NEXT_PUBLIC_API_URL` | URL API cho web (nhúng lúc build) |
@@ -182,7 +182,7 @@ Nhanh nhất: **New → Blueprint** → chọn repo; Render đọc [`render.yaml
 ## Công cụ AI
 
 - **Dùng khi phát triển:** **Claude Code** (Anthropic, model Claude Opus 5.5) hỗ trợ dựng khung, viết mã, test và tài liệu theo đặc tả trong `docs/`; prompt các phiên làm việc lưu ở [`KICKOFF_PROMPTS.md`](KICKOFF_PROMPTS.md). Mọi thay đổi do đội đọc lại và chịu trách nhiệm.
-- **Dùng trong sản phẩm:** OpenAI qua Responses API với Structured Outputs (JSON Schema strict); model đặt bằng `LLM_MODEL`/`LLM_MODEL_FALLBACK`, sẽ chốt sau khi chạy `eval/run_tune.py` và ghi lại tại đây. Prompt có phiên bản: `compile.v1`, `repair.v1`, `pack_repair.v1`, `interpret.v1`, `summary.v1` (`services/api/app/ai/prompts/`).
+- **Dùng trong sản phẩm:** `openai/gpt-6-luna` (dự phòng `openai/gpt-4o-mini`) qua OpenRouter, Chat Completions với Structured Outputs (JSON Schema strict, chỉ định tuyến tới nhà cung cấp hỗ trợ schema); đổi bằng `LLM_PROVIDER`/`LLM_MODEL`/`LLM_MODEL_FALLBACK`. Kết quả `eval/run_tune.py` ghi lại tại đây sau khi chạy. Prompt có phiên bản: `compile.v1`, `repair.v1`, `pack_repair.v1`, `interpret.v1`, `summary.v1` (`services/api/app/ai/prompts/`).
 
 ## Tài sản có sẵn
 
@@ -201,7 +201,7 @@ Không dùng template hay thư viện component UI có sẵn. Khung ban đầu c
 | PyArrow | Đọc/ghi Parquet | Apache-2.0 |
 | SQLAlchemy | Truy cập CSDL (SQLite/Postgres) | MIT |
 | psycopg 3 | Driver Postgres | LGPL-3.0 |
-| OpenAI Python SDK | Gọi LLM | Apache-2.0 |
+| OpenAI Python SDK | Gọi LLM (OpenAI hoặc OpenRouter qua endpoint tương thích) | Apache-2.0 |
 | python-dotenv | Đọc `.env` | BSD-3-Clause |
 | pytest, HTTPX | Kiểm thử | MIT, BSD-3-Clause |
 | Next.js, React | Giao diện | MIT |

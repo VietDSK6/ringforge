@@ -12,7 +12,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.ai import client as ai_client
-from app.ai.client import LLMError, LLMResult, OpenAIClient
+from app.ai.client import LLMError, LLMResult, OpenAIClient, OpenRouterClient
 from app.ai.schemas import CompileOutput, compile_schema
 from app.ai.tasks import COMPILE_VERSION, _evaluate, _prompt_files, build_system_prompt, build_user_message
 from app.api import sessions as sessions_api
@@ -268,6 +268,103 @@ def test_openai_client_refusal_and_bad_json():
     with pytest.raises(LLMError) as e:
         c.complete_json("s", "u", {}, "x")
     assert e.value.code == "LLM_BAD_OUTPUT"
+
+
+# ---------- OpenRouterClient (Chat Completions, SDK giả lập) ----------
+
+
+def _chat(content: str | None, finish: str = "stop", refusal: str | None = None, choices: bool = True):
+    msg = SimpleNamespace(content=content, refusal=refusal)
+    return SimpleNamespace(
+        choices=[SimpleNamespace(message=msg, finish_reason=finish)] if choices else [],
+        model="openai/gpt-6-luna",
+        usage=SimpleNamespace(prompt_tokens=13, completion_tokens=5),
+    )
+
+
+def make_openrouter(responses: list[Any], fallback: str = "openai/gpt-4o-mini"):
+    c = OpenRouterClient("sk-or-test", "openai/gpt-6-luna", fallback)
+    seen: list[dict[str, Any]] = []
+
+    def create(**kw):
+        seen.append(kw)
+        r = responses.pop(0)
+        if isinstance(r, Exception):
+            raise r
+        return r
+
+    c._client = SimpleNamespace(chat=SimpleNamespace(completions=SimpleNamespace(create=create)))
+    return c, seen
+
+
+def test_openrouter_client_uses_openrouter_base_url():
+    c = OpenRouterClient("sk-or-test", "openai/gpt-6-luna")
+    assert str(c._client.base_url).rstrip("/") == "https://openrouter.ai/api/v1"
+    assert OpenAIClient("sk-test", "m").base_url is None
+
+
+def test_openrouter_client_sends_strict_schema_and_parses():
+    schema = {"type": "object", "properties": {"status": {"type": "string"}}, "required": ["status"],
+              "additionalProperties": False}
+    c, seen = make_openrouter([_chat('{"status": "OK"}')])
+    res = c.complete_json("sys", "user", schema, "rf_compile")
+    kw = seen[0]
+    assert kw["model"] == "openai/gpt-6-luna"
+    assert kw["messages"] == [{"role": "system", "content": "sys"}, {"role": "user", "content": "user"}]
+    assert kw["response_format"] == {"type": "json_schema",
+                                     "json_schema": {"name": "rf_compile", "schema": schema, "strict": True}}
+    assert kw["extra_body"] == {"provider": {"require_parameters": True}}
+    assert res.data == {"status": "OK"} and (res.tokens_in, res.tokens_out) == (13, 5)
+    assert res.model == "openai/gpt-6-luna" and res.attempts == ["openai/gpt-6-luna"]
+
+
+def test_openrouter_client_falls_back_once_on_transient_error():
+    import httpx2
+    import openai
+
+    err = openai.APIConnectionError(request=httpx2.Request("POST", "https://openrouter.ai/api/v1/chat/completions"))
+    c, seen = make_openrouter([err, _chat('{"ok": true}')])
+    res = c.complete_json("s", "u", {}, "x")
+    assert [k["model"] for k in seen] == ["openai/gpt-6-luna", "openai/gpt-4o-mini"]
+    assert res.attempts == ["openai/gpt-6-luna", "openai/gpt-4o-mini"] and res.data == {"ok": True}
+
+
+@pytest.mark.parametrize(
+    "resp, code",
+    [
+        (_chat(None, refusal="Không thể hỗ trợ"), "LLM_REFUSED"),
+        (_chat("", finish="content_filter"), "LLM_REFUSED"),
+        (_chat('{"status": "O', finish="length"), "LLM_BAD_OUTPUT"),
+        (_chat("không phải json"), "LLM_BAD_OUTPUT"),
+        (_chat("[1, 2]"), "LLM_BAD_OUTPUT"),
+        (_chat(None, choices=False), "LLM_BAD_OUTPUT"),
+    ],
+)
+def test_openrouter_client_bad_outputs(resp, code):
+    c, _ = make_openrouter([resp])
+    with pytest.raises(LLMError) as e:
+        c.complete_json("s", "u", {}, "x")
+    assert e.value.code == code
+
+
+def test_get_client_selects_provider(monkeypatch):
+    import dataclasses
+
+    from app.ai import client as client_mod
+
+    def build(**kw):
+        monkeypatch.setattr(client_mod, "settings", dataclasses.replace(client_mod.settings, **kw))
+        client_mod.get_client.cache_clear()
+        return client_mod.get_client()
+
+    try:
+        c = build(llm_provider="openrouter", llm_api_key="sk-or-test", llm_model="openai/gpt-6-luna")
+        assert isinstance(c, OpenRouterClient) and c.available
+        assert isinstance(build(llm_provider="openai", llm_api_key="sk-test", llm_model="m"), OpenAIClient)
+        assert not build(llm_provider="openrouter", llm_api_key="", llm_model="openai/gpt-6-luna").available
+        assert not build(llm_provider="khac", llm_api_key="k", llm_model="m").available
+    finally:
+        client_mod.get_client.cache_clear()
 
 
 def test_compile_output_model_rejects_unknown_keys():

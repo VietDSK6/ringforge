@@ -70,7 +70,7 @@ def load_settings() -> Settings:
         cors_origins=_split_csv(os.environ.get("CORS_ORIGINS", "http://localhost:3000")),
         seed_dir=Path(os.environ["SEED_DIR"]) if os.environ.get("SEED_DIR") else _default_seed_dir(),
         database_url=normalize_db_url(os.environ.get("DATABASE_URL", "").strip()),
-        llm_provider=os.environ.get("LLM_PROVIDER", "openai").strip().lower(),
+        llm_provider=os.environ.get("LLM_PROVIDER", "openrouter").strip().lower(),
         llm_api_key=os.environ.get("LLM_API_KEY", "").strip(),
         llm_model=os.environ.get("LLM_MODEL", "").strip(),
         llm_model_fallback=os.environ.get("LLM_MODEL_FALLBACK", "").strip(),
