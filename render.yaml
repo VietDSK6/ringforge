@@ -1,0 +1,36 @@
+# Render Blueprint cho API RingForge (Dashboard → New → Blueprint → chọn repo).
+# Giá trị bí mật (sync: false) Render sẽ hỏi khi tạo; không bao giờ ghi giá trị thật vào file này.
+services:
+  - type: web
+    name: ringforge-api
+    runtime: docker
+    plan: free # Free ngủ sau 15 phút không có request → bật UptimeRobot ping /health mỗi 5 phút (README mục Deploy)
+    dockerfilePath: ./services/api/Dockerfile
+    dockerContext: . # image cần data/seed/ ở gốc repo
+    healthCheckPath: /health
+    autoDeploy: true
+    buildFilter:
+      paths:
+        - services/api/**
+        - data/seed/**
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: CORS_ORIGINS # https://<project>.vercel.app — điền sau khi có domain Vercel
+        sync: false
+      - key: DATABASE_URL # Postgres Neon/Supabase; bỏ trống = SQLite tạm, phiên mất khi service khởi động lại
+        sync: false
+      - key: LLM_PROVIDER
+        value: openai
+      - key: LLM_API_KEY
+        sync: false
+      - key: LLM_MODEL
+        sync: false
+      - key: LLM_MODEL_FALLBACK
+        sync: false
+      - key: LLM_DAILY_CALL_CAP
+        value: "500"
+      - key: LLM_SESSION_DAILY_CAP
+        value: "40"
+      - key: RATE_LIMIT_PER_MIN
+        value: "60"

@@ -163,6 +163,8 @@ Thứ tự: deploy API → lấy URL API → deploy web với URL đó → lấy
 
 ### API trên Render (Docker)
 
+Nhanh nhất: **New → Blueprint** → chọn repo; Render đọc [`render.yaml`](render.yaml) (Docker, build context gốc repo, `/health`, build filter) và hỏi các biến bí mật (`CORS_ORIGINS`, `DATABASE_URL`, `LLM_*`). Hoặc tạo tay:
+
 1. **New → Web Service** → chọn repo GitHub.
 2. **Language/Runtime**: Docker · **Root Directory**: để trống (gốc repo) · **Dockerfile Path**: `./services/api/Dockerfile` · **Docker Build Context Directory**: `.` — image cần `data/seed/` ở gốc repo. **Build Filters → Included Paths**: `services/api/**`, `data/seed/**`.
 3. **Instance type**: gói trả phí thấp nhất, **không sleep** (docs/06 mục 5). Nếu dùng Free: service ngủ sau 15 phút không có request → monitor UptimeRobot gọi `https://<service>.onrender.com/health` mỗi 5 phút (`/health` nhận cả GET và HEAD), giữ đến hết 11/12. Free có 750 giờ/tháng mỗi workspace: chỉ đủ **một** service chạy 24/7.
