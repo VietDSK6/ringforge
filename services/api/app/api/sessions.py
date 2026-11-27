@@ -20,6 +20,7 @@ from app.dsl.validator import Issue, check_rule, check_rules
 from app.store import repo
 from app.store.db import get_db
 from app.verify.checks import verify_rules
+from app.verify.grounding import ground_findings
 
 router = APIRouter(prefix="/sessions", tags=["sessions"])
 Db = Annotated[Session, Depends(get_db)]
@@ -143,6 +144,7 @@ def verify_session(sid: str, req: SessionVerifyRequest, db: Db) -> dict[str, Any
         return vc01_report(issues)
     rules = merge_rules(repo.current_rules(db, sid), changes)
     report = verify_rules(rules, pack)
+    ground_findings(report["checks"], rules, pack, transactions())
     report["rules_vi"] = {r["id"]: render_rule(r, pack)["sentence_vi"] for r in rules}
     run_id = repo.add_verify_run(db, sid, {"rules": rules, "pack": pack["version"]}, report)
     repo.audit(db, sid, "system", "verify.run", {"verify_run_id": run_id, "verdict": report["verdict"], "changed": [r["id"] for r in changes]})

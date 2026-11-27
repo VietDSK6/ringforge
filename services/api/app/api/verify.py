@@ -8,11 +8,12 @@ from typing import Annotated, Any
 from fastapi import APIRouter, Body
 from pydantic import BaseModel, Field
 
-from app.data.loader import seed_pack, seed_rules
+from app.data.loader import seed_pack, seed_rules, transactions
 from app.dsl.catalog import catalog_payload
 from app.dsl.render_vi import render_rule
 from app.dsl.validator import check_pack, check_rules
 from app.verify.checks import verify_rules
+from app.verify.grounding import ground_findings
 
 router = APIRouter()
 
@@ -87,6 +88,7 @@ def post_verify(req: Annotated[VerifyRequest, Body(openapi_examples=EXAMPLES)]) 
         rules = [r for r in seed_rules() if r["id"] not in own] + rules
 
     report = verify_rules(rules, pack)
+    ground_findings(report["checks"], rules, pack, transactions())
     report["rules_vi"] = {r["id"]: render_rule(r, pack)["sentence_vi"] for r in rules}
     report["ms"] = (time.perf_counter_ns() - started) // 1_000_000
     return report
