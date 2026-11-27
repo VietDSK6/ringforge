@@ -7,12 +7,12 @@ import { useState } from "react";
 import { Icon, type IconName } from "@/components/Icon";
 import { api } from "@/lib/api";
 
-const ITEMS: { href: string; label: string; short: string; icon: IconName }[] = [
-  { href: "policies", label: "Bộ luật", short: "Bộ luật", icon: "rules" },
-  { href: "studio", label: "Rule Studio", short: "Studio", icon: "studio" },
-  { href: "compare", label: "So sánh", short: "So sánh", icon: "compare" },
-  { href: "pack", label: "Policy Pack", short: "Pack", icon: "pack" },
-  { href: "review", label: "Duyệt", short: "Duyệt", icon: "review" },
+const ITEMS: { href: string; label: string; hint: string; short: string; icon: IconName }[] = [
+  { href: "policies", label: "Bộ luật", hint: "Luật đang chạy", short: "Bộ luật", icon: "rules" },
+  { href: "studio", label: "Rule Studio", hint: "Viết và kiểm luật", short: "Studio", icon: "studio" },
+  { href: "compare", label: "So sánh", hint: "Chọn luật ít tổn thất", short: "So sánh", icon: "compare" },
+  { href: "pack", label: "Policy Pack", hint: "Quy định, ngưỡng", short: "Pack", icon: "pack" },
+  { href: "review", label: "Duyệt", hint: "Phê duyệt, nhật ký", short: "Duyệt", icon: "review" },
 ];
 
 /** Thanh bên trái (desktop) / thanh dưới (mobile). Đây là điều hướng trang, không phải tab ARIA. */
@@ -48,7 +48,7 @@ export function SessionNav() {
               <Link
                 href={href}
                 aria-current={active ? "page" : undefined}
-                className={`relative flex min-h-14 flex-col items-center justify-center gap-1 px-1 text-xs md:min-h-10 md:flex-row md:justify-start md:gap-2.5 md:rounded-md md:px-3 md:text-sm ${
+                className={`relative flex min-h-14 flex-col items-center justify-center gap-1 px-1 text-xs md:min-h-12 md:flex-row md:justify-start md:gap-2.5 md:rounded-md md:px-3 md:py-1.5 md:text-sm ${
                   active
                     ? "font-semibold text-foreground md:bg-surface md:ring-1 md:ring-line"
                     : "text-muted hover:text-foreground md:hover:bg-sunken"
@@ -61,9 +61,12 @@ export function SessionNav() {
                     className="absolute inset-x-3 top-0 h-0.5 bg-foreground md:hidden"
                   />
                 )}
-                <Icon name={it.icon} className="size-5 md:size-4" />
+                <Icon name={it.icon} className="size-5 md:mt-0.5 md:size-4 md:self-start" />
                 <span className="md:hidden">{it.short}</span>
-                <span className="hidden md:inline">{it.label}</span>
+                <span className="hidden md:block">
+                  <span className="block leading-5">{it.label}</span>
+                  <span className="block text-xs leading-4 font-normal text-muted">{it.hint}</span>
+                </span>
               </Link>
             </li>
           );

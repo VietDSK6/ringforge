@@ -5,6 +5,7 @@ import { useParams, useSearchParams } from "next/navigation";
 import { useEffect, useId, useState } from "react";
 
 import { Callout } from "@/components/Callout";
+import { Icon } from "@/components/Icon";
 import { PageSkeleton } from "@/components/PageSkeleton";
 import { SourceTag } from "@/components/SourceTag";
 import { VerdictBadge } from "@/components/VerdictBadge";
@@ -15,7 +16,7 @@ import type { AuditEvent, ChangeSet, ChangeSetState } from "@/lib/types";
 const STATE: Record<ChangeSetState, { label: string; cls: string }> = {
   DRAFT: { label: "Chưa đạt kiểm chứng", cls: "tone-fail" },
   VERIFIED: { label: "Chờ duyệt", cls: "tone-accent" },
-  SHADOW: { label: "Chờ duyệt · đã chạy shadow", cls: "tone-accent" },
+  SHADOW: { label: "Chờ duyệt · đã chạy thử", cls: "tone-accent" },
   APPROVED: { label: "Đã phê duyệt", cls: "tone-pass" },
   REJECTED: { label: "Đã từ chối", cls: "tone-unknown" },
 };
@@ -37,11 +38,11 @@ const ACTION_VI: Record<string, string> = {
   "backtest.run": "Backtest",
   "pack.impact": "Phân tích tác động Policy Pack",
   "pack.apply": "Áp dụng Policy Pack mới",
-  "changeset.create": "Tạo change set",
-  "changeset.approve": "Phê duyệt change set",
-  "changeset.reject": "Từ chối change set",
+  "changeset.create": "Tạo đề xuất thay đổi",
+  "changeset.approve": "Phê duyệt đề xuất",
+  "changeset.reject": "Từ chối đề xuất",
   "changeset.approve_blocked": "Phê duyệt bị chặn: kiểm chứng không đạt",
-  "changeset.shadow": "Chạy shadow trên ngày phát lại",
+  "changeset.shadow": "Chạy thử song song trên ngày 7",
   "changeset.summary": "Viết tóm tắt cho người duyệt",
   "ruleset.import": "Nhập bộ luật / Policy Pack",
   "ruleset.export": "Xuất bộ luật",
@@ -90,8 +91,8 @@ export function ReviewView() {
       <header>
         <h1 className="page-title">Duyệt thay đổi</h1>
         <p className="page-lede">
-          Mỗi change set mang theo kết quả kiểm chứng, backtest và vùng giao dịch đổi kết quả. Không phê duyệt được change set còn vi phạm
-          invariant.
+          Mỗi đề xuất thay đổi mang theo kết quả kiểm chứng, backtest và các giao dịch đổi kết quả. Không phê duyệt được đề xuất còn vi
+          phạm quy định bắt buộc.
         </p>
       </header>
 
@@ -101,11 +102,11 @@ export function ReviewView() {
         </Callout>
       )}
 
-      {sets === null && !error && <PageSkeleton label="Đang tải change set…" rows={3} />}
+      {sets === null && !error && <PageSkeleton label="Đang tải đề xuất thay đổi…" rows={3} />}
 
       {sets !== null && sets.length === 0 && (
         <div className="empty space-y-1 p-5">
-          <p className="font-medium text-foreground">Chưa có change set nào trong phiên này.</p>
+          <p className="font-medium text-foreground">Chưa có đề xuất thay đổi nào trong phiên này.</p>
           <p>
             Tạo từ{" "}
             <Link href={`/s/${sid}/studio?demo=1`} className="link">
@@ -122,7 +123,7 @@ export function ReviewView() {
 
       {sets && sets.length > 0 && (
         <div className="grid items-start gap-6 lg:grid-cols-[17rem_1fr]">
-          <nav aria-label="Danh sách change set" className="lg:sticky lg:top-12">
+          <nav aria-label="Danh sách đề xuất thay đổi" className="lg:sticky lg:top-12">
             <ul className="space-y-1.5">
               {sets.map((c) => (
                 <li key={c.id}>
@@ -153,17 +154,21 @@ export function ReviewView() {
         </div>
       )}
 
-      <section aria-labelledby={`${uid}-audit`} className="space-y-3">
-        <div className="flex flex-wrap items-baseline justify-between gap-3">
+      <details aria-labelledby={`${uid}-audit`} className="group panel">
+        <summary className="flex min-h-14 cursor-pointer list-none items-center gap-2.5 px-4 sm:px-5 [&::-webkit-details-marker]:hidden">
+          <Icon name="chevron" className="size-4 text-muted transition-transform group-open:rotate-90" />
           <h2 id={`${uid}-audit`} className="section-title">
             Nhật ký kiểm toán
           </h2>
+          <span className="text-sm text-muted">ai làm gì, lúc nào, dùng model AI nào</span>
+        </summary>
+        <div className="border-t border-line px-4 py-2 sm:px-5">
           <label className="inline-flex min-h-11 cursor-pointer items-center gap-2.5 text-sm">
             <input type="checkbox" className="size-4" checked={showAuto} onChange={(e) => setShowAuto(e.target.checked)} />
             Hiện cả các lần kiểm chứng/backtest tự động
           </label>
         </div>
-        <ol className="panel divide-y divide-line">
+        <ol className="divide-y divide-line border-t border-line">
           {visible.map((e) => (
             <li key={e.id} className="grid gap-x-4 gap-y-1 px-4 py-3 text-sm sm:grid-cols-[8.5rem_9.5rem_1fr] sm:px-5">
               <time dateTime={e.created_at} className="num text-muted">
@@ -180,7 +185,7 @@ export function ReviewView() {
           ))}
           {visible.length === 0 && <li className="px-4 py-6 text-center text-sm text-muted">Chưa có thao tác nào.</li>}
         </ol>
-      </section>
+      </details>
     </div>
   );
 }
@@ -254,7 +259,7 @@ function ChangeSetDetail({ cs, onDecided }: { cs: ChangeSet; onDecided: () => vo
     <article aria-labelledby={`${uid}-title`} className="min-w-0 space-y-5">
       <header className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <h2 id={`${uid}-title`} className="page-title text-[1.375rem]">
-          Change set · {cs.items.length} thay đổi
+          Đề xuất · {cs.items.length} thay đổi
         </h2>
         <span className={`chip font-semibold ${STATE[cs.state].cls}`}>{STATE[cs.state].label}</span>
         <span className="font-mono text-xs text-muted">Policy Pack {cs.pack_version}</span>
@@ -270,7 +275,7 @@ function ChangeSetDetail({ cs, onDecided }: { cs: ChangeSet; onDecided: () => vo
               {it.rule?.provenance?.created_by && it.rule.provenance.created_by !== "human" && (
                 <SourceTag
                   source={it.rule.provenance.created_by === "det_repair" ? "det" : "ai"}
-                  label={it.rule.provenance.created_by === "det_repair" ? "Sửa tất định" : "AI đề xuất"}
+                  label={it.rule.provenance.created_by === "det_repair" ? "Sửa tự động" : "AI đề xuất"}
                 />
               )}
             </p>
@@ -294,7 +299,7 @@ function ChangeSetDetail({ cs, onDecided }: { cs: ChangeSet; onDecided: () => vo
             Kiểm chứng (Z3)
           </h3>
           <VerdictBadge verdict={verify.verdict} />
-          <span className="num text-xs text-muted">{verify.checked.invariants.length} invariant · {verify.ms} ms</span>
+          <span className="num text-xs text-muted">{verify.checked.invariants.length} quy định bắt buộc · {verify.ms} ms</span>
         </div>
         {errors.length > 0 && (
           <ul className="list-disc space-y-1 pl-5 text-sm leading-6 text-fail">
@@ -327,8 +332,8 @@ function ChangeSetDetail({ cs, onDecided }: { cs: ChangeSet; onDecided: () => vo
         </dl>
         <p className={`text-sm leading-6 ${bt.after.valid ? "text-pass" : "font-semibold text-fail"}`}>
           {bt.after.valid
-            ? "Không giao dịch nào trong dữ liệu phạm invariant sau thay đổi."
-            : `Giao dịch trong dữ liệu phạm invariant sau thay đổi: ${bt.after.compliance_exposure
+            ? "Không giao dịch nào trong dữ liệu vi phạm quy định bắt buộc sau thay đổi."
+            : `Giao dịch trong dữ liệu vi phạm quy định bắt buộc sau thay đổi: ${bt.after.compliance_exposure
                 .filter((e) => e.count > 0)
                 .map((e) => `${e.invariant} ${formatInt(e.count)} (${formatVnd(e.amount_sum)})`)
                 .join(" · ")}.`}{" "}
@@ -338,7 +343,7 @@ function ChangeSetDetail({ cs, onDecided }: { cs: ChangeSet; onDecided: () => vo
 
       <section aria-labelledby={`${uid}-diff`} className="panel space-y-2 p-4 sm:p-5">
         <h3 id={`${uid}-diff`} className="section-title">
-          Giao dịch đổi kết quả (semantic diff)
+          Giao dịch đổi kết quả
         </h3>
         <p className="text-sm leading-6">{diff.message_vi}</p>
         {diff.diffs.length > 0 && (
@@ -403,8 +408,8 @@ function ChangeSetDetail({ cs, onDecided }: { cs: ChangeSet; onDecided: () => vo
             </div>
             {blocked && (
               <Callout tone="fail" id={`${uid}-blocked`}>
-                Không phê duyệt được: bộ luật sau thay đổi {verify.verdict === "FAIL" ? "còn vi phạm invariant" : "chưa kết luận được"}. Sửa luật
-                (ví dụ bằng “Sửa bằng AI” ở Rule Studio) rồi tạo change set mới.
+                Không phê duyệt được: bộ luật sau thay đổi {verify.verdict === "FAIL" ? "còn vi phạm quy định bắt buộc" : "chưa kết luận được"}. Sửa
+                luật (ví dụ bằng “Sửa bằng AI” ở Rule Studio) rồi gửi đề xuất mới.
               </Callout>
             )}
             {message && (
@@ -418,7 +423,7 @@ function ChangeSetDetail({ cs, onDecided }: { cs: ChangeSet; onDecided: () => vo
             {cs.state === "APPROVED" ? "Đã phê duyệt" : "Đã từ chối"}
             {cs.decided_at ? ` lúc ${time(cs.decided_at)}` : ""}
             {cs.decision_note ? ` — “${cs.decision_note}”` : ""}.
-            {cs.state === "APPROVED" && " Các luật trong change set đã chuyển sang trạng thái đang chạy."}
+            {cs.state === "APPROVED" && " Các luật trong đề xuất đã chuyển sang trạng thái đang chạy."}
           </p>
         )}
       </section>
@@ -446,7 +451,7 @@ function ShadowSection({ cs, onDone }: { cs: ChangeSet; onDone: () => void }) {
       await api.shadow(sid, cs.id);
       onDone();
     } catch (e) {
-      setError(e instanceof ApiError ? e.message : "Không chạy được shadow.");
+      setError(e instanceof ApiError ? e.message : "Không chạy thử được.");
     } finally {
       setBusy(false);
     }
@@ -456,7 +461,7 @@ function ShadowSection({ cs, onDone }: { cs: ChangeSet; onDone: () => void }) {
     <section aria-labelledby={`${uid}-shadow`} className="panel space-y-3 p-4 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h3 id={`${uid}-shadow`} className="section-title">
-          Shadow trên ngày phát lại (ngày 7)
+          Chạy thử song song trên ngày 7
         </h3>
         {allowed && (
           <button
@@ -465,14 +470,14 @@ function ShadowSection({ cs, onDone }: { cs: ChangeSet; onDone: () => void }) {
             disabled={busy}
             className="btn btn-secondary btn-sm"
           >
-            {busy ? "Đang chạy shadow…" : sh ? "Chạy lại shadow" : "Chạy shadow trên ngày 7"}
+            {busy ? "Đang chạy thử…" : sh ? "Chạy thử lại" : "Chạy thử trên ngày 7"}
           </button>
         )}
       </div>
       <p className="text-sm text-muted">
         Bộ luật cũ và mới chạy song song trên ngày dữ liệu không dùng cho backtest; không giao dịch nào bị ảnh hưởng thật.
       </p>
-      {!allowed && <p className="text-sm text-muted">Chỉ chạy shadow cho change set đã qua kiểm chứng.</p>}
+      {!allowed && <p className="text-sm text-muted">Chỉ chạy thử được đề xuất đã qua kiểm chứng.</p>}
       {error && (
         <Callout tone="fail" role="alert">
           {error}
@@ -560,8 +565,8 @@ function SummaryBlock({ cs, onDone }: { cs: ChangeSet; onDone: () => void }) {
     s?.source === "ai"
       ? "AI viết · mọi con số đã đối chiếu với số liệu hệ thống"
       : s?.ai === "rejected"
-        ? `Mẫu tất định · bản AI bị loại vì có số không có trong dữ liệu (${(s.rejected_numbers ?? []).join(", ")})`
-        : "Mẫu tất định · không dùng AI";
+        ? `Mẫu tự động · bản AI bị loại vì có số không có trong dữ liệu (${(s.rejected_numbers ?? []).join(", ")})`
+        : "Mẫu tự động · không dùng AI";
   return (
     <section aria-label="Tóm tắt cho người duyệt" className="panel space-y-2 p-4 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -576,7 +581,7 @@ function SummaryBlock({ cs, onDone }: { cs: ChangeSet; onDone: () => void }) {
           <SourceTag source={s.source === "ai" ? "ai" : "det"} label={tag} className="rounded-md py-1 text-xs leading-4" />
         </>
       ) : (
-        <p className="text-sm text-muted">Tóm tắt 3–5 câu từ kết quả kiểm chứng, backtest và shadow; không thay quyết định của bạn.</p>
+        <p className="text-sm text-muted">Tóm tắt 3–5 câu từ kết quả kiểm chứng, backtest và chạy thử; không thay quyết định của bạn.</p>
       )}
       {error && (
         <Callout tone="fail" role="alert">

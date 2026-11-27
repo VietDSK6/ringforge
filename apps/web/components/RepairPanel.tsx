@@ -4,9 +4,9 @@ import { Icon } from "@/components/Icon";
 import type { RepairCandidate, RepairResponse } from "@/lib/types";
 
 const LLM_NOTE: Partial<Record<RepairResponse["llm"], string>> = {
-  unavailable: "AI hiện không khả dụng — chỉ có bản sửa tất định.",
-  quota: "Đã hết lượt gọi AI hôm nay — chỉ có bản sửa tất định.",
-  error: "Gọi AI bị lỗi — chỉ có bản sửa tất định.",
+  unavailable: "AI hiện không khả dụng — chỉ có bản sửa tự động (không dùng AI).",
+  quota: "Đã hết lượt gọi AI hôm nay — chỉ có bản sửa tự động (không dùng AI).",
+  error: "Gọi AI bị lỗi — chỉ có bản sửa tự động (không dùng AI).",
 };
 
 export function RepairPanel({
@@ -45,7 +45,7 @@ export function RepairPanel({
           <ul className="mt-1 list-disc space-y-1 pl-10">
             {data.rejected.map((r, i) => (
               <li key={i}>
-                {r.source === "ai" ? "AI" : "Tất định"} · {r.strategy}: {r.reason_vi}
+                {r.source === "ai" ? "AI" : "Tự động"} · {r.strategy}: {r.reason_vi}
               </li>
             ))}
           </ul>

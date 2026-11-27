@@ -7,10 +7,10 @@ export function StatusPill() {
   const state = useHealth();
   const api =
     state.kind === "loading"
-      ? { dot: "bg-warn animate-pulse", text: "Đang kết nối API…" }
+      ? { dot: "bg-warn animate-pulse", text: "Đang kết nối máy chủ…" }
       : state.kind === "error"
-        ? { dot: "bg-fail", text: "Mất kết nối API" }
-        : { dot: "bg-pass", text: `API sẵn sàng${state.health.z3_version ? ` · Z3 ${state.health.z3_version}` : ""}` };
+        ? { dot: "bg-fail", text: "Mất kết nối máy chủ" }
+        : { dot: "bg-pass", text: "Máy chủ sẵn sàng" };
   const llm = state.kind === "ok" ? state.health.llm : undefined;
   const ai =
     llm === undefined

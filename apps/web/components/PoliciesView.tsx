@@ -81,7 +81,7 @@ export function PoliciesView() {
             <VerdictBadge verdict={report.verdict} />
             <span className="text-sm leading-6">
               {failed.length === 0 && report.verdict !== "UNKNOWN"
-                ? `Bộ luật đang chạy qua cả ${nInv} invariant của Policy Pack.${warnText ? ` ${warnText}` : ""}`
+                ? `Bộ luật đang chạy đáp ứng cả ${nInv} quy định bắt buộc của Policy Pack.${warnText ? ` ${warnText}` : ""}`
                 : report.verdict === "UNKNOWN"
                   ? "Không kết luận được trong thời hạn — không coi là đạt."
                   : `Vi phạm: ${failed.join(", ")}.`}

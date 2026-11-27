@@ -6,10 +6,10 @@ import { useState } from "react";
 import { ApiError, api } from "@/lib/api";
 import { rememberSession } from "@/lib/session";
 
-/** Nút "Vào sandbox": tạo phiên riêng từ dữ liệu seed (FR-S1) rồi mở màn hình đích. */
+/** Nút "Vào sandbox": tạo phiên riêng từ dữ liệu seed (FR-S1) rồi mở màn hình đích (mặc định: Demo 1 kèm hướng dẫn). */
 export function EnterSandbox({
   to = "studio",
-  query = "",
+  query = "?demo=1",
   label = "Vào sandbox",
   variant = "primary",
 }: {
@@ -28,6 +28,15 @@ export function EnterSandbox({
     try {
       const { session_id } = await api.createSession();
       rememberSession(session_id);
+      // Vào từ trang đầu = muốn xem demo: bật lại hướng dẫn của demo đó dù trước đây đã bỏ qua.
+      const demo = new URLSearchParams(query).get("demo");
+      if (demo) {
+        try {
+          localStorage.removeItem(`rf.tour.demo${demo}`);
+        } catch {
+          /* chế độ riêng tư: hướng dẫn chỉ là tiện ích */
+        }
+      }
       router.push(`/s/${session_id}/${to}${query}`);
     } catch (e) {
       setError(e instanceof ApiError ? e.message : "Không tạo được phiên sandbox.");

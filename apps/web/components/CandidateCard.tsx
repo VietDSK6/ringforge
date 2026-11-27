@@ -62,10 +62,10 @@ export function CandidateCard({ c, onUse, busy }: { c: RepairCandidate; onUse: (
 
         <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-line bg-line sm:grid-cols-4">
           {[
-            { k: "Giữ ý định", v: coverage, strong: true },
-            { k: "Tổn thất ròng L_net", v: formatVnd(c.l_net), strong: true },
-            { k: "Δ L_net", v: signed(dl, formatVnd), tone: dl < 0 ? "text-pass" : dl > 0 ? "text-fail" : "" },
-            { k: "Δ ma sát (sinh trắc học)", v: signed(friction, (x) => `${formatInt(x)} giao dịch`) },
+            { k: "Giữ đúng ý định ban đầu", v: coverage, strong: true },
+            { k: "Tổn thất ròng (L_net)", v: formatVnd(c.l_net), strong: true },
+            { k: "Thay đổi tổn thất ròng", v: signed(dl, formatVnd), tone: dl < 0 ? "text-pass" : dl > 0 ? "text-fail" : "" },
+            { k: "Thay đổi số giao dịch phải sinh trắc học", v: signed(friction, (x) => `${formatInt(x)} giao dịch`) },
           ].map((m) => (
             <div key={m.k} className="space-y-0.5 bg-surface p-3">
               <dt className="label">{m.k}</dt>

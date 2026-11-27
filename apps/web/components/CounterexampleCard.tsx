@@ -60,11 +60,14 @@ export function CounterexampleCard({
       </dl>
 
       {check.outcome && (
-        <div className="mx-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-t border-dashed border-line-strong py-3 text-sm">
-          <span className="text-muted">Bộ luật cho kết quả</span>
-          <span className="font-semibold text-fail line-through decoration-2">
-            {DECISION_VI[check.outcome.decision]} · {AUTH_VI[check.outcome.auth]}
-          </span>
+        <div className="mx-4 border-t border-dashed border-line-strong py-3 text-sm">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+            <span className="text-muted">Bộ luật cho kết quả</span>
+            <span className="font-semibold text-fail">
+              {DECISION_VI[check.outcome.decision]} · {AUTH_VI[check.outcome.auth]}
+            </span>
+          </div>
+          <p className="mt-1 text-right text-[0.8125rem] font-medium text-fail">✕ Kết quả này trái quy định</p>
         </div>
       )}
       {check.outcomes && (

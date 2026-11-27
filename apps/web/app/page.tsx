@@ -56,7 +56,7 @@ export default function Landing() {
             </p>
             <div className="flex flex-wrap items-start gap-x-5 gap-y-2">
               <EnterSandbox />
-              <p className="pt-3 text-sm text-muted">Mỗi lần vào là một sandbox riêng, không cần đăng nhập.</p>
+              <p className="pt-3 text-sm text-muted">Bắt đầu với Demo 1, có hướng dẫn từng bước. Không cần đăng nhập.</p>
             </div>
           </div>
 

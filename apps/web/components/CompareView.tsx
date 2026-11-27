@@ -55,10 +55,10 @@ const SLIDERS: { key: keyof Assumptions; label: string; min: number; max: number
 
 const TOUR: TourStep[] = [
   { target: "variants", text: "Bốn phương án: cửa sổ 15, 30, 60 phút; giữ hay chặn." },
-  { target: "results", text: "Hàng in đậm có L_net thấp nhất trong các phương án hợp lệ.", waiting: "Đang backtest…" },
+  { target: "results", text: "Hàng in đậm có tổn thất ròng thấp nhất trong các phương án hợp lệ.", waiting: "Đang backtest…" },
   { target: "slider", text: "Kéo lên 100%: giữ lại hiệu quả như chặn, thứ hạng đổi." },
   { target: "scenarios", text: "Phân rã kịch bản: flash-sale cho thấy chặn nhầm giao dịch thật." },
-  { target: "changeset", text: "Tạo change set để người duyệt ký trước khi bật.", advanceOn: "click" },
+  { target: "changeset", text: "Gửi đề xuất để người duyệt ký trước khi bật.", advanceOn: "click" },
 ];
 
 const ACTION_VI: Record<Action, string> = { HOLD: "Giữ 120 giây", BLOCK: "Chặn" };
@@ -142,7 +142,7 @@ export function CompareView() {
       const cs = await api.createChangeSet(sid, [{ rule: change.rule_changes[0].rule }], `Phương án ${change.name} từ màn So sánh`);
       router.push(`/s/${sid}/review?cs=${cs.id}`);
     } catch (e) {
-      setError(e instanceof ApiError ? e.message : "Không tạo được change set.");
+      setError(e instanceof ApiError ? e.message : "Không tạo được đề xuất thay đổi.");
     }
   }
 
@@ -175,15 +175,116 @@ export function CompareView() {
         <h1 className="page-title">So sánh phương án</h1>
         <p className="page-lede">
           Luật <span className="font-mono text-foreground">{RULE_ID}</span> giữ hoặc chặn khoản chuyển cá nhân vào tài khoản nhận mới mở đang
-          gom tiền từ nhiều người — kiểu nạn nhân chuyển cho mule lớp 1. Mỗi phương án được thêm vào bộ luật đang chạy, kiểm chứng bằng Z3
+          gom tiền từ nhiều người — kiểu nạn nhân bị lừa chuyển tiền cho tài khoản trung gian (mule). Mỗi phương án được thêm vào bộ luật đang chạy, kiểm chứng bằng Z3
           rồi backtest trên 6 ngày dữ liệu tổng hợp.
         </p>
       </header>
 
+      <section aria-labelledby={`${uid}-results`} className="space-y-4" aria-busy={running}>
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 id={`${uid}-results`} className="section-title">
+            Kết quả
+          </h2>
+          <p role="status" className="flex items-center gap-2 text-sm text-muted">
+            {running && <span aria-hidden className="size-3.5 animate-spin rounded-full border-2 border-accent border-t-transparent" />}
+            {running ? "Đang kiểm chứng và backtest…" : data ? `Tính trong ${formatInt(data.ms)} ms · hệ thống tính` : ""}
+          </p>
+        </div>
+        <div data-tour="variants" className="flex flex-wrap items-center gap-2 text-sm">
+          <span className="text-muted">Đang so sánh {variants.length} phương án:</span>
+          {variants.map((v, i) => (
+            <span key={v.key} className="chip">
+              {variantName(v, i)}
+            </span>
+          ))}
+          <a href={`#${uid}-variants`} className="link ml-1">
+            Chỉnh phương án
+          </a>
+        </div>
+        {error && (
+          <Callout tone="fail" role="alert">
+            {error}
+          </Callout>
+        )}
+        {!data && !error && <PageSkeleton label="Đang kiểm chứng và backtest…" rows={5} />}
+        {best && (
+          <div className="panel flex flex-wrap items-center justify-between gap-x-8 gap-y-4 p-4 sm:p-5">
+            <div className="min-w-0 space-y-1">
+              <p className="text-sm text-muted">Phương án ít tổn thất nhất, trong các phương án đạt quy định bắt buộc</p>
+              <p className="text-lg font-semibold">{best.name}</p>
+              <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <strong className="num text-3xl font-bold tracking-tight">{formatVnd(best.result!.l_net)}</strong>
+                <span className="text-sm text-muted">tổn thất ròng trên 6 ngày</span>
+                {best.delta && (
+                  <span className={`num text-sm font-medium ${best.delta.l_net <= 0 ? "text-pass" : "text-fail"}`}>
+                    {best.delta.l_net <= 0 ? "giảm" : "tăng"} {formatVnd(Math.abs(best.delta.l_net))} so với bộ luật hiện hành
+                  </span>
+                )}
+              </p>
+            </div>
+            <button
+              type="button"
+              data-tour="changeset"
+              onClick={() => proposeChangeSet(data!.variants.indexOf(best))}
+              disabled={running}
+              className="btn btn-primary btn-lg"
+            >
+              Gửi phương án này để duyệt
+            </button>
+          </div>
+        )}
+        {data && <ResultsTable uid={uid} rows={rows} />}
+        {data && <LnetStackedBar rows={chartRows} />}
+        {data && <ScenarioTable uid={uid} rows={rows} />}
+      </section>
+
+      <section aria-labelledby={`${uid}-assume`} className="panel space-y-4 p-4 sm:p-5">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 id={`${uid}-assume`} className="section-title">
+            Giả định
+          </h2>
+          <span className="chip tone-warn">giả định — không phải số thật
+          </span>
+        </div>
+        <div className="grid gap-x-10 gap-y-2 md:grid-cols-2">
+          {SLIDERS.map((s) => {
+            const id = `${uid}-${s.key}`;
+            return (
+              <div key={s.key}>
+                <div className="flex items-baseline justify-between gap-4">
+                  <label htmlFor={id} className="text-sm">
+                    {s.label}
+                  </label>
+                  <output htmlFor={id} className="num shrink-0 text-sm font-semibold">
+                    {s.fmt(assumptions[s.key])}
+                  </output>
+                </div>
+                <input
+                  id={id}
+                  data-tour={s.key === "hold_stop_bp" ? "slider" : undefined}
+                  type="range"
+                  min={s.min}
+                  max={s.max}
+                  step={s.step}
+                  value={assumptions[s.key]}
+                  aria-valuetext={s.fmt(assumptions[s.key])}
+                  onChange={(e) => setAssumptions((a) => ({ ...a, [s.key]: Number(e.target.value) }))}
+                  className="range"
+                />
+              </div>
+            );
+          })}
+        </div>
+        <button type="button" onClick={() => setAssumptions(DEFAULT_ASSUMPTIONS)} className="btn btn-ghost btn-sm -ml-2.5">
+          Về giả định mặc định
+        </button>
+      </section>
+
+
       <section aria-labelledby={`${uid}-variants`} className="space-y-3">
         <div className="flex flex-wrap items-end justify-between gap-3">
-          <h2 id={`${uid}-variants`} className="section-title">
-            Phương án
+          <h2 id={`${uid}-variants`} className="section-title scroll-mt-16">
+            Chỉnh phương án
           </h2>
           <button
             type="button"
@@ -194,7 +295,7 @@ export function CompareView() {
             Thêm phương án
           </button>
         </div>
-        <ul className="grid gap-4 xl:grid-cols-2" data-tour="variants">
+        <ul className="grid gap-4 xl:grid-cols-2">
           {variants.map((v, i) => {
             const id = `${uid}-v${v.key}`;
             const sentence = data?.variants[i]?.rules_vi?.[RULE_ID];
@@ -291,94 +392,6 @@ export function CompareView() {
           })}
         </ul>
       </section>
-
-      <section aria-labelledby={`${uid}-assume`} className="panel space-y-4 p-4 sm:p-5">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 id={`${uid}-assume`} className="section-title">
-            Giả định
-          </h2>
-          <span className="chip tone-warn">giả định — không phải số thật
-          </span>
-        </div>
-        <div className="grid gap-x-10 gap-y-2 md:grid-cols-2">
-          {SLIDERS.map((s) => {
-            const id = `${uid}-${s.key}`;
-            return (
-              <div key={s.key}>
-                <div className="flex items-baseline justify-between gap-4">
-                  <label htmlFor={id} className="text-sm">
-                    {s.label}
-                  </label>
-                  <output htmlFor={id} className="num shrink-0 text-sm font-semibold">
-                    {s.fmt(assumptions[s.key])}
-                  </output>
-                </div>
-                <input
-                  id={id}
-                  data-tour={s.key === "hold_stop_bp" ? "slider" : undefined}
-                  type="range"
-                  min={s.min}
-                  max={s.max}
-                  step={s.step}
-                  value={assumptions[s.key]}
-                  aria-valuetext={s.fmt(assumptions[s.key])}
-                  onChange={(e) => setAssumptions((a) => ({ ...a, [s.key]: Number(e.target.value) }))}
-                  className="range"
-                />
-              </div>
-            );
-          })}
-        </div>
-        <button type="button" onClick={() => setAssumptions(DEFAULT_ASSUMPTIONS)} className="btn btn-ghost btn-sm -ml-2.5">
-          Về giả định mặc định
-        </button>
-      </section>
-
-      <section aria-labelledby={`${uid}-results`} className="space-y-4" aria-busy={running}>
-        <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 id={`${uid}-results`} className="section-title">
-            Kết quả
-          </h2>
-          <p role="status" className="flex items-center gap-2 text-sm text-muted">
-            {running && <span aria-hidden className="size-3.5 animate-spin rounded-full border-2 border-accent border-t-transparent" />}
-            {running ? "Đang kiểm chứng và backtest…" : data ? `Tính trong ${formatInt(data.ms)} ms · hệ thống tính` : ""}
-          </p>
-        </div>
-        {error && (
-          <Callout tone="fail" role="alert">
-            {error}
-          </Callout>
-        )}
-        {!data && !error && <PageSkeleton label="Đang kiểm chứng và backtest…" rows={5} />}
-        {best && (
-          <div className="panel flex flex-wrap items-center justify-between gap-x-8 gap-y-4 p-4 sm:p-5">
-            <div className="min-w-0 space-y-1">
-              <p className="text-sm text-muted">Tốt nhất theo L_net trong các phương án qua cổng invariant</p>
-              <p className="text-lg font-semibold">{best.name}</p>
-              <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                <strong className="num text-3xl font-bold tracking-tight">{formatVnd(best.result!.l_net)}</strong>
-                {best.delta && (
-                  <span className={`num text-sm font-medium ${best.delta.l_net <= 0 ? "text-pass" : "text-fail"}`}>
-                    {best.delta.l_net <= 0 ? "giảm" : "tăng"} {formatVnd(Math.abs(best.delta.l_net))} so với bộ luật hiện hành
-                  </span>
-                )}
-              </p>
-            </div>
-            <button
-              type="button"
-              data-tour="changeset"
-              onClick={() => proposeChangeSet(data!.variants.indexOf(best))}
-              disabled={running}
-              className="btn btn-primary btn-lg"
-            >
-              Tạo change set cho phương án này
-            </button>
-          </div>
-        )}
-        {data && <ResultsTable uid={uid} rows={rows} />}
-        {data && <LnetStackedBar rows={chartRows} />}
-        {data && <ScenarioTable uid={uid} rows={rows} />}
-      </section>
     </div>
   );
 }
@@ -424,60 +437,66 @@ type Row = { name: string; r: BacktestResult; rank?: number; eligible: boolean; 
 function ResultsTable({ uid, rows }: { uid: string; rows: Row[] }) {
   const exposure = (r: BacktestResult) => r.compliance_exposure.reduce((n, e) => n + e.count, 0);
   return (
-    <div tabIndex={0} role="region" aria-labelledby={`${uid}-cmp-cap`} data-tour="results" className="table-wrap">
-      <table className="data-table min-w-[860px]">
-        <caption id={`${uid}-cmp-cap`}>
-          L_net = lọt gian lận + chi phí duyệt + mất do khách bỏ (đ, làm tròn xuống theo nhóm). Hàng in đậm là phương án tốt nhất.
-        </caption>
-        <thead>
-          <tr>
-            <th scope="col" className="sticky-col min-w-40">Phương án</th>
-            <th scope="col" className="n">L_net</th>
-            <th scope="col" className="n">Lọt gian lận</th>
-            <th scope="col" className="n">Chặn nhầm (giữ / chặn)</th>
-            <th scope="col" className="n">Chi phí duyệt</th>
-            <th scope="col" className="n">Mất do khách bỏ</th>
-            <th scope="col" className="n">Dòng tiền mule bị giữ/chặn</th>
-            <th scope="col">Cổng invariant</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row, i) => {
-            const top = row.rank === 1;
-            const exp = exposure(row.r);
-            const cell = top ? "bg-accent-soft" : "";
-            return (
-              <tr key={row.name} className={top ? "font-semibold" : undefined}>
-                <th scope="row" className={`sticky-col text-left ${top ? "bg-accent-soft!" : ""}`}>
-                  <span className="block">{row.name}</span>
-                  {top && <span className="mt-1 inline-block text-xs font-semibold text-accent">Tốt nhất · hạng 1</span>}
-                  {!top && row.rank && <span className="mt-0.5 block text-xs font-normal text-muted">Hạng {row.rank}</span>}
-                  {i === 0 && <span className="mt-0.5 block text-xs font-normal text-muted">Mốc so sánh</span>}
-                </th>
-                <td className={`n text-[0.9375rem] ${cell} ${top ? "font-bold" : "font-medium"}`}>{formatVnd(row.r.l_net)}</td>
-                <td className={`n ${cell}`}>{formatVnd(row.r.fn_loss)}</td>
-                <td className={`n ${cell}`}>
-                  {formatInt(row.r.fp_hold)} / {formatInt(row.r.fp_block)}
-                </td>
-                <td className={`n ${cell}`}>{formatVnd(row.r.review_cost)}</td>
-                <td className={`n ${cell}`}>{formatVnd(row.r.churn_loss)}</td>
-                <td className={`n ${cell}`}>{formatVnd(row.r.mule_flow_stopped)}</td>
-                <td className={`${cell} whitespace-nowrap`}>
-                  {i === 0 ? (
-                    <span className="text-xs font-normal text-muted">—</span>
-                  ) : row.eligible ? (
-                    <VerdictBadge verdict={(row.verdict as "PASS") ?? "PASS"} />
-                  ) : (
-                    <span className="chip tone-fail font-semibold">
-                      Không hợp lệ{exp > 0 ? ` · ${formatInt(exp)} giao dịch phạm tuân thủ` : ""}
-                    </span>
-                  )}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+    <div className="space-y-2">
+      <p className="max-w-[80ch] text-[0.8125rem] leading-5 text-muted">
+        Tổn thất ròng (L_net) = lọt gian lận + chi phí duyệt + mất do khách bỏ (đ, làm tròn xuống theo nhóm). Hàng in đậm là phương án tốt
+        nhất. “Đạt có cảnh báo”: đạt mọi quy định bắt buộc; cảnh báo không chặn phê duyệt.
+      </p>
+      <div tabIndex={0} role="region" aria-labelledby={`${uid}-cmp-cap`} data-tour="results" className="table-wrap">
+        <table className="data-table min-w-[860px]">
+          <caption id={`${uid}-cmp-cap`} className="sr-only">
+            Kết quả từng phương án
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col" className="sticky-col min-w-40">Phương án</th>
+              <th scope="col" className="n">Tổn thất ròng (L_net)</th>
+              <th scope="col" className="n">Lọt gian lận</th>
+              <th scope="col" className="n">Chặn nhầm (giữ / chặn)</th>
+              <th scope="col" className="n">Chi phí duyệt</th>
+              <th scope="col" className="n">Mất do khách bỏ</th>
+              <th scope="col" className="n">Tiền chảy vào tài khoản mule bị giữ/chặn</th>
+              <th scope="col">Quy định bắt buộc</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row, i) => {
+              const top = row.rank === 1;
+              const exp = exposure(row.r);
+              const cell = top ? "bg-accent-soft" : "";
+              return (
+                <tr key={row.name} className={top ? "font-semibold" : undefined}>
+                  <th scope="row" className={`sticky-col text-left ${top ? "bg-accent-soft!" : ""}`}>
+                    <span className="block">{row.name}</span>
+                    {top && <span className="mt-1 inline-block text-xs font-semibold text-accent">Tốt nhất · hạng 1</span>}
+                    {!top && row.rank && <span className="mt-0.5 block text-xs font-normal text-muted">Hạng {row.rank}</span>}
+                    {i === 0 && <span className="mt-0.5 block text-xs font-normal text-muted">Mốc so sánh</span>}
+                  </th>
+                  <td className={`n text-[0.9375rem] ${cell} ${top ? "font-bold" : "font-medium"}`}>{formatVnd(row.r.l_net)}</td>
+                  <td className={`n ${cell}`}>{formatVnd(row.r.fn_loss)}</td>
+                  <td className={`n ${cell}`}>
+                    {formatInt(row.r.fp_hold)} / {formatInt(row.r.fp_block)}
+                  </td>
+                  <td className={`n ${cell}`}>{formatVnd(row.r.review_cost)}</td>
+                  <td className={`n ${cell}`}>{formatVnd(row.r.churn_loss)}</td>
+                  <td className={`n ${cell}`}>{formatVnd(row.r.mule_flow_stopped)}</td>
+                  <td className={`${cell} whitespace-nowrap`}>
+                    {i === 0 ? (
+                      <span className="text-xs font-normal text-muted">—</span>
+                    ) : row.eligible ? (
+                      <VerdictBadge verdict={(row.verdict as "PASS") ?? "PASS"} />
+                    ) : (
+                      <span className="chip tone-fail font-semibold">
+                        Không hợp lệ{exp > 0 ? ` · ${formatInt(exp)} giao dịch phạm tuân thủ` : ""}
+                      </span>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

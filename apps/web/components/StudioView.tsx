@@ -193,7 +193,7 @@ export function StudioView() {
       );
       router.push(`/s/${sid}/review?cs=${cs.id}`);
     } catch (err) {
-      setSavedNote(err instanceof ApiError ? err.message : "Không tạo được change set.");
+      setSavedNote(err instanceof ApiError ? err.message : "Không tạo được đề xuất thay đổi.");
     }
   }
 
@@ -202,7 +202,7 @@ export function StudioView() {
     phase === "compiling"
       ? "AI đang biên dịch…"
       : phase === "verifying"
-        ? `Đang kiểm chứng ${nInv} invariant bằng Z3…`
+        ? `Đang kiểm chứng ${nInv} quy định bắt buộc bằng Z3…`
         : phase === "repairing"
           ? "Đang đề xuất bản sửa, kiểm chứng lại và backtest từng bản…"
           : "";
@@ -265,8 +265,8 @@ export function StudioView() {
               >
                 Biên dịch
               </button>
-              <button type="button" onClick={() => startManualJson(null)} className="btn btn-secondary">
-                Viết luật bằng JSON
+              <button type="button" onClick={() => startManualJson(null)} className="btn btn-ghost btn-sm">
+                Hoặc viết luật bằng JSON
               </button>
             </div>
           </form>
@@ -337,6 +337,7 @@ export function StudioView() {
         <div ref={reportRef} tabIndex={-1} className="scroll-mt-16 outline-none">
           <VerifyReportView
             report={report}
+            focusRuleIds={verified.map((r) => String(r.id))}
             pack={pack}
             catalog={catalog}
             actions={
@@ -353,7 +354,7 @@ export function StudioView() {
                 )}
                 {verified.length > 0 && (
                   <button type="button" onClick={onChangeSet} disabled={busy} className="btn btn-secondary btn-lg">
-                    Tạo change set để duyệt
+                    Gửi đề xuất để duyệt
                   </button>
                 )}
                 <p role="status" className="text-sm text-pass">
@@ -466,7 +467,7 @@ function RuleCard({
   const source: { kind: Source; label: string } = manual
     ? { kind: "human", label: "Người viết (JSON)" }
     : by === "det_repair"
-      ? { kind: "det", label: "Sửa tất định" }
+      ? { kind: "det", label: "Sửa tự động (không dùng AI)" }
       : by === "ai_repair"
         ? { kind: "ai", label: "AI sửa" }
         : by === "human"

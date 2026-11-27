@@ -1,4 +1,4 @@
-/** Nhãn nguồn của nội dung (docs/07 mục 1): AI đề xuất, người viết, hệ thống tính, sửa tất định. Chữ nhỏ, không trang trí. */
+/** Nhãn nguồn của nội dung (docs/07 mục 1): AI đề xuất, người viết, hệ thống tính, sửa tự động. Chữ nhỏ, không trang trí. */
 export type Source = "ai" | "cache" | "human" | "system" | "det";
 
 const LABEL: Record<Source, string> = {
@@ -6,7 +6,7 @@ const LABEL: Record<Source, string> = {
   cache: "AI · kết quả đã lưu",
   human: "Người viết",
   system: "Hệ thống tính",
-  det: "Tất định",
+  det: "Sửa tự động (không dùng AI)",
 };
 
 export function SourceTag({ source, label, className = "" }: { source: Source; label?: string; className?: string }) {

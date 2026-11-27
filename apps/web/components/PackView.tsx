@@ -27,7 +27,7 @@ const TOUR: TourStep[] = [
   { target: "param", text: "Ngưỡng sinh trắc học/lần đã hạ sẵn từ 10 xuống 5 triệu." },
   { target: "analyze", text: "Bấm Phân tích tác động: kiểm chứng lại toàn bộ bộ luật.", advanceOn: "click" },
   { target: "incompatible", text: "LG-07 viết cứng 10.000.000 nên không còn tương thích, kèm nhân chứng.", waiting: "Đang phân tích…" },
-  { target: "friction", text: "Ma sát: thêm bao nhiêu giao dịch thật phải sinh trắc học." },
+  { target: "friction", text: "Thêm bao nhiêu giao dịch thật phải xác thực sinh trắc học." },
   { target: "fix", text: "Lưu bản sửa tham chiếu tham số; đã kiểm chứng lại.", advanceOn: "click" },
 ];
 
@@ -216,7 +216,6 @@ export function PackView() {
                   <label htmlFor={id} className="font-medium">
                     {pack.params_vi?.[name] ?? name}
                   </label>
-                  <p className="font-mono text-xs text-muted">{name}</p>
                   <p className="mt-1 text-[0.8125rem] text-muted">Nguồn: {p.source}</p>
                 </div>
                 <div>
@@ -249,11 +248,11 @@ export function PackView() {
           })}
         </ul>
         {aiInvariants.length > 0 && (
-          <ul className="space-y-2" aria-label="Invariant mới từ bản vá AI đề xuất">
+          <ul className="space-y-2" aria-label="Quy định bắt buộc mới từ bản vá AI đề xuất">
             {aiInvariants.map((op) => (
               <li key={op.invariant.id} className="flex flex-wrap items-center gap-3 rounded-md border border-accent-line bg-accent-soft px-3.5 py-1.5 text-sm">
                 <span>
-                  Thêm invariant <span className="font-mono font-semibold">{op.invariant.id}</span> (AI đề xuất)
+                  Thêm quy định bắt buộc <span className="font-mono font-semibold">{op.invariant.id}</span> (AI đề xuất)
                 </span>
                 <button
                   type="button"
@@ -306,8 +305,8 @@ export function PackView() {
             <div className="flex flex-wrap items-center gap-3">
               <VerdictBadge verdict={impact.verify_after.verdict} large />
               <span className="num text-sm text-muted">
-                Kiểm chứng lại {impact.verify_after.checked.rules.length} luật với {impact.verify_after.checked.invariants.length} invariant
-                của pack mới · {impact.ms} ms
+                Kiểm chứng lại {impact.verify_after.checked.rules.length} luật với {impact.verify_after.checked.invariants.length} quy định
+                bắt buộc của pack mới · {impact.ms} ms
               </span>
             </div>
             <ul className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-line bg-line sm:grid-cols-4" aria-label="Phân loại luật">
@@ -431,7 +430,7 @@ export function PackView() {
       <section aria-labelledby={`${formId}-inv`} className="space-y-3">
         <div>
           <h2 id={`${formId}-inv`} className="section-title">
-            Invariant
+            Quy định bắt buộc (invariant)
           </h2>
           <p className="section-lede">Đặc tả mà toàn bộ bộ luật phải thỏa; Z3 kiểm chứng trên mọi giao dịch trong miền.</p>
         </div>
@@ -469,7 +468,7 @@ function FrictionLine({ impact }: { impact: PackImpact }) {
   return (
     <div className="flex flex-wrap items-start justify-between gap-3 rounded-lg bg-sunken p-4" data-tour="friction">
       <div className="space-y-0.5">
-        <p className="label">Ma sát</p>
+        <p className="label">Khách phải xác thực thêm</p>
         <p className="text-base">
           <strong className="num text-2xl font-bold tracking-tight">
             {d >= 0 ? "+" : "−"}
@@ -548,8 +547,8 @@ function AffectedRuleCard({
         {r.fix?.rule && (
           <div className="space-y-3 rounded-lg border border-line bg-sunken p-4">
             <p className="flex flex-wrap items-center gap-2 text-sm font-semibold">
-              Bản sửa tất định
-              <SourceTag source="det" label="Tất định · không dùng AI" />
+              Bản sửa tự động
+              <SourceTag source="det" label="Không dùng AI" />
               {r.fix.passes ? <VerdictBadge verdict={r.fix.verdict} /> : <VerdictBadge verdict="FAIL" />}
             </p>
             <RuleSentence render={r.fix.rule.render!} compact />
@@ -577,9 +576,9 @@ function AffectedRuleCard({
 }
 
 const LLM_NOTE: Record<string, string> = {
-  unavailable: "AI hiện không khả dụng — chỉ có bản sửa tất định ở trên.",
-  quota: "Đã hết lượt gọi AI hôm nay — chỉ có bản sửa tất định ở trên.",
-  error: "Gọi AI bị lỗi — chỉ có bản sửa tất định ở trên.",
+  unavailable: "AI hiện không khả dụng — chỉ có bản sửa tự động ở trên.",
+  quota: "Đã hết lượt gọi AI hôm nay — chỉ có bản sửa tự động ở trên.",
+  error: "Gọi AI bị lỗi — chỉ có bản sửa tự động ở trên.",
 };
 
 /** AI đề xuất bản sửa cho luật không còn tương thích; mọi bản được chấm lại theo Policy Pack MỚI trước khi hiện. */
@@ -669,7 +668,7 @@ function AiPackRepair({
             </div>
           ))}
           {data.llm === "used" && aiCands.length === 0 && (
-            <p className="text-sm">Chưa có bản AI nào qua kiểm chứng; dùng bản sửa tất định ở trên.</p>
+            <p className="text-sm">Chưa có bản AI nào qua kiểm chứng; dùng bản sửa tự động ở trên.</p>
           )}
           {data.rejected.length > 0 && (
             <details className="group text-sm text-muted">
@@ -680,7 +679,7 @@ function AiPackRepair({
               <ul className="mt-1 list-disc space-y-1 pl-10">
                 {data.rejected.map((x, i) => (
                   <li key={i}>
-                    {x.source === "ai" ? "AI" : "Tất định"} · {x.strategy}: {x.reason_vi}
+                    {x.source === "ai" ? "AI" : "Tự động"} · {x.strategy}: {x.reason_vi}
                   </li>
                 ))}
               </ul>
@@ -698,7 +697,7 @@ function DiffSection({ impact, catalog }: { impact: PackImpact; catalog: Catalog
   return (
     <div className="panel space-y-4 p-4 sm:p-5">
       <div>
-        <h3 className="section-title">Giao dịch đổi kết quả (semantic diff)</h3>
+        <h3 className="section-title">Giao dịch đổi kết quả</h3>
         <p className="section-lede">{diff.message_vi}</p>
       </div>
       <ul className="divide-y divide-line">
