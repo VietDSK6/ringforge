@@ -8,8 +8,11 @@ from fastapi import APIRouter, Body, Depends
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
+from app.ai.client import LLMError, get_client
+from app.ai.interpret_task import MAX_TEXT, interpret_regulation
 from app.api.errors import AppError
 from app.backtest.metrics import Assumptions
+from app.config import settings
 from app.data.loader import transactions
 from app.store import repo
 from app.store.db import get_db
@@ -62,3 +65,34 @@ def apply(sid: str, req: Annotated[PatchRequest, Body(openapi_examples=EXAMPLES)
     old, new, changes = _patched(db, sid, req)
     saved = repo.save_pack(db, sid, new, ref={"from": old["version"], "changes": changes})
     return {"pack": saved, "previous_version": old["version"], "changes": changes}
+
+
+LLM_DOWN_VI = "AI tạm thời không khả dụng — bạn vẫn sửa tham số trực tiếp ở bảng Tham số và phân tích tác động như bình thường."
+INTERPRET_EXAMPLE = {"demo": {"summary": "Quy định giả lập: hạ ngưỡng sinh trắc học/lần",
+                              "value": {"text": "Từ 01/01/2027, giao dịch chuyển tiền trên 5 triệu đồng/lần phải xác thực sinh trắc học (kịch bản giả lập)."}}}
+
+
+class InterpretRequest(BaseModel):
+    text: str = Field(min_length=1, max_length=MAX_TEXT, description="Đoạn mô tả quy định mới (tiếng Việt)")
+
+
+@router.post("/{sid}/pack/interpret", summary="AI đọc mô tả quy định mới → ĐỀ XUẤT bản vá Policy Pack (không tự áp dụng)")
+def interpret(sid: str, req: Annotated[InterpretRequest, Body(openapi_examples=INTERPRET_EXAMPLE)], db: Db) -> dict[str, Any]:
+    repo.get_session(db, sid)
+    pack = repo.current_pack(db, sid)
+    client = get_client()
+    if not client.available:
+        raise AppError(503, "LLM_UNAVAILABLE", LLM_DOWN_VI)
+    if not repo.use_llm_quota(db, sid, settings.llm_session_daily_cap, settings.llm_daily_call_cap):
+        db.commit()
+        raise AppError(429, "LLM_QUOTA", "Đã hết lượt gọi AI hôm nay cho phiên này. " + LLM_DOWN_VI)
+    try:
+        result = interpret_regulation(db, sid, req.text, pack, client)
+    except LLMError as e:
+        db.commit()
+        raise AppError(503, "LLM_UNAVAILABLE", LLM_DOWN_VI, {"reason": e.code}) from e
+    repo.audit(db, sid, "ai", "pack.interpret", {
+        "ai_call_id": result["ai_call_id"], "status": result["status"], "changes": result.get("changes", []), "model": result["model"],
+    })
+    db.commit()
+    return result

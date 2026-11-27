@@ -170,7 +170,20 @@ export interface Outcome {
   auth: AuthLevel;
 }
 
-export type PatchOp = { op: "set_param"; param: string; value: number; source?: string };
+export type PatchOp =
+  | { op: "set_param"; param: string; value: number; source?: string }
+  | { op: "add_invariant"; invariant: Invariant & { severity?: string } };
+
+export interface InterpretResult {
+  status: "OK" | "INVALID" | "OUT_OF_SCOPE";
+  patch: PatchOp[];
+  changes: (PackChange & { description_vi?: string })[];
+  errors?: string[];
+  pack_after_version?: string | null;
+  effective_date?: string | null;
+  uncertainties: string[];
+  model?: string;
+}
 
 export type PackChange =
   | { op: "set_param"; param: string; label_vi: string; old: number; new: number; unit: string }

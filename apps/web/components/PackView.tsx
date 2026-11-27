@@ -6,6 +6,7 @@ import { type FormEvent, useEffect, useId, useRef, useState } from "react";
 import { CounterexampleCard } from "@/components/CounterexampleCard";
 import { GroundingLine } from "@/components/GroundingLine";
 import { GuidedTour, type TourStep } from "@/components/GuidedTour";
+import { RegulationInterpreter } from "@/components/RegulationInterpreter";
 import { RuleSentence } from "@/components/RuleSentence";
 import { VerdictBadge } from "@/components/VerdictBadge";
 import { ApiError, api } from "@/lib/api";
@@ -44,6 +45,9 @@ export function PackView() {
   const [draft, setDraft] = useState<Record<string, string>>({});
   const [impact, setImpact] = useState<PackImpact | null>(null);
   const [patch, setPatch] = useState<PatchOp[]>([]);
+  // Bản vá AI đề xuất mà người dùng chọn dùng: nguồn ghi kèm tham số + invariant mới (FR-P4).
+  const [aiSources, setAiSources] = useState<Record<string, string>>({});
+  const [aiInvariants, setAiInvariants] = useState<Extract<PatchOp, { op: "add_invariant" }>[]>([]);
   const [busy, setBusy] = useState<"analyze" | "apply" | null>(null);
   const [applied, setApplied] = useState<string | null>(null);
   const [saved, setSaved] = useState<Record<string, number>>({});
@@ -75,11 +79,28 @@ export function PackView() {
       const raw = digits(draft[name] ?? "");
       if (!raw || Number(raw) === param.value) return [];
       const op: PatchOp = { op: "set_param", param: name, value: Number(raw) };
-      return [isDemo ? { ...op, source: DEMO_SOURCE } : op];
+      const source = aiSources[name] ?? (isDemo ? DEMO_SOURCE : undefined);
+      return [source ? { ...op, source } : op];
     });
   }
 
-  const pending = pack ? buildPatch(pack) : [];
+  function takeAiPatch(ops: PatchOp[]) {
+    const sources: Record<string, string> = {};
+    const next = { ...draft };
+    for (const op of ops) {
+      if (op.op === "set_param") {
+        next[op.param] = formatInt(op.value);
+        if (op.source) sources[op.param] = op.source;
+      }
+    }
+    setDraft(next);
+    setAiSources(sources);
+    setAiInvariants(ops.filter((o): o is Extract<PatchOp, { op: "add_invariant" }> => o.op === "add_invariant"));
+    setImpact(null);
+    requestAnimationFrame(() => document.getElementById(`${formId}-title`)?.scrollIntoView({ block: "start" }));
+  }
+
+  const pending: PatchOp[] = pack ? [...buildPatch(pack), ...aiInvariants] : [];
 
   async function analyze(e: FormEvent) {
     e.preventDefault();
@@ -218,6 +239,24 @@ export function PackView() {
             );
           })}
         </ul>
+        {aiInvariants.length > 0 && (
+          <ul className="space-y-2" aria-label="Invariant mới từ bản vá AI đề xuất">
+            {aiInvariants.map((op) => (
+              <li key={op.invariant.id} className="flex flex-wrap items-center gap-3 rounded-xl border border-accent bg-surface p-3 text-sm">
+                <span>
+                  Thêm invariant <span className="font-mono">{op.invariant.id}</span> (AI đề xuất)
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setAiInvariants((xs) => xs.filter((x) => x.invariant.id !== op.invariant.id))}
+                  className="min-h-11 text-sm text-muted underline"
+                >
+                  Bỏ
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
         <div className="flex flex-wrap items-center gap-3">
           <button
             type="submit"
@@ -228,10 +267,12 @@ export function PackView() {
             {busy === "analyze" ? "Đang kiểm chứng lại bộ luật…" : "Phân tích tác động"}
           </button>
           <p className="text-sm text-muted" role="status">
-            {pending.length === 0 ? "Chưa sửa tham số nào." : `${pending.length} tham số sẽ đổi.`}
+            {pending.length === 0 ? "Chưa có thay đổi nào." : `${pending.length} thay đổi sẽ được phân tích.`}
           </p>
         </div>
       </form>
+
+      <RegulationInterpreter sid={sid} onUse={takeAiPatch} />
 
       {error && (
         <p role="alert" className="rounded-xl border border-red-300 bg-red-50 p-3 text-sm text-danger dark:border-red-900 dark:bg-red-950">
