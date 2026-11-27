@@ -58,14 +58,15 @@ Quy ước: mọi con số dưới đây do hệ thống tính trên dữ liệu
 - **Chữ:** bảng A/B/C/D trên 30 case tổng hợp (gold viết trước khi chạy model).
 - **Đã có:** A (chỉ backtest, gold DSL): recall 53%, precision 62%; bỏ sót INV-AUTH-01 ở 3/7 case vì dữ liệu không có giao dịch vùng đó, không phát hiện luật thừa / xung đột miễn trừ.
   G (gold + Z3) khớp 100% — **ghi rõ** đây không phải bằng chứng độc lập vì gold được đối chiếu với bộ kiểm chứng.
-- **[CHỜ]** B (LLM thuần), C (RingForge), D (sửa tất định): cần `LLM_API_KEY`, chạy `eval/run_ablation.py --configs A,G,B,C,D --runs 2`. Một câu kết luận trung thực theo số thật, kể cả khi D ≈ C.
+- **Đã chạy với AI** (`openai/gpt-6-luna`, 2 lần, 27/11): B (LLM tự đánh giá, tự sửa) precision/recall 90%/90%, bỏ sót luật chết 5/8 lượt, sửa đạt 81%; C (RingForge) và D (sửa tất định) cùng 100% phát hiện, 100% sửa đạt.
+  **Câu kết luận:** "AI giỏi dịch câu tiếng Việt thành luật (hợp lệ 100%, đúng logic 94%); Z3 mới là thứ bắt lỗi — và trên 30 case, sửa bằng AI không hơn sửa tất định." 
 - Nguồn: `eval/report.md`.
 
 ## 8. An toàn và tin cậy
 
 - **Chữ:** LLM không tính tiền, không kết luận đạt/không đạt, không tự bật luật hay sửa Policy Pack; mọi đề xuất được kiểm chứng lại; tóm tắt AI bị loại nếu có con số không có trong dữ liệu; invariant là cổng cứng (không phê duyệt được change set FAIL); audit ghi model, phiên bản prompt, hash prompt.
   Giới hạn của Z3 (nói thẳng): mô hình một giao dịch, chỉ chứng minh các invariant đã viết, không đo tỷ lệ chặn nhầm.
-- **Số:** interpreter pandas ≡ encoder Z3 trên 5.000 giao dịch (property test); 252 test tự động.
+- **Số:** interpreter pandas ≡ encoder Z3 trên 5.000 giao dịch (property test); 262 test tự động.
 - **Hình:** ảnh màn Duyệt: nút phê duyệt bị khóa + timeline audit.
 
 ## 9. Tác động và mở rộng
@@ -76,7 +77,7 @@ Quy ước: mọi con số dưới đây do hệ thống tính trên dữ liệu
 
 ## 10. Hạn chế và bước tiếp
 
-- **Chữ:** dữ liệu tổng hợp; mô hình một giao dịch (chưa điều kiện chuỗi thời gian); Policy Pack giả lập (đối chiếu "trên"/"từ" 10 triệu); chưa biết công cụ nội bộ MoMo; 1–2 case thất bại từ ablation **[CHỜ]**.
+- **Chữ:** dữ liệu tổng hợp; mô hình một giao dịch (chưa điều kiện chuỗi thời gian); Policy Pack giả lập (đối chiếu "trên"/"từ" 10 triệu); chưa biết công cụ nội bộ MoMo; case thất bại từ ablation: biên dịch T-11 và T-22 không tương đương gold (lỗi vẫn được phát hiện), sửa bằng AI không hơn sửa tất định.
   Bước tiếp: điều kiện chuỗi thời gian; nhập luật từ hệ thống thật; phỏng vấn người làm risk/fraud (docs/10 mục 7) **[CHỜ nếu có]**.
 - **Hình:** không cần; có thể đặt link sản phẩm + QR.
 

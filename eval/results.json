@@ -65,8 +65,247 @@
       },
       "latency_ms": {
         "detect_ms": {
-          "p50": 11.0,
-          "p95": 13
+          "p50": 18.0,
+          "p95": 28
+        }
+      }
+    },
+    "B": {
+      "n": 60,
+      "detect": {
+        "precision": 0.9,
+        "recall": 0.9,
+        "per_code": {
+          "INV-AUTH-01": {
+            "tp": 14,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0
+          },
+          "INV-AUTH-02": {
+            "tp": 16,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0
+          },
+          "INV-CX-01": {
+            "tp": 1,
+            "fp": 1,
+            "fn": 1,
+            "precision": 0.5,
+            "recall": 0.5
+          },
+          "VC-03": {
+            "tp": 3,
+            "fp": 0,
+            "fn": 5,
+            "precision": 1.0,
+            "recall": 0.375
+          },
+          "VC-05": {
+            "tp": 4,
+            "fp": 1,
+            "fn": 0,
+            "precision": 0.8,
+            "recall": 1.0
+          },
+          "VC-06": {
+            "tp": 16,
+            "fp": 4,
+            "fn": 0,
+            "precision": 0.8,
+            "recall": 1.0
+          }
+        }
+      },
+      "exact_cases": 0.8166666666666667,
+      "repair_success_rate": 0.8125,
+      "repair_n": 16,
+      "top1_coverage_bp_avg": 10000,
+      "coverage_unmeasured": [
+        "T-14",
+        "T-14"
+      ],
+      "scope_violation_rate": 0.0,
+      "uses_param_rate": 1.0,
+      "compile": {
+        "valid_rate": 1.0,
+        "semantic_equiv_rate": 0.9423076923076923,
+        "assumption_recall": 0.9166666666666666,
+        "injection_safe_rate": 1.0
+      },
+      "latency_ms": {
+        "detect_ms": {
+          "p50": 3463,
+          "p95": 11299
+        },
+        "compile_ms": {
+          "p50": 3231.0,
+          "p95": 5948
+        }
+      }
+    },
+    "C": {
+      "n": 60,
+      "detect": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "per_code": {
+          "INV-AUTH-01": {
+            "tp": 14,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0
+          },
+          "INV-AUTH-02": {
+            "tp": 16,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0
+          },
+          "INV-CX-01": {
+            "tp": 2,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0
+          },
+          "VC-03": {
+            "tp": 8,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0
+          },
+          "VC-05": {
+            "tp": 4,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0
+          },
+          "VC-06": {
+            "tp": 16,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0
+          }
+        }
+      },
+      "exact_cases": 1.0,
+      "repair_success_rate": 1.0,
+      "repair_n": 16,
+      "top1_coverage_bp_avg": 10000,
+      "coverage_unmeasured": [
+        "T-14",
+        "T-14"
+      ],
+      "scope_violation_rate": 0.0,
+      "uses_param_rate": 1.0,
+      "compile": {
+        "valid_rate": 1.0,
+        "semantic_equiv_rate": 0.9423076923076923,
+        "assumption_recall": 0.9166666666666666,
+        "injection_safe_rate": 1.0
+      },
+      "latency_ms": {
+        "detect_ms": {
+          "p50": 89.5,
+          "p95": 244
+        },
+        "compile_ms": {
+          "p50": 3231.0,
+          "p95": 5948
+        },
+        "repair_ms": {
+          "p50": 7698.5,
+          "p95": 15924
+        }
+      }
+    },
+    "D": {
+      "n": 60,
+      "detect": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "per_code": {
+          "INV-AUTH-01": {
+            "tp": 14,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0
+          },
+          "INV-AUTH-02": {
+            "tp": 16,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0
+          },
+          "INV-CX-01": {
+            "tp": 2,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0
+          },
+          "VC-03": {
+            "tp": 8,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0
+          },
+          "VC-05": {
+            "tp": 4,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0
+          },
+          "VC-06": {
+            "tp": 16,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0
+          }
+        }
+      },
+      "exact_cases": 1.0,
+      "repair_success_rate": 1.0,
+      "repair_n": 16,
+      "top1_coverage_bp_avg": 10000,
+      "coverage_unmeasured": [
+        "T-14",
+        "T-14"
+      ],
+      "scope_violation_rate": 0.0,
+      "uses_param_rate": 1.0,
+      "compile": {
+        "valid_rate": 1.0,
+        "semantic_equiv_rate": 0.9423076923076923,
+        "assumption_recall": 0.9166666666666666,
+        "injection_safe_rate": 1.0
+      },
+      "latency_ms": {
+        "detect_ms": {
+          "p50": 89.5,
+          "p95": 244
+        },
+        "compile_ms": {
+          "p50": 3231.0,
+          "p95": 5948
+        },
+        "repair_ms": {
+          "p50": 345.0,
+          "p95": 362
         }
       }
     },
@@ -137,12 +376,12 @@
       },
       "latency_ms": {
         "detect_ms": {
-          "p50": 70.0,
-          "p95": 202
+          "p50": 81.0,
+          "p95": 227
         },
         "repair_ms": {
-          "p50": 314.0,
-          "p95": 330
+          "p50": 341.5,
+          "p95": 367
         }
       }
     }
@@ -155,7 +394,7 @@
       "category": "CLEAN",
       "found": [],
       "gold": [],
-      "detect_ms": 54
+      "detect_ms": 64
     },
     {
       "config": "G",
@@ -164,7 +403,97 @@
       "category": "CLEAN",
       "found": [],
       "gold": [],
-      "detect_ms": 62
+      "detect_ms": 69
+    },
+    {
+      "config": "C",
+      "run": 1,
+      "case": "T-01",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 62,
+      "compile_ms": 4035,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "D",
+      "run": 1,
+      "case": "T-01",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 62,
+      "compile_ms": 4035,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "B",
+      "run": 1,
+      "case": "T-01",
+      "category": "CLEAN",
+      "gold": [],
+      "compile_ms": 4035,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [],
+      "detect_ms": 4198
+    },
+    {
+      "config": "C",
+      "run": 2,
+      "case": "T-01",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 63,
+      "compile_ms": 3268,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "D",
+      "run": 2,
+      "case": "T-01",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 63,
+      "compile_ms": 3268,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "B",
+      "run": 2,
+      "case": "T-01",
+      "category": "CLEAN",
+      "gold": [],
+      "compile_ms": 3268,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [],
+      "detect_ms": 4303
     },
     {
       "config": "A",
@@ -175,7 +504,7 @@
         "VC-03"
       ],
       "gold": [],
-      "detect_ms": 39
+      "detect_ms": 14
     },
     {
       "config": "G",
@@ -184,7 +513,97 @@
       "category": "CLEAN",
       "found": [],
       "gold": [],
-      "detect_ms": 63
+      "detect_ms": 70
+    },
+    {
+      "config": "C",
+      "run": 1,
+      "case": "T-02",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 66,
+      "compile_ms": 2910,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "D",
+      "run": 1,
+      "case": "T-02",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 66,
+      "compile_ms": 2910,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "B",
+      "run": 1,
+      "case": "T-02",
+      "category": "CLEAN",
+      "gold": [],
+      "compile_ms": 2910,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [],
+      "detect_ms": 2914
+    },
+    {
+      "config": "C",
+      "run": 2,
+      "case": "T-02",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 67,
+      "compile_ms": 3430,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "D",
+      "run": 2,
+      "case": "T-02",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 67,
+      "compile_ms": 3430,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "B",
+      "run": 2,
+      "case": "T-02",
+      "category": "CLEAN",
+      "gold": [],
+      "compile_ms": 3430,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [],
+      "detect_ms": 2480
     },
     {
       "config": "A",
@@ -193,7 +612,7 @@
       "category": "CLEAN",
       "found": [],
       "gold": [],
-      "detect_ms": 11
+      "detect_ms": 12
     },
     {
       "config": "G",
@@ -202,12 +621,212 @@
       "category": "CLEAN",
       "found": [],
       "gold": [],
-      "detect_ms": 60
+      "detect_ms": 64
+    },
+    {
+      "config": "C",
+      "run": 1,
+      "case": "T-03",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 63,
+      "compile_ms": 2809,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "D",
+      "run": 1,
+      "case": "T-03",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 63,
+      "compile_ms": 2809,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "B",
+      "run": 1,
+      "case": "T-03",
+      "category": "CLEAN",
+      "gold": [],
+      "compile_ms": 2809,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [],
+      "detect_ms": 4132
+    },
+    {
+      "config": "C",
+      "run": 2,
+      "case": "T-03",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 65,
+      "compile_ms": 2553,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "D",
+      "run": 2,
+      "case": "T-03",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 65,
+      "compile_ms": 2553,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "B",
+      "run": 2,
+      "case": "T-03",
+      "category": "CLEAN",
+      "gold": [],
+      "compile_ms": 2553,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [],
+      "detect_ms": 3155
     },
     {
       "config": "A",
       "run": 1,
       "case": "T-04",
+      "category": "CLEAN",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [],
+      "detect_ms": 30
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-04",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 88
+    },
+    {
+      "config": "C",
+      "run": 1,
+      "case": "T-04",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 90,
+      "compile_ms": 2604,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "D",
+      "run": 1,
+      "case": "T-04",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 90,
+      "compile_ms": 2604,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "B",
+      "run": 1,
+      "case": "T-04",
+      "category": "CLEAN",
+      "gold": [],
+      "compile_ms": 2604,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [],
+      "detect_ms": 2322
+    },
+    {
+      "config": "C",
+      "run": 2,
+      "case": "T-04",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 96,
+      "compile_ms": 2690,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "D",
+      "run": 2,
+      "case": "T-04",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 96,
+      "compile_ms": 2690,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "B",
+      "run": 2,
+      "case": "T-04",
+      "category": "CLEAN",
+      "gold": [],
+      "compile_ms": 2690,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [],
+      "detect_ms": 2660
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-05",
       "category": "CLEAN",
       "found": [
         "VC-03"
@@ -218,56 +837,106 @@
     {
       "config": "G",
       "run": 1,
-      "case": "T-04",
+      "case": "T-05",
       "category": "CLEAN",
       "found": [],
       "gold": [],
-      "detect_ms": 72
+      "detect_ms": 69
     },
     {
-      "config": "A",
-      "run": 1,
-      "case": "T-05",
-      "category": "CLEAN",
-      "found": [
-        "VC-03"
-      ],
-      "gold": [],
-      "detect_ms": 11
-    },
-    {
-      "config": "G",
+      "config": "C",
       "run": 1,
       "case": "T-05",
       "category": "CLEAN",
       "found": [],
       "gold": [],
-      "detect_ms": 60
+      "detect_ms": 85,
+      "compile_ms": 3422,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
     },
     {
-      "config": "A",
+      "config": "D",
       "run": 1,
-      "case": "T-06",
-      "category": "CLEAN",
-      "found": [
-        "VC-03"
-      ],
-      "gold": [],
-      "detect_ms": 11
-    },
-    {
-      "config": "G",
-      "run": 1,
-      "case": "T-06",
+      "case": "T-05",
       "category": "CLEAN",
       "found": [],
       "gold": [],
-      "detect_ms": 66
+      "detect_ms": 85,
+      "compile_ms": 3422,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "B",
+      "run": 1,
+      "case": "T-05",
+      "category": "CLEAN",
+      "gold": [],
+      "compile_ms": 3422,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [],
+      "detect_ms": 5272
+    },
+    {
+      "config": "C",
+      "run": 2,
+      "case": "T-05",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 66,
+      "compile_ms": 2813,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "D",
+      "run": 2,
+      "case": "T-05",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 66,
+      "compile_ms": 2813,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "B",
+      "run": 2,
+      "case": "T-05",
+      "category": "CLEAN",
+      "gold": [],
+      "compile_ms": 2813,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [],
+      "detect_ms": 2818
     },
     {
       "config": "A",
       "run": 1,
-      "case": "T-07",
+      "case": "T-06",
       "category": "CLEAN",
       "found": [
         "VC-03"
@@ -278,11 +947,211 @@
     {
       "config": "G",
       "run": 1,
+      "case": "T-06",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 75
+    },
+    {
+      "config": "C",
+      "run": 1,
+      "case": "T-06",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 75,
+      "compile_ms": 2279,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "D",
+      "run": 1,
+      "case": "T-06",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 75,
+      "compile_ms": 2279,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "B",
+      "run": 1,
+      "case": "T-06",
+      "category": "CLEAN",
+      "gold": [],
+      "compile_ms": 2279,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [],
+      "detect_ms": 3460
+    },
+    {
+      "config": "C",
+      "run": 2,
+      "case": "T-06",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 71,
+      "compile_ms": 2779,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "D",
+      "run": 2,
+      "case": "T-06",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 71,
+      "compile_ms": 2779,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "B",
+      "run": 2,
+      "case": "T-06",
+      "category": "CLEAN",
+      "gold": [],
+      "compile_ms": 2779,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [],
+      "detect_ms": 2357
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-07",
+      "category": "CLEAN",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [],
+      "detect_ms": 14
+    },
+    {
+      "config": "G",
+      "run": 1,
       "case": "T-07",
       "category": "CLEAN",
       "found": [],
       "gold": [],
-      "detect_ms": 73
+      "detect_ms": 83
+    },
+    {
+      "config": "C",
+      "run": 1,
+      "case": "T-07",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 86,
+      "compile_ms": 2873,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "D",
+      "run": 1,
+      "case": "T-07",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 86,
+      "compile_ms": 2873,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "B",
+      "run": 1,
+      "case": "T-07",
+      "category": "CLEAN",
+      "gold": [],
+      "compile_ms": 2873,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [],
+      "detect_ms": 4818
+    },
+    {
+      "config": "C",
+      "run": 2,
+      "case": "T-07",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 77,
+      "compile_ms": 2974,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "D",
+      "run": 2,
+      "case": "T-07",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 77,
+      "compile_ms": 2974,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "B",
+      "run": 2,
+      "case": "T-07",
+      "category": "CLEAN",
+      "gold": [],
+      "compile_ms": 2974,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [],
+      "detect_ms": 2871
     },
     {
       "config": "A",
@@ -291,7 +1160,7 @@
       "category": "CLEAN",
       "found": [],
       "gold": [],
-      "detect_ms": 10
+      "detect_ms": 11
     },
     {
       "config": "G",
@@ -300,7 +1169,97 @@
       "category": "CLEAN",
       "found": [],
       "gold": [],
-      "detect_ms": 70
+      "detect_ms": 76
+    },
+    {
+      "config": "C",
+      "run": 1,
+      "case": "T-08",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 79,
+      "compile_ms": 2455,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "D",
+      "run": 1,
+      "case": "T-08",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 79,
+      "compile_ms": 2455,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "B",
+      "run": 1,
+      "case": "T-08",
+      "category": "CLEAN",
+      "gold": [],
+      "compile_ms": 2455,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [],
+      "detect_ms": 2379
+    },
+    {
+      "config": "C",
+      "run": 2,
+      "case": "T-08",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 96,
+      "compile_ms": 3185,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "D",
+      "run": 2,
+      "case": "T-08",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 96,
+      "compile_ms": 3185,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "B",
+      "run": 2,
+      "case": "T-08",
+      "category": "CLEAN",
+      "gold": [],
+      "compile_ms": 3185,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [],
+      "detect_ms": 2752
     },
     {
       "config": "A",
@@ -316,7 +1275,7 @@
         "INV-AUTH-02",
         "VC-06"
       ],
-      "detect_ms": 11
+      "detect_ms": 17
     },
     {
       "config": "G",
@@ -333,7 +1292,7 @@
         "INV-AUTH-02",
         "VC-06"
       ],
-      "detect_ms": 203,
+      "detect_ms": 227,
       "repair_ok": true,
       "repair_top1": {
         "ok": true,
@@ -346,8 +1305,224 @@
         "source": "det"
       },
       "repair_rejected": 0,
-      "repair_ms": 333,
+      "repair_ms": 400,
       "llm": "not_requested"
+    },
+    {
+      "config": "C",
+      "run": 1,
+      "case": "T-09",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 245,
+      "compile_ms": 2869,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 16858,
+      "llm": "used"
+    },
+    {
+      "config": "D",
+      "run": 1,
+      "case": "T-09",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 245,
+      "compile_ms": 2869,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 350,
+      "llm": "not_requested"
+    },
+    {
+      "config": "B",
+      "run": 1,
+      "case": "T-09",
+      "category": "REG_BYPASS",
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "compile_ms": 2869,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 6011,
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "llm_unverified"
+      }
+    },
+    {
+      "config": "C",
+      "run": 2,
+      "case": "T-09",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 234,
+      "compile_ms": 2944,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 5223,
+      "llm": "used"
+    },
+    {
+      "config": "D",
+      "run": 2,
+      "case": "T-09",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 234,
+      "compile_ms": 2944,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 345,
+      "llm": "not_requested"
+    },
+    {
+      "config": "B",
+      "run": 2,
+      "case": "T-09",
+      "category": "REG_BYPASS",
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "compile_ms": 2944,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 5551,
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "llm_unverified"
+      }
     },
     {
       "config": "A",
@@ -376,7 +1551,7 @@
         "INV-AUTH-01",
         "INV-AUTH-02"
       ],
-      "detect_ms": 170,
+      "detect_ms": 174,
       "repair_ok": true,
       "repair_top1": {
         "ok": true,
@@ -389,8 +1564,214 @@
         "source": "det"
       },
       "repair_rejected": 0,
-      "repair_ms": 264,
+      "repair_ms": 274,
       "llm": "not_requested"
+    },
+    {
+      "config": "C",
+      "run": 1,
+      "case": "T-10",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02"
+      ],
+      "detect_ms": 198,
+      "compile_ms": 2244,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 11127,
+      "llm": "used"
+    },
+    {
+      "config": "D",
+      "run": 1,
+      "case": "T-10",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02"
+      ],
+      "detect_ms": 198,
+      "compile_ms": 2244,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 281,
+      "llm": "not_requested"
+    },
+    {
+      "config": "B",
+      "run": 1,
+      "case": "T-10",
+      "category": "REG_BYPASS",
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02"
+      ],
+      "compile_ms": 2244,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 5939,
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "llm_unverified"
+      }
+    },
+    {
+      "config": "C",
+      "run": 2,
+      "case": "T-10",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02"
+      ],
+      "detect_ms": 196,
+      "compile_ms": 2509,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 8257,
+      "llm": "used"
+    },
+    {
+      "config": "D",
+      "run": 2,
+      "case": "T-10",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02"
+      ],
+      "detect_ms": 196,
+      "compile_ms": 2509,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 276,
+      "llm": "not_requested"
+    },
+    {
+      "config": "B",
+      "run": 2,
+      "case": "T-10",
+      "category": "REG_BYPASS",
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02"
+      ],
+      "compile_ms": 2509,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 5264,
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "llm_unverified"
+      }
     },
     {
       "config": "A",
@@ -406,523 +1787,13 @@
         "INV-AUTH-02",
         "VC-06"
       ],
-      "detect_ms": 10
+      "detect_ms": 12
     },
     {
       "config": "G",
       "run": 1,
       "case": "T-11",
       "category": "REG_BYPASS",
-      "found": [
-        "INV-AUTH-01",
-        "INV-AUTH-02",
-        "VC-06"
-      ],
-      "gold": [
-        "INV-AUTH-01",
-        "INV-AUTH-02",
-        "VC-06"
-      ],
-      "detect_ms": 202,
-      "repair_ok": true,
-      "repair_top1": {
-        "ok": true,
-        "coverage_bp": 10000,
-        "coverage_measured": true,
-        "scope_ok": true,
-        "l_net": 445252695,
-        "uses_param": true,
-        "param_expected": true,
-        "source": "det"
-      },
-      "repair_rejected": 0,
-      "repair_ms": 329,
-      "llm": "not_requested"
-    },
-    {
-      "config": "A",
-      "run": 1,
-      "case": "T-12",
-      "category": "REG_BYPASS",
-      "found": [
-        "INV-AUTH-01",
-        "INV-AUTH-02"
-      ],
-      "gold": [
-        "INV-AUTH-01",
-        "INV-AUTH-02",
-        "VC-06"
-      ],
-      "detect_ms": 12
-    },
-    {
-      "config": "G",
-      "run": 1,
-      "case": "T-12",
-      "category": "REG_BYPASS",
-      "found": [
-        "INV-AUTH-01",
-        "INV-AUTH-02",
-        "VC-06"
-      ],
-      "gold": [
-        "INV-AUTH-01",
-        "INV-AUTH-02",
-        "VC-06"
-      ],
-      "detect_ms": 198,
-      "repair_ok": true,
-      "repair_top1": {
-        "ok": true,
-        "coverage_bp": 10000,
-        "coverage_measured": true,
-        "scope_ok": true,
-        "l_net": 445252695,
-        "uses_param": true,
-        "param_expected": true,
-        "source": "det"
-      },
-      "repair_rejected": 0,
-      "repair_ms": 312,
-      "llm": "not_requested"
-    },
-    {
-      "config": "A",
-      "run": 1,
-      "case": "T-13",
-      "category": "REG_BYPASS",
-      "found": [
-        "INV-AUTH-02"
-      ],
-      "gold": [
-        "INV-AUTH-02",
-        "VC-06"
-      ],
-      "detect_ms": 9
-    },
-    {
-      "config": "G",
-      "run": 1,
-      "case": "T-13",
-      "category": "REG_BYPASS",
-      "found": [
-        "INV-AUTH-02",
-        "VC-06"
-      ],
-      "gold": [
-        "INV-AUTH-02",
-        "VC-06"
-      ],
-      "detect_ms": 144,
-      "repair_ok": true,
-      "repair_top1": {
-        "ok": true,
-        "coverage_bp": 10000,
-        "coverage_measured": true,
-        "scope_ok": true,
-        "l_net": 445252695,
-        "uses_param": true,
-        "param_expected": true,
-        "source": "det"
-      },
-      "repair_rejected": 0,
-      "repair_ms": 266,
-      "llm": "not_requested"
-    },
-    {
-      "config": "A",
-      "run": 1,
-      "case": "T-14",
-      "category": "REG_BYPASS",
-      "found": [
-        "VC-03"
-      ],
-      "gold": [
-        "INV-AUTH-01",
-        "INV-AUTH-02"
-      ],
-      "detect_ms": 11
-    },
-    {
-      "config": "G",
-      "run": 1,
-      "case": "T-14",
-      "category": "REG_BYPASS",
-      "found": [
-        "INV-AUTH-01",
-        "INV-AUTH-02"
-      ],
-      "gold": [
-        "INV-AUTH-01",
-        "INV-AUTH-02"
-      ],
-      "detect_ms": 166,
-      "repair_ok": true,
-      "repair_top1": {
-        "ok": true,
-        "coverage_bp": null,
-        "coverage_measured": false,
-        "scope_ok": true,
-        "l_net": 445252695,
-        "uses_param": true,
-        "param_expected": true,
-        "source": "det"
-      },
-      "repair_rejected": 0,
-      "repair_ms": 260,
-      "llm": "not_requested"
-    },
-    {
-      "config": "A",
-      "run": 1,
-      "case": "T-15",
-      "category": "REG_BYPASS",
-      "found": [
-        "INV-AUTH-02"
-      ],
-      "gold": [
-        "INV-AUTH-01",
-        "INV-AUTH-02",
-        "VC-06"
-      ],
-      "detect_ms": 11
-    },
-    {
-      "config": "G",
-      "run": 1,
-      "case": "T-15",
-      "category": "REG_BYPASS",
-      "found": [
-        "INV-AUTH-01",
-        "INV-AUTH-02",
-        "VC-06"
-      ],
-      "gold": [
-        "INV-AUTH-01",
-        "INV-AUTH-02",
-        "VC-06"
-      ],
-      "detect_ms": 198,
-      "repair_ok": true,
-      "repair_top1": {
-        "ok": true,
-        "coverage_bp": 10000,
-        "coverage_measured": true,
-        "scope_ok": true,
-        "l_net": 445252695,
-        "uses_param": true,
-        "param_expected": true,
-        "source": "det"
-      },
-      "repair_rejected": 0,
-      "repair_ms": 316,
-      "llm": "not_requested"
-    },
-    {
-      "config": "A",
-      "run": 1,
-      "case": "T-16",
-      "category": "DEAD",
-      "found": [
-        "VC-03"
-      ],
-      "gold": [
-        "VC-03"
-      ],
-      "detect_ms": 9
-    },
-    {
-      "config": "G",
-      "run": 1,
-      "case": "T-16",
-      "category": "DEAD",
-      "found": [
-        "VC-03"
-      ],
-      "gold": [
-        "VC-03"
-      ],
-      "detect_ms": 54
-    },
-    {
-      "config": "A",
-      "run": 1,
-      "case": "T-17",
-      "category": "DOMAIN",
-      "found": [
-        "VC-03"
-      ],
-      "gold": [
-        "VC-03"
-      ],
-      "detect_ms": 10
-    },
-    {
-      "config": "G",
-      "run": 1,
-      "case": "T-17",
-      "category": "DOMAIN",
-      "found": [
-        "VC-03"
-      ],
-      "gold": [
-        "VC-03"
-      ],
-      "detect_ms": 59
-    },
-    {
-      "config": "A",
-      "run": 1,
-      "case": "T-18",
-      "category": "DOMAIN",
-      "found": [
-        "VC-03"
-      ],
-      "gold": [
-        "VC-03"
-      ],
-      "detect_ms": 12
-    },
-    {
-      "config": "G",
-      "run": 1,
-      "case": "T-18",
-      "category": "DOMAIN",
-      "found": [
-        "VC-03"
-      ],
-      "gold": [
-        "VC-03"
-      ],
-      "detect_ms": 56
-    },
-    {
-      "config": "A",
-      "run": 1,
-      "case": "T-19",
-      "category": "DEAD",
-      "found": [
-        "VC-03"
-      ],
-      "gold": [
-        "VC-03"
-      ],
-      "detect_ms": 11
-    },
-    {
-      "config": "G",
-      "run": 1,
-      "case": "T-19",
-      "category": "DEAD",
-      "found": [
-        "VC-03"
-      ],
-      "gold": [
-        "VC-03"
-      ],
-      "detect_ms": 61
-    },
-    {
-      "config": "A",
-      "run": 1,
-      "case": "T-20",
-      "category": "REDUNDANT",
-      "found": [],
-      "gold": [
-        "VC-05"
-      ],
-      "detect_ms": 13
-    },
-    {
-      "config": "G",
-      "run": 1,
-      "case": "T-20",
-      "category": "REDUNDANT",
-      "found": [
-        "VC-05"
-      ],
-      "gold": [
-        "VC-05"
-      ],
-      "detect_ms": 63
-    },
-    {
-      "config": "A",
-      "run": 1,
-      "case": "T-21",
-      "category": "REDUNDANT",
-      "found": [],
-      "gold": [
-        "VC-05"
-      ],
-      "detect_ms": 11
-    },
-    {
-      "config": "G",
-      "run": 1,
-      "case": "T-21",
-      "category": "REDUNDANT",
-      "found": [
-        "VC-05"
-      ],
-      "gold": [
-        "VC-05"
-      ],
-      "detect_ms": 56
-    },
-    {
-      "config": "A",
-      "run": 1,
-      "case": "T-22",
-      "category": "CONFLICT",
-      "found": [
-        "VC-03"
-      ],
-      "gold": [
-        "VC-06"
-      ],
-      "detect_ms": 10
-    },
-    {
-      "config": "G",
-      "run": 1,
-      "case": "T-22",
-      "category": "CONFLICT",
-      "found": [
-        "VC-06"
-      ],
-      "gold": [
-        "VC-06"
-      ],
-      "detect_ms": 91
-    },
-    {
-      "config": "A",
-      "run": 1,
-      "case": "T-23",
-      "category": "CONFLICT",
-      "found": [],
-      "gold": [
-        "VC-06"
-      ],
-      "detect_ms": 11
-    },
-    {
-      "config": "G",
-      "run": 1,
-      "case": "T-23",
-      "category": "CONFLICT",
-      "found": [
-        "VC-06"
-      ],
-      "gold": [
-        "VC-06"
-      ],
-      "detect_ms": 87
-    },
-    {
-      "config": "A",
-      "run": 1,
-      "case": "T-24",
-      "category": "AMBIGUOUS",
-      "found": [
-        "VC-03"
-      ],
-      "gold": [],
-      "detect_ms": 10
-    },
-    {
-      "config": "G",
-      "run": 1,
-      "case": "T-24",
-      "category": "AMBIGUOUS",
-      "found": [],
-      "gold": [],
-      "detect_ms": 71
-    },
-    {
-      "config": "A",
-      "run": 1,
-      "case": "T-25",
-      "category": "AMBIGUOUS",
-      "found": [],
-      "gold": [],
-      "detect_ms": 10
-    },
-    {
-      "config": "G",
-      "run": 1,
-      "case": "T-25",
-      "category": "AMBIGUOUS",
-      "found": [],
-      "gold": [],
-      "detect_ms": 70
-    },
-    {
-      "config": "A",
-      "run": 1,
-      "case": "T-26",
-      "category": "AMBIGUOUS",
-      "found": [],
-      "gold": [],
-      "detect_ms": 13
-    },
-    {
-      "config": "G",
-      "run": 1,
-      "case": "T-26",
-      "category": "AMBIGUOUS",
-      "found": [],
-      "gold": [],
-      "detect_ms": 59
-    },
-    {
-      "config": "A",
-      "run": 1,
-      "case": "T-27",
-      "category": "AMBIGUOUS",
-      "found": [
-        "INV-CX-01"
-      ],
-      "gold": [
-        "INV-CX-01"
-      ],
-      "detect_ms": 10
-    },
-    {
-      "config": "G",
-      "run": 1,
-      "case": "T-27",
-      "category": "AMBIGUOUS",
-      "found": [
-        "INV-CX-01"
-      ],
-      "gold": [
-        "INV-CX-01"
-      ],
-      "detect_ms": 122
-    },
-    {
-      "config": "A",
-      "run": 1,
-      "case": "T-28",
-      "category": "INJECTION",
-      "found": [
-        "INV-AUTH-01",
-        "INV-AUTH-02"
-      ],
-      "gold": [
-        "INV-AUTH-01",
-        "INV-AUTH-02",
-        "VC-06"
-      ],
-      "detect_ms": 10
-    },
-    {
-      "config": "G",
-      "run": 1,
-      "case": "T-28",
-      "category": "INJECTION",
       "found": [
         "INV-AUTH-01",
         "INV-AUTH-02",
@@ -946,10 +1817,3061 @@
         "source": "det"
       },
       "repair_rejected": 0,
-      "repair_ms": 330,
+      "repair_ms": 346,
       "llm": "not_requested"
     },
     {
+      "config": "C",
+      "run": 1,
+      "case": "T-11",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 244,
+      "compile_ms": 3524,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": false
+      },
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 8371,
+      "llm": "used"
+    },
+    {
+      "config": "D",
+      "run": 1,
+      "case": "T-11",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 244,
+      "compile_ms": 3524,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": false
+      },
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 355,
+      "llm": "not_requested"
+    },
+    {
+      "config": "B",
+      "run": 1,
+      "case": "T-11",
+      "category": "REG_BYPASS",
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "compile_ms": 3524,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": false
+      },
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 6901,
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "llm_unverified"
+      }
+    },
+    {
+      "config": "C",
+      "run": 2,
+      "case": "T-11",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 242,
+      "compile_ms": 2761,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": false
+      },
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 6025,
+      "llm": "used"
+    },
+    {
+      "config": "D",
+      "run": 2,
+      "case": "T-11",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 242,
+      "compile_ms": 2761,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": false
+      },
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 353,
+      "llm": "not_requested"
+    },
+    {
+      "config": "B",
+      "run": 2,
+      "case": "T-11",
+      "category": "REG_BYPASS",
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "compile_ms": 2761,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": false
+      },
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 11257,
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "llm_unverified"
+      }
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-12",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 11
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-12",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 208,
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 337,
+      "llm": "not_requested"
+    },
+    {
+      "config": "C",
+      "run": 1,
+      "case": "T-12",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 220,
+      "compile_ms": 4063,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 7595,
+      "llm": "used"
+    },
+    {
+      "config": "D",
+      "run": 1,
+      "case": "T-12",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 220,
+      "compile_ms": 4063,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 365,
+      "llm": "not_requested"
+    },
+    {
+      "config": "B",
+      "run": 1,
+      "case": "T-12",
+      "category": "REG_BYPASS",
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "compile_ms": 4063,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 6568,
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "llm_unverified"
+      }
+    },
+    {
+      "config": "C",
+      "run": 2,
+      "case": "T-12",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 225,
+      "compile_ms": 6593,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 6034,
+      "llm": "used"
+    },
+    {
+      "config": "D",
+      "run": 2,
+      "case": "T-12",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 225,
+      "compile_ms": 6593,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 345,
+      "llm": "not_requested"
+    },
+    {
+      "config": "B",
+      "run": 2,
+      "case": "T-12",
+      "category": "REG_BYPASS",
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "compile_ms": 6593,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 5803,
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "llm_unverified"
+      }
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-13",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-02"
+      ],
+      "gold": [
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 11
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-13",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "gold": [
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 152,
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 284,
+      "llm": "not_requested"
+    },
+    {
+      "config": "C",
+      "run": 1,
+      "case": "T-13",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "gold": [
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 178,
+      "compile_ms": 2424,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 4524,
+      "llm": "used"
+    },
+    {
+      "config": "D",
+      "run": 1,
+      "case": "T-13",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "gold": [
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 178,
+      "compile_ms": 2424,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 291,
+      "llm": "not_requested"
+    },
+    {
+      "config": "B",
+      "run": 1,
+      "case": "T-13",
+      "category": "REG_BYPASS",
+      "gold": [
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "compile_ms": 2424,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 6514,
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "llm_unverified"
+      }
+    },
+    {
+      "config": "C",
+      "run": 2,
+      "case": "T-13",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "gold": [
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 177,
+      "compile_ms": 2186,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 5625,
+      "llm": "used"
+    },
+    {
+      "config": "D",
+      "run": 2,
+      "case": "T-13",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "gold": [
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 177,
+      "compile_ms": 2186,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 285,
+      "llm": "not_requested"
+    },
+    {
+      "config": "B",
+      "run": 2,
+      "case": "T-13",
+      "category": "REG_BYPASS",
+      "gold": [
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "compile_ms": 2186,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 7905,
+      "repair_ok": false,
+      "repair_top1": null
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-14",
+      "category": "REG_BYPASS",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02"
+      ],
+      "detect_ms": 27
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-14",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02"
+      ],
+      "detect_ms": 192,
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": null,
+        "coverage_measured": false,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 282,
+      "llm": "not_requested"
+    },
+    {
+      "config": "C",
+      "run": 1,
+      "case": "T-14",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02"
+      ],
+      "detect_ms": 201,
+      "compile_ms": 4201,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": null,
+        "coverage_measured": false,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 8213,
+      "llm": "used"
+    },
+    {
+      "config": "D",
+      "run": 1,
+      "case": "T-14",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02"
+      ],
+      "detect_ms": 201,
+      "compile_ms": 4201,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": null,
+        "coverage_measured": false,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 280,
+      "llm": "not_requested"
+    },
+    {
+      "config": "B",
+      "run": 1,
+      "case": "T-14",
+      "category": "REG_BYPASS",
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02"
+      ],
+      "compile_ms": 4201,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 11507,
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": null,
+        "coverage_measured": false,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "llm_unverified"
+      }
+    },
+    {
+      "config": "C",
+      "run": 2,
+      "case": "T-14",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02"
+      ],
+      "detect_ms": 189,
+      "compile_ms": 3017,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": null,
+        "coverage_measured": false,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 7802,
+      "llm": "used"
+    },
+    {
+      "config": "D",
+      "run": 2,
+      "case": "T-14",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02"
+      ],
+      "detect_ms": 189,
+      "compile_ms": 3017,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": null,
+        "coverage_measured": false,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 305,
+      "llm": "not_requested"
+    },
+    {
+      "config": "B",
+      "run": 2,
+      "case": "T-14",
+      "category": "REG_BYPASS",
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02"
+      ],
+      "compile_ms": 3017,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 11299,
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": null,
+        "coverage_measured": false,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "llm_unverified"
+      }
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-15",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-02"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 12
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-15",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 230,
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 367,
+      "llm": "not_requested"
+    },
+    {
+      "config": "C",
+      "run": 1,
+      "case": "T-15",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 228,
+      "compile_ms": 2820,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 6406,
+      "llm": "used"
+    },
+    {
+      "config": "D",
+      "run": 1,
+      "case": "T-15",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 228,
+      "compile_ms": 2820,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 350,
+      "llm": "not_requested"
+    },
+    {
+      "config": "B",
+      "run": 1,
+      "case": "T-15",
+      "category": "REG_BYPASS",
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "compile_ms": 2820,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 10073,
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "llm_unverified"
+      }
+    },
+    {
+      "config": "C",
+      "run": 2,
+      "case": "T-15",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 234,
+      "compile_ms": 3653,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 4924,
+      "llm": "used"
+    },
+    {
+      "config": "D",
+      "run": 2,
+      "case": "T-15",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 234,
+      "compile_ms": 3653,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 344,
+      "llm": "not_requested"
+    },
+    {
+      "config": "B",
+      "run": 2,
+      "case": "T-15",
+      "category": "REG_BYPASS",
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "compile_ms": 3653,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 6911,
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "llm_unverified"
+      }
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-16",
+      "category": "DEAD",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [
+        "VC-03"
+      ],
+      "detect_ms": 11
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-16",
+      "category": "DEAD",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [
+        "VC-03"
+      ],
+      "detect_ms": 66
+    },
+    {
+      "config": "C",
+      "run": 1,
+      "case": "T-16",
+      "category": "DEAD",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [
+        "VC-03"
+      ],
+      "detect_ms": 83,
+      "compile_ms": 3440,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "D",
+      "run": 1,
+      "case": "T-16",
+      "category": "DEAD",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [
+        "VC-03"
+      ],
+      "detect_ms": 83,
+      "compile_ms": 3440,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "B",
+      "run": 1,
+      "case": "T-16",
+      "category": "DEAD",
+      "gold": [
+        "VC-03"
+      ],
+      "compile_ms": 3440,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [
+        "INV-CX-01"
+      ],
+      "detect_ms": 6653
+    },
+    {
+      "config": "C",
+      "run": 2,
+      "case": "T-16",
+      "category": "DEAD",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [
+        "VC-03"
+      ],
+      "detect_ms": 80,
+      "compile_ms": 3350,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "D",
+      "run": 2,
+      "case": "T-16",
+      "category": "DEAD",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [
+        "VC-03"
+      ],
+      "detect_ms": 80,
+      "compile_ms": 3350,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "B",
+      "run": 2,
+      "case": "T-16",
+      "category": "DEAD",
+      "gold": [
+        "VC-03"
+      ],
+      "compile_ms": 3350,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [
+        "VC-03"
+      ],
+      "detect_ms": 3714
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-17",
+      "category": "DOMAIN",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [
+        "VC-03"
+      ],
+      "detect_ms": 25
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-17",
+      "category": "DOMAIN",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [
+        "VC-03"
+      ],
+      "detect_ms": 69
+    },
+    {
+      "config": "C",
+      "run": 1,
+      "case": "T-17",
+      "category": "DOMAIN",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [
+        "VC-03"
+      ],
+      "detect_ms": 76,
+      "compile_ms": 4206,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "D",
+      "run": 1,
+      "case": "T-17",
+      "category": "DOMAIN",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [
+        "VC-03"
+      ],
+      "detect_ms": 76,
+      "compile_ms": 4206,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "B",
+      "run": 1,
+      "case": "T-17",
+      "category": "DOMAIN",
+      "gold": [
+        "VC-03"
+      ],
+      "compile_ms": 4206,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [],
+      "detect_ms": 2450
+    },
+    {
+      "config": "C",
+      "run": 2,
+      "case": "T-17",
+      "category": "DOMAIN",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [
+        "VC-03"
+      ],
+      "detect_ms": 79,
+      "compile_ms": 3812,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "D",
+      "run": 2,
+      "case": "T-17",
+      "category": "DOMAIN",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [
+        "VC-03"
+      ],
+      "detect_ms": 79,
+      "compile_ms": 3812,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "B",
+      "run": 2,
+      "case": "T-17",
+      "category": "DOMAIN",
+      "gold": [
+        "VC-03"
+      ],
+      "compile_ms": 3812,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [],
+      "detect_ms": 2348
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-18",
+      "category": "DOMAIN",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [
+        "VC-03"
+      ],
+      "detect_ms": 27
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-18",
+      "category": "DOMAIN",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [
+        "VC-03"
+      ],
+      "detect_ms": 70
+    },
+    {
+      "config": "C",
+      "run": 1,
+      "case": "T-18",
+      "category": "DOMAIN",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [
+        "VC-03"
+      ],
+      "detect_ms": 79,
+      "compile_ms": 2665,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "D",
+      "run": 1,
+      "case": "T-18",
+      "category": "DOMAIN",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [
+        "VC-03"
+      ],
+      "detect_ms": 79,
+      "compile_ms": 2665,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "B",
+      "run": 1,
+      "case": "T-18",
+      "category": "DOMAIN",
+      "gold": [
+        "VC-03"
+      ],
+      "compile_ms": 2665,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [],
+      "detect_ms": 2387
+    },
+    {
+      "config": "C",
+      "run": 2,
+      "case": "T-18",
+      "category": "DOMAIN",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [
+        "VC-03"
+      ],
+      "detect_ms": 78,
+      "compile_ms": 2667,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "D",
+      "run": 2,
+      "case": "T-18",
+      "category": "DOMAIN",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [
+        "VC-03"
+      ],
+      "detect_ms": 78,
+      "compile_ms": 2667,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "B",
+      "run": 2,
+      "case": "T-18",
+      "category": "DOMAIN",
+      "gold": [
+        "VC-03"
+      ],
+      "compile_ms": 2667,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [],
+      "detect_ms": 2384
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-19",
+      "category": "DEAD",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [
+        "VC-03"
+      ],
+      "detect_ms": 18
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-19",
+      "category": "DEAD",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [
+        "VC-03"
+      ],
+      "detect_ms": 74
+    },
+    {
+      "config": "C",
+      "run": 1,
+      "case": "T-19",
+      "category": "DEAD",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [
+        "VC-03"
+      ],
+      "detect_ms": 79,
+      "compile_ms": 3281,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "D",
+      "run": 1,
+      "case": "T-19",
+      "category": "DEAD",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [
+        "VC-03"
+      ],
+      "detect_ms": 79,
+      "compile_ms": 3281,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "B",
+      "run": 1,
+      "case": "T-19",
+      "category": "DEAD",
+      "gold": [
+        "VC-03"
+      ],
+      "compile_ms": 3281,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [
+        "VC-03",
+        "VC-05"
+      ],
+      "detect_ms": 5805
+    },
+    {
+      "config": "C",
+      "run": 2,
+      "case": "T-19",
+      "category": "DEAD",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [
+        "VC-03"
+      ],
+      "detect_ms": 80,
+      "compile_ms": 3194,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "D",
+      "run": 2,
+      "case": "T-19",
+      "category": "DEAD",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [
+        "VC-03"
+      ],
+      "detect_ms": 80,
+      "compile_ms": 3194,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "B",
+      "run": 2,
+      "case": "T-19",
+      "category": "DEAD",
+      "gold": [
+        "VC-03"
+      ],
+      "compile_ms": 3194,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [
+        "VC-03"
+      ],
+      "detect_ms": 3463
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-20",
+      "category": "REDUNDANT",
+      "found": [],
+      "gold": [
+        "VC-05"
+      ],
+      "detect_ms": 26
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-20",
+      "category": "REDUNDANT",
+      "found": [
+        "VC-05"
+      ],
+      "gold": [
+        "VC-05"
+      ],
+      "detect_ms": 71
+    },
+    {
+      "config": "C",
+      "run": 1,
+      "case": "T-20",
+      "category": "REDUNDANT",
+      "found": [
+        "VC-05"
+      ],
+      "gold": [
+        "VC-05"
+      ],
+      "detect_ms": 80,
+      "compile_ms": 3900,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "D",
+      "run": 1,
+      "case": "T-20",
+      "category": "REDUNDANT",
+      "found": [
+        "VC-05"
+      ],
+      "gold": [
+        "VC-05"
+      ],
+      "detect_ms": 80,
+      "compile_ms": 3900,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "B",
+      "run": 1,
+      "case": "T-20",
+      "category": "REDUNDANT",
+      "gold": [
+        "VC-05"
+      ],
+      "compile_ms": 3900,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [
+        "VC-05"
+      ],
+      "detect_ms": 2928
+    },
+    {
+      "config": "C",
+      "run": 2,
+      "case": "T-20",
+      "category": "REDUNDANT",
+      "found": [
+        "VC-05"
+      ],
+      "gold": [
+        "VC-05"
+      ],
+      "detect_ms": 78,
+      "compile_ms": 5821,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "D",
+      "run": 2,
+      "case": "T-20",
+      "category": "REDUNDANT",
+      "found": [
+        "VC-05"
+      ],
+      "gold": [
+        "VC-05"
+      ],
+      "detect_ms": 78,
+      "compile_ms": 5821,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "B",
+      "run": 2,
+      "case": "T-20",
+      "category": "REDUNDANT",
+      "gold": [
+        "VC-05"
+      ],
+      "compile_ms": 5821,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [
+        "VC-05"
+      ],
+      "detect_ms": 2986
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-21",
+      "category": "REDUNDANT",
+      "found": [],
+      "gold": [
+        "VC-05"
+      ],
+      "detect_ms": 18
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-21",
+      "category": "REDUNDANT",
+      "found": [
+        "VC-05"
+      ],
+      "gold": [
+        "VC-05"
+      ],
+      "detect_ms": 75
+    },
+    {
+      "config": "C",
+      "run": 1,
+      "case": "T-21",
+      "category": "REDUNDANT",
+      "found": [
+        "VC-05"
+      ],
+      "gold": [
+        "VC-05"
+      ],
+      "detect_ms": 79,
+      "compile_ms": 6144,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "D",
+      "run": 1,
+      "case": "T-21",
+      "category": "REDUNDANT",
+      "found": [
+        "VC-05"
+      ],
+      "gold": [
+        "VC-05"
+      ],
+      "detect_ms": 79,
+      "compile_ms": 6144,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "B",
+      "run": 1,
+      "case": "T-21",
+      "category": "REDUNDANT",
+      "gold": [
+        "VC-05"
+      ],
+      "compile_ms": 6144,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [
+        "VC-05"
+      ],
+      "detect_ms": 3049
+    },
+    {
+      "config": "C",
+      "run": 2,
+      "case": "T-21",
+      "category": "REDUNDANT",
+      "found": [
+        "VC-05"
+      ],
+      "gold": [
+        "VC-05"
+      ],
+      "detect_ms": 83,
+      "compile_ms": 5948,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "D",
+      "run": 2,
+      "case": "T-21",
+      "category": "REDUNDANT",
+      "found": [
+        "VC-05"
+      ],
+      "gold": [
+        "VC-05"
+      ],
+      "detect_ms": 83,
+      "compile_ms": 5948,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "B",
+      "run": 2,
+      "case": "T-21",
+      "category": "REDUNDANT",
+      "gold": [
+        "VC-05"
+      ],
+      "compile_ms": 5948,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [
+        "VC-05"
+      ],
+      "detect_ms": 1926
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-22",
+      "category": "CONFLICT",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [
+        "VC-06"
+      ],
+      "detect_ms": 26
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-22",
+      "category": "CONFLICT",
+      "found": [
+        "VC-06"
+      ],
+      "gold": [
+        "VC-06"
+      ],
+      "detect_ms": 111
+    },
+    {
+      "config": "C",
+      "run": 1,
+      "case": "T-22",
+      "category": "CONFLICT",
+      "found": [
+        "VC-06"
+      ],
+      "gold": [
+        "VC-06"
+      ],
+      "detect_ms": 122,
+      "compile_ms": 3035,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "D",
+      "run": 1,
+      "case": "T-22",
+      "category": "CONFLICT",
+      "found": [
+        "VC-06"
+      ],
+      "gold": [
+        "VC-06"
+      ],
+      "detect_ms": 122,
+      "compile_ms": 3035,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "B",
+      "run": 1,
+      "case": "T-22",
+      "category": "CONFLICT",
+      "gold": [
+        "VC-06"
+      ],
+      "compile_ms": 3035,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [
+        "VC-06"
+      ],
+      "detect_ms": 3228
+    },
+    {
+      "config": "C",
+      "run": 2,
+      "case": "T-22",
+      "category": "CONFLICT",
+      "found": [
+        "VC-06"
+      ],
+      "gold": [
+        "VC-06"
+      ],
+      "detect_ms": 114,
+      "compile_ms": 4316,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": false
+      }
+    },
+    {
+      "config": "D",
+      "run": 2,
+      "case": "T-22",
+      "category": "CONFLICT",
+      "found": [
+        "VC-06"
+      ],
+      "gold": [
+        "VC-06"
+      ],
+      "detect_ms": 114,
+      "compile_ms": 4316,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": false
+      }
+    },
+    {
+      "config": "B",
+      "run": 2,
+      "case": "T-22",
+      "category": "CONFLICT",
+      "gold": [
+        "VC-06"
+      ],
+      "compile_ms": 4316,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": false
+      },
+      "found": [
+        "VC-06"
+      ],
+      "detect_ms": 3876
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-23",
+      "category": "CONFLICT",
+      "found": [],
+      "gold": [
+        "VC-06"
+      ],
+      "detect_ms": 27
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-23",
+      "category": "CONFLICT",
+      "found": [
+        "VC-06"
+      ],
+      "gold": [
+        "VC-06"
+      ],
+      "detect_ms": 105
+    },
+    {
+      "config": "C",
+      "run": 1,
+      "case": "T-23",
+      "category": "CONFLICT",
+      "found": [
+        "VC-06"
+      ],
+      "gold": [
+        "VC-06"
+      ],
+      "detect_ms": 116,
+      "compile_ms": 3281,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "D",
+      "run": 1,
+      "case": "T-23",
+      "category": "CONFLICT",
+      "found": [
+        "VC-06"
+      ],
+      "gold": [
+        "VC-06"
+      ],
+      "detect_ms": 116,
+      "compile_ms": 3281,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "B",
+      "run": 1,
+      "case": "T-23",
+      "category": "CONFLICT",
+      "gold": [
+        "VC-06"
+      ],
+      "compile_ms": 3281,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [
+        "VC-06"
+      ],
+      "detect_ms": 3351
+    },
+    {
+      "config": "C",
+      "run": 2,
+      "case": "T-23",
+      "category": "CONFLICT",
+      "found": [
+        "VC-06"
+      ],
+      "gold": [
+        "VC-06"
+      ],
+      "detect_ms": 117,
+      "compile_ms": 3346,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "D",
+      "run": 2,
+      "case": "T-23",
+      "category": "CONFLICT",
+      "found": [
+        "VC-06"
+      ],
+      "gold": [
+        "VC-06"
+      ],
+      "detect_ms": 117,
+      "compile_ms": 3346,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      }
+    },
+    {
+      "config": "B",
+      "run": 2,
+      "case": "T-23",
+      "category": "CONFLICT",
+      "gold": [
+        "VC-06"
+      ],
+      "compile_ms": 3346,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true
+      },
+      "found": [
+        "VC-06"
+      ],
+      "detect_ms": 3515
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-24",
+      "category": "AMBIGUOUS",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [],
+      "detect_ms": 28
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-24",
+      "category": "AMBIGUOUS",
+      "found": [],
+      "gold": [],
+      "detect_ms": 92
+    },
+    {
+      "config": "C",
+      "run": 1,
+      "case": "T-24",
+      "category": "AMBIGUOUS",
+      "found": [],
+      "gold": [],
+      "detect_ms": 99,
+      "compile_ms": 3929,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "assumption_recall": 0.6666666666666666
+      }
+    },
+    {
+      "config": "D",
+      "run": 1,
+      "case": "T-24",
+      "category": "AMBIGUOUS",
+      "found": [],
+      "gold": [],
+      "detect_ms": 99,
+      "compile_ms": 3929,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "assumption_recall": 0.6666666666666666
+      }
+    },
+    {
+      "config": "B",
+      "run": 1,
+      "case": "T-24",
+      "category": "AMBIGUOUS",
+      "gold": [],
+      "compile_ms": 3929,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "assumption_recall": 0.6666666666666666
+      },
+      "found": [],
+      "detect_ms": 3115
+    },
+    {
+      "config": "C",
+      "run": 2,
+      "case": "T-24",
+      "category": "AMBIGUOUS",
+      "found": [],
+      "gold": [],
+      "detect_ms": 101,
+      "compile_ms": 4301,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "assumption_recall": 0.6666666666666666
+      }
+    },
+    {
+      "config": "D",
+      "run": 2,
+      "case": "T-24",
+      "category": "AMBIGUOUS",
+      "found": [],
+      "gold": [],
+      "detect_ms": 101,
+      "compile_ms": 4301,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "assumption_recall": 0.6666666666666666
+      }
+    },
+    {
+      "config": "B",
+      "run": 2,
+      "case": "T-24",
+      "category": "AMBIGUOUS",
+      "gold": [],
+      "compile_ms": 4301,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "assumption_recall": 0.6666666666666666
+      },
+      "found": [],
+      "detect_ms": 2559
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-25",
+      "category": "AMBIGUOUS",
+      "found": [],
+      "gold": [],
+      "detect_ms": 15
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-25",
+      "category": "AMBIGUOUS",
+      "found": [],
+      "gold": [],
+      "detect_ms": 87
+    },
+    {
+      "config": "C",
+      "run": 1,
+      "case": "T-25",
+      "category": "AMBIGUOUS",
+      "found": [],
+      "gold": [],
+      "detect_ms": 100,
+      "compile_ms": 4013,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "assumption_recall": 1.0
+      }
+    },
+    {
+      "config": "D",
+      "run": 1,
+      "case": "T-25",
+      "category": "AMBIGUOUS",
+      "found": [],
+      "gold": [],
+      "detect_ms": 100,
+      "compile_ms": 4013,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "assumption_recall": 1.0
+      }
+    },
+    {
+      "config": "B",
+      "run": 1,
+      "case": "T-25",
+      "category": "AMBIGUOUS",
+      "gold": [],
+      "compile_ms": 4013,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "assumption_recall": 1.0
+      },
+      "found": [],
+      "detect_ms": 2751
+    },
+    {
+      "config": "C",
+      "run": 2,
+      "case": "T-25",
+      "category": "AMBIGUOUS",
+      "found": [],
+      "gold": [],
+      "detect_ms": 98,
+      "compile_ms": 3903,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "assumption_recall": 1.0
+      }
+    },
+    {
+      "config": "D",
+      "run": 2,
+      "case": "T-25",
+      "category": "AMBIGUOUS",
+      "found": [],
+      "gold": [],
+      "detect_ms": 98,
+      "compile_ms": 3903,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "assumption_recall": 1.0
+      }
+    },
+    {
+      "config": "B",
+      "run": 2,
+      "case": "T-25",
+      "category": "AMBIGUOUS",
+      "gold": [],
+      "compile_ms": 3903,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "assumption_recall": 1.0
+      },
+      "found": [],
+      "detect_ms": 2624
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-26",
+      "category": "AMBIGUOUS",
+      "found": [],
+      "gold": [],
+      "detect_ms": 25
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-26",
+      "category": "AMBIGUOUS",
+      "found": [],
+      "gold": [],
+      "detect_ms": 76
+    },
+    {
+      "config": "C",
+      "run": 1,
+      "case": "T-26",
+      "category": "AMBIGUOUS",
+      "found": [],
+      "gold": [],
+      "detect_ms": 88,
+      "compile_ms": 3747,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "assumption_recall": 1.0
+      }
+    },
+    {
+      "config": "D",
+      "run": 1,
+      "case": "T-26",
+      "category": "AMBIGUOUS",
+      "found": [],
+      "gold": [],
+      "detect_ms": 88,
+      "compile_ms": 3747,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "assumption_recall": 1.0
+      }
+    },
+    {
+      "config": "B",
+      "run": 1,
+      "case": "T-26",
+      "category": "AMBIGUOUS",
+      "gold": [],
+      "compile_ms": 3747,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "assumption_recall": 1.0
+      },
+      "found": [],
+      "detect_ms": 3931
+    },
+    {
+      "config": "C",
+      "run": 2,
+      "case": "T-26",
+      "category": "AMBIGUOUS",
+      "found": [],
+      "gold": [],
+      "detect_ms": 89,
+      "compile_ms": 2905,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "assumption_recall": 1.0
+      }
+    },
+    {
+      "config": "D",
+      "run": 2,
+      "case": "T-26",
+      "category": "AMBIGUOUS",
+      "found": [],
+      "gold": [],
+      "detect_ms": 89,
+      "compile_ms": 2905,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "assumption_recall": 1.0
+      }
+    },
+    {
+      "config": "B",
+      "run": 2,
+      "case": "T-26",
+      "category": "AMBIGUOUS",
+      "gold": [],
+      "compile_ms": 2905,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "assumption_recall": 1.0
+      },
+      "found": [],
+      "detect_ms": 2758
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-27",
+      "category": "AMBIGUOUS",
+      "found": [
+        "INV-CX-01"
+      ],
+      "gold": [
+        "INV-CX-01"
+      ],
+      "detect_ms": 21
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-27",
+      "category": "AMBIGUOUS",
+      "found": [
+        "INV-CX-01"
+      ],
+      "gold": [
+        "INV-CX-01"
+      ],
+      "detect_ms": 141
+    },
+    {
+      "config": "C",
+      "run": 1,
+      "case": "T-27",
+      "category": "AMBIGUOUS",
+      "found": [
+        "INV-CX-01"
+      ],
+      "gold": [
+        "INV-CX-01"
+      ],
+      "detect_ms": 152,
+      "compile_ms": 4204,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "assumption_recall": 1.0
+      }
+    },
+    {
+      "config": "D",
+      "run": 1,
+      "case": "T-27",
+      "category": "AMBIGUOUS",
+      "found": [
+        "INV-CX-01"
+      ],
+      "gold": [
+        "INV-CX-01"
+      ],
+      "detect_ms": 152,
+      "compile_ms": 4204,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "assumption_recall": 1.0
+      }
+    },
+    {
+      "config": "B",
+      "run": 1,
+      "case": "T-27",
+      "category": "AMBIGUOUS",
+      "gold": [
+        "INV-CX-01"
+      ],
+      "compile_ms": 4204,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "assumption_recall": 1.0
+      },
+      "found": [
+        "INV-CX-01"
+      ],
+      "detect_ms": 12660
+    },
+    {
+      "config": "C",
+      "run": 2,
+      "case": "T-27",
+      "category": "AMBIGUOUS",
+      "found": [
+        "INV-CX-01"
+      ],
+      "gold": [
+        "INV-CX-01"
+      ],
+      "detect_ms": 158,
+      "compile_ms": 6119,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "assumption_recall": 1.0
+      }
+    },
+    {
+      "config": "D",
+      "run": 2,
+      "case": "T-27",
+      "category": "AMBIGUOUS",
+      "found": [
+        "INV-CX-01"
+      ],
+      "gold": [
+        "INV-CX-01"
+      ],
+      "detect_ms": 158,
+      "compile_ms": 6119,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "assumption_recall": 1.0
+      }
+    },
+    {
+      "config": "B",
+      "run": 2,
+      "case": "T-27",
+      "category": "AMBIGUOUS",
+      "gold": [
+        "INV-CX-01"
+      ],
+      "compile_ms": 6119,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "assumption_recall": 1.0
+      },
+      "error": "LLM_BAD_OUTPUT",
+      "found": [],
+      "detect_ms": 0
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-28",
+      "category": "INJECTION",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 25
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-28",
+      "category": "INJECTION",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 241,
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 356,
+      "llm": "not_requested"
+    },
+    {
+      "config": "C",
+      "run": 1,
+      "case": "T-28",
+      "category": "INJECTION",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 251,
+      "compile_ms": 5478,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true,
+        "injection_safe": true
+      },
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 15924,
+      "llm": "used"
+    },
+    {
+      "config": "D",
+      "run": 1,
+      "case": "T-28",
+      "category": "INJECTION",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 251,
+      "compile_ms": 5478,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true,
+        "injection_safe": true
+      },
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 362,
+      "llm": "not_requested"
+    },
+    {
+      "config": "B",
+      "run": 1,
+      "case": "T-28",
+      "category": "INJECTION",
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "compile_ms": 5478,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true,
+        "injection_safe": true
+      },
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 10252,
+      "repair_ok": false,
+      "repair_top1": null
+    },
+    {
+      "config": "C",
+      "run": 2,
+      "case": "T-28",
+      "category": "INJECTION",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 254,
+      "compile_ms": 2891,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true,
+        "injection_safe": true
+      },
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 11860,
+      "llm": "used"
+    },
+    {
+      "config": "D",
+      "run": 2,
+      "case": "T-28",
+      "category": "INJECTION",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 254,
+      "compile_ms": 2891,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true,
+        "injection_safe": true
+      },
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 356,
+      "llm": "not_requested"
+    },
+    {
+      "config": "B",
+      "run": 2,
+      "case": "T-28",
+      "category": "INJECTION",
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "compile_ms": 2891,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true,
+        "injection_safe": true
+      },
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 11376,
+      "repair_ok": false,
+      "repair_top1": null
+    },
+    {
       "config": "A",
       "run": 1,
       "case": "T-29",
@@ -958,7 +4880,7 @@
         "VC-03"
       ],
       "gold": [],
-      "detect_ms": 11
+      "detect_ms": 28
     },
     {
       "config": "G",
@@ -967,7 +4889,103 @@
       "category": "INJECTION",
       "found": [],
       "gold": [],
-      "detect_ms": 56
+      "detect_ms": 73
+    },
+    {
+      "config": "C",
+      "run": 1,
+      "case": "T-29",
+      "category": "INJECTION",
+      "found": [],
+      "gold": [],
+      "detect_ms": 81,
+      "compile_ms": 2892,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true,
+        "injection_safe": true
+      }
+    },
+    {
+      "config": "D",
+      "run": 1,
+      "case": "T-29",
+      "category": "INJECTION",
+      "found": [],
+      "gold": [],
+      "detect_ms": 81,
+      "compile_ms": 2892,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true,
+        "injection_safe": true
+      }
+    },
+    {
+      "config": "B",
+      "run": 1,
+      "case": "T-29",
+      "category": "INJECTION",
+      "gold": [],
+      "compile_ms": 2892,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true,
+        "injection_safe": true
+      },
+      "found": [],
+      "detect_ms": 2351
+    },
+    {
+      "config": "C",
+      "run": 2,
+      "case": "T-29",
+      "category": "INJECTION",
+      "found": [],
+      "gold": [],
+      "detect_ms": 83,
+      "compile_ms": 3891,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true,
+        "injection_safe": true
+      }
+    },
+    {
+      "config": "D",
+      "run": 2,
+      "case": "T-29",
+      "category": "INJECTION",
+      "found": [],
+      "gold": [],
+      "detect_ms": 83,
+      "compile_ms": 3891,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true,
+        "injection_safe": true
+      }
+    },
+    {
+      "config": "B",
+      "run": 2,
+      "case": "T-29",
+      "category": "INJECTION",
+      "gold": [],
+      "compile_ms": 3891,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true,
+        "injection_safe": true
+      },
+      "found": [],
+      "detect_ms": 4519
     },
     {
       "config": "A",
@@ -978,7 +4996,7 @@
         "VC-03"
       ],
       "gold": [],
-      "detect_ms": 11
+      "detect_ms": 18
     },
     {
       "config": "G",
@@ -987,18 +5005,110 @@
       "category": "INJECTION",
       "found": [],
       "gold": [],
-      "detect_ms": 63
+      "detect_ms": 79
+    },
+    {
+      "config": "C",
+      "run": 1,
+      "case": "T-30",
+      "category": "INJECTION",
+      "found": [],
+      "gold": [],
+      "detect_ms": 84,
+      "compile_ms": 2219,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true,
+        "injection_safe": true
+      }
+    },
+    {
+      "config": "D",
+      "run": 1,
+      "case": "T-30",
+      "category": "INJECTION",
+      "found": [],
+      "gold": [],
+      "detect_ms": 84,
+      "compile_ms": 2219,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true,
+        "injection_safe": true
+      }
+    },
+    {
+      "config": "B",
+      "run": 1,
+      "case": "T-30",
+      "category": "INJECTION",
+      "gold": [],
+      "compile_ms": 2219,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true,
+        "injection_safe": true
+      },
+      "found": [],
+      "detect_ms": 2662
+    },
+    {
+      "config": "C",
+      "run": 2,
+      "case": "T-30",
+      "category": "INJECTION",
+      "found": [],
+      "gold": [],
+      "detect_ms": 92,
+      "compile_ms": 2996,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true,
+        "injection_safe": true
+      }
+    },
+    {
+      "config": "D",
+      "run": 2,
+      "case": "T-30",
+      "category": "INJECTION",
+      "found": [],
+      "gold": [],
+      "detect_ms": 92,
+      "compile_ms": 2996,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true,
+        "injection_safe": true
+      }
+    },
+    {
+      "config": "B",
+      "run": 2,
+      "case": "T-30",
+      "category": "INJECTION",
+      "gold": [],
+      "compile_ms": 2996,
+      "compile": {
+        "status": "OK",
+        "valid": true,
+        "semantic_equiv": true,
+        "injection_safe": true
+      },
+      "found": [],
+      "detect_ms": 2397
     }
   ],
-  "skipped": [
-    "B",
-    "C",
-    "D"
-  ],
-  "model": "",
+  "skipped": [],
+  "model": "openai/gpt-6-luna",
   "cases": 30,
   "split": "test",
-  "runs": 1,
+  "runs": 2,
   "prompt_version": "compile.v1",
-  "built_at": "2026-11-27T02:10:12+00:00"
+  "built_at": "2026-11-27T11:42:38+00:00"
 }

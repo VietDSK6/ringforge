@@ -149,7 +149,11 @@ curl -s -X POST "$API/backtest" -H 'Content-Type: application/json' -d '{
 [`eval/report.md`](eval/report.md): 30 case test tổng hợp do đội tự viết (gold viết trước khi chạy model), 10 case tune tách riêng.
 
 - **Đã chạy (không cần AI):** trên cùng các luật gold, chỉ backtest (cấu hình A) đạt recall 53% — bỏ sót INV-AUTH-01 ở 3/7 case vì dữ liệu không có giao dịch vùng đó, không phát hiện được luật thừa/xung đột miễn trừ, báo nhầm "luật chết" với luật hiếm. Cấu hình G (gold + Z3) khớp 100%, nhưng đó **không phải** bằng chứng độc lập vì gold được đối chiếu với bộ kiểm chứng khi viết fixture.
-- **Chưa chạy:** B (LLM thuần), C (RingForge), D (RingForge sửa tất định) — cần LLM key. Chưa có số nào về đóng góp của AI; sẽ cập nhật khi chạy.
+- **Có AI** (`openai/gpt-6-luna`, 2 lần chạy, 27/11):
+  - **B — LLM tự đánh giá, tự sửa:** precision/recall 90%/90%, khớp đúng toàn bộ 82% case. Bỏ sót luật chết (VC-03, 3/8) và vi phạm trải nghiệm (INV-CX-01, 1/2), báo nhầm xung đột miễn trừ; bản sửa không được kiểm chứng lại nên chỉ 81% đạt tiêu chí.
+  - **C — RingForge (LLM + Z3 + LLM sửa có kiểm chứng lại)** và **D — như C nhưng sửa tất định:** cùng 100% phát hiện và 100% sửa đạt tiêu chí (16 case).
+  - **Kết luận trung thực:** trên tập này, sửa bằng AI **không** hơn sửa tất định (C = D), còn chậm hơn khoảng 20 lần (p50 7,7 s so với 0,35 s). Giá trị đo được của AI là **biên dịch** câu tiếng Việt: hợp lệ 100%, tương đương logic với gold 94%, nêu giả định cho câu mơ hồ 92%, an toàn với prompt injection 100%. Giá trị của Z3 là bắt lỗi và chặn bản sửa sai mà chính LLM tự đánh giá bỏ qua (B so với C).
+  - **Case RingForge sai:** biên dịch T-11 (cả 2 lần) và T-22 (1 lần) không tương đương gold, dù lỗi vẫn được phát hiện đúng.
 
 ## Hạn chế
 
