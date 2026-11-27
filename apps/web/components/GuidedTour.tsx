@@ -130,8 +130,11 @@ export function GuidedTour({ id, steps, enabled }: { id: string; steps: TourStep
   const vw = typeof window === "undefined" ? 1024 : window.innerWidth;
   const vh = typeof window === "undefined" ? 768 : window.innerHeight;
   const narrow = vw < 640;
+  // Chưa mở (kể cả lúc hydrate) thì không tính theo cửa sổ: HTML server và client khớp nhau.
   let style: React.CSSProperties;
-  if (narrow || !rect) {
+  if (!open) {
+    style = {};
+  } else if (narrow || !rect) {
     style = { left: 16, right: 16, bottom: narrow ? 88 : 24, width: "auto" };
   } else {
     const h = panelH || 180;
@@ -146,37 +149,45 @@ export function GuidedTour({ id, steps, enabled }: { id: string; steps: TourStep
       {open && rect && (
         <div
           aria-hidden
-          className="pointer-events-none fixed z-40 rounded-xl ring-4 ring-accent ring-offset-2 ring-offset-background"
+          className="pointer-events-none fixed z-40 rounded-lg ring-2 ring-accent ring-offset-2 ring-offset-background"
           style={{ top: rect.top - 4, left: rect.left - 4, width: rect.width + 8, height: rect.height + 8 }}
         />
       )}
       <dialog
         ref={dialogRef}
         aria-labelledby={`${uid}-text`}
-        className="fixed z-50 m-0 rounded-2xl border border-line bg-surface p-4 text-foreground shadow-xl"
+        className="fixed z-50 m-0 rounded-xl border border-line bg-surface p-4 text-foreground shadow-pop"
         style={style}
       >
-        <p className="text-xs text-muted">
-          Hướng dẫn · bước {index + 1}/{steps.length}
-        </p>
-        <p id={`${uid}-text`} className="mt-1 font-medium">
+        <div className="flex items-center justify-between gap-3">
+          <p className="num text-xs text-muted">
+            Hướng dẫn · bước {index + 1}/{steps.length}
+          </p>
+          <span aria-hidden className="flex gap-1">
+            {steps.map((_, i) => (
+              <span key={i} className={`h-1 w-4 rounded-full ${i <= index ? "bg-accent" : "bg-line"}`} />
+            ))}
+          </span>
+        </div>
+        <p id={`${uid}-text`} className="mt-2 font-medium leading-6">
           {step.text}
         </p>
-        {!rect && step.waiting && <p className="mt-1 text-sm text-muted">{step.waiting}</p>}
-        <div className="mt-3 flex flex-wrap items-center gap-2">
+        {!rect && step.waiting && (
+          <p className="mt-1 flex items-center gap-2 text-sm text-muted">
+            <span aria-hidden className="size-3 animate-spin rounded-full border-2 border-accent border-t-transparent" />
+            {step.waiting}
+          </p>
+        )}
+        <div className="mt-4 flex flex-wrap items-center gap-2">
           {index > 0 && (
-            <button type="button" onClick={() => setIndex((i) => i - 1)} className="min-h-11 rounded-xl border border-line px-3 text-sm">
+            <button type="button" onClick={() => setIndex((i) => i - 1)} className="btn btn-secondary btn-sm">
               Quay lại
             </button>
           )}
-          <button
-            type="button"
-            onClick={next}
-            className="min-h-11 rounded-xl bg-accent px-4 text-sm font-semibold text-white hover:opacity-90 dark:text-zinc-950"
-          >
+          <button type="button" onClick={next} className="btn btn-primary btn-sm">
             {index + 1 >= steps.length ? "Xong" : "Tiếp"}
           </button>
-          <button type="button" onClick={close} className="ml-auto min-h-11 px-2 text-sm text-muted underline">
+          <button type="button" onClick={close} className="btn btn-ghost btn-sm ml-auto underline underline-offset-2">
             Bỏ qua hướng dẫn
           </button>
         </div>
