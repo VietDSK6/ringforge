@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 
+import { AiStatusBanner } from "@/components/AiStatusBanner";
 import { SessionNav } from "@/components/SessionNav";
 
 export default function SessionLayout({ children }: LayoutProps<"/s/[sid]">) {
@@ -15,7 +16,10 @@ export default function SessionLayout({ children }: LayoutProps<"/s/[sid]">) {
           <SessionNav />
         </Suspense>
       </div>
-      <main className="min-w-0 flex-1">{children}</main>
+      <main className="min-w-0 flex-1 space-y-4">
+        <AiStatusBanner />
+        {children}
+      </main>
     </div>
   );
 }

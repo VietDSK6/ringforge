@@ -99,6 +99,10 @@ def _seed_cache() -> dict[str, Any]:
     return json.loads(p.read_text(encoding="utf-8")) if p.exists() else {}
 
 
+def seed_cache_size() -> int:
+    return sum(1 for k in _seed_cache() if not k.startswith("_"))
+
+
 def lookup_cache(db: Session, key: str) -> dict[str, Any] | None:
     seeded = _seed_cache().get(key)
     if seeded is not None:

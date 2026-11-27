@@ -478,7 +478,10 @@ function RuleCard({
           {rule?.render ? (
             <RuleSentence render={rule.render} />
           ) : (
-            <p className="text-sm text-muted">Luật viết bằng JSON — câu tiếng Việt sẽ hiện trong kết quả kiểm chứng.</p>
+            <p className="text-sm text-muted">
+              Luật viết bằng JSON (mẫu điền sẵn do người viết cho câu Demo 1, không phải kết quả AI) — câu tiếng Việt sẽ hiện trong kết quả
+              kiểm chứng.
+            </p>
           )}
           {jsonDirty && rule && <p className="text-xs text-warn">JSON đã được sửa; bản sửa sẽ được dùng khi kiểm chứng.</p>}
           {compiled && compiled.assumptions.length > 0 && (

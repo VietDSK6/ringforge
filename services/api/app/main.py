@@ -7,6 +7,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.ai.client import get_client
+from app.ai.tasks import seed_cache_size
 from app.api import errors, ratelimit
 from app.api.approvals import router as approvals_router
 from app.api.io import router as io_router
@@ -87,10 +88,11 @@ app.include_router(io_router)
 # HEAD để dịch vụ ping giữ ấm (UptimeRobot) không nhận 405 → báo "down" sai.
 @app.head("/health", include_in_schema=False)
 @app.get("/health")
-def health() -> dict[str, str]:
+def health() -> dict[str, str | int]:
     return {
         "status": "ok",
         "z3_version": z3.get_version_string(),
         "app_env": settings.app_env,
         "llm": "ready" if get_client().available else "fallback",
+        "ai_cache_entries": seed_cache_size(),  # câu mẫu có kết quả AI đã lưu (chế độ dự phòng)
     }
