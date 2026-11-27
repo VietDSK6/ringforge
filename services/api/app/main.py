@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.ai.client import get_client
 from app.api import errors
+from app.api.pack import router as pack_router
 from app.api.sessions import router as sessions_router
 from app.api.verify import router as verify_router
 from app.config import settings
@@ -39,6 +40,7 @@ app.add_middleware(
 )
 app.include_router(verify_router)
 app.include_router(sessions_router)
+app.include_router(pack_router)
 
 
 # HEAD để dịch vụ ping giữ ấm (UptimeRobot) không nhận 405 → báo "down" sai.

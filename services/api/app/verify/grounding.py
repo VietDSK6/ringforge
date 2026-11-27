@@ -35,7 +35,7 @@ def violation_mask(inv: dict[str, Any], df: pd.DataFrame, out: pd.DataFrame, par
     return scope & (out["decision"].to_numpy() > DEC[inv["level"]])
 
 
-def _summary(df: pd.DataFrame, mask: np.ndarray) -> dict[str, Any]:
+def summarize(df: pd.DataFrame, mask: np.ndarray) -> dict[str, Any]:
     part = df[mask]
     by_scenario = {
         sc: {"label_vi": SCENARIO_VI.get(sc, sc), "count": int(len(g)), "amount_sum": int(g["amount"].sum())}
@@ -76,7 +76,7 @@ def ground_findings(
     by_id = {r["id"]: r for r in rules}
     for f in vc04:
         inv = invs[f["invariant"]]
-        g = _summary(part, violation_mask(inv, part, out, pack["params"]))
+        g = summarize(part, violation_mask(inv, part, out, pack["params"]))
         g["days"] = list(days)
         g["note_vi"] = note_vi(inv, g["tx_count"], g["amount_sum"], len(days))
         region = region_condition(inv, [by_id[b] for b in f.get("blamed_rules", []) if b in by_id])

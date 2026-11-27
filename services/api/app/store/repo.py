@@ -96,6 +96,22 @@ def current_pack(db: Session, sid: str) -> dict[str, Any]:
     return copy.deepcopy(row.body)
 
 
+def save_pack(db: Session, sid: str, pack: dict[str, Any], actor: str = "user:proposer", ref: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Lưu Policy Pack phiên bản mới và đặt làm hiện hành (bản cũ giữ lại để truy vết)."""
+    get_session(db, sid)
+    for row in db.scalars(select(PolicyPackRow).where(PolicyPackRow.session_id == sid, PolicyPackRow.is_current.is_(True))):
+        row.is_current = False
+    db.add(PolicyPackRow(session_id=sid, version=pack["version"], body=copy.deepcopy(pack), is_current=True))
+    audit(db, sid, actor, "pack.apply", (ref or {}) | {"version": pack["version"]})
+    db.commit()
+    return copy.deepcopy(pack)
+
+
+def pack_history(db: Session, sid: str) -> list[dict[str, Any]]:
+    rows = db.scalars(select(PolicyPackRow).where(PolicyPackRow.session_id == sid).order_by(PolicyPackRow.created_at)).all()
+    return [{"version": r.version, "is_current": r.is_current, "created_at": r.created_at.isoformat()} for r in rows]
+
+
 def current_rules(db: Session, sid: str) -> list[dict[str, Any]]:
     """Phiên bản mới nhất của mỗi luật, giữ thứ tự tạo (seed trước, luật mới sau)."""
     latest = (
