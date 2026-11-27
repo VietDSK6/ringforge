@@ -91,9 +91,11 @@ export function PoliciesView() {
         )}
       </div>
 
-      <div className="overflow-x-auto rounded-2xl border border-line bg-surface">
+      <div tabIndex={0} role="region" aria-labelledby="rules-caption" className="overflow-x-auto rounded-2xl border border-line bg-surface">
         <table className="w-full min-w-[640px] text-left text-sm">
-          <caption className="sr-only">Danh sách luật</caption>
+          <caption id="rules-caption" className="sr-only">
+            Danh sách luật
+          </caption>
           <thead className="border-b border-line text-xs uppercase tracking-wide text-muted">
             <tr>
               <th scope="col" className="px-4 py-3">ID</th>
