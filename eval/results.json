@@ -1,0 +1,1004 @@
+{
+  "summary": {
+    "A": {
+      "n": 30,
+      "detect": {
+        "precision": 0.6153846153846154,
+        "recall": 0.5333333333333333,
+        "per_code": {
+          "INV-AUTH-01": {
+            "tp": 4,
+            "fp": 0,
+            "fn": 3,
+            "precision": 1.0,
+            "recall": 0.5714285714285714
+          },
+          "INV-AUTH-02": {
+            "tp": 7,
+            "fp": 0,
+            "fn": 1,
+            "precision": 1.0,
+            "recall": 0.875
+          },
+          "INV-CX-01": {
+            "tp": 1,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0
+          },
+          "VC-03": {
+            "tp": 4,
+            "fp": 10,
+            "fn": 0,
+            "precision": 0.2857142857142857,
+            "recall": 1.0
+          },
+          "VC-05": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 2,
+            "precision": null,
+            "recall": 0.0
+          },
+          "VC-06": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 8,
+            "precision": null,
+            "recall": 0.0
+          }
+        }
+      },
+      "exact_cases": 0.3333333333333333,
+      "repair_success_rate": null,
+      "repair_n": 0,
+      "top1_coverage_bp_avg": null,
+      "coverage_unmeasured": [],
+      "scope_violation_rate": null,
+      "uses_param_rate": null,
+      "compile": {
+        "valid_rate": null,
+        "semantic_equiv_rate": null,
+        "assumption_recall": null,
+        "injection_safe_rate": null
+      },
+      "latency_ms": {
+        "detect_ms": {
+          "p50": 11.0,
+          "p95": 13
+        }
+      }
+    },
+    "G": {
+      "n": 30,
+      "detect": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "per_code": {
+          "INV-AUTH-01": {
+            "tp": 7,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0
+          },
+          "INV-AUTH-02": {
+            "tp": 8,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0
+          },
+          "INV-CX-01": {
+            "tp": 1,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0
+          },
+          "VC-03": {
+            "tp": 4,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0
+          },
+          "VC-05": {
+            "tp": 2,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0
+          },
+          "VC-06": {
+            "tp": 8,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0
+          }
+        }
+      },
+      "exact_cases": 1.0,
+      "repair_success_rate": 1.0,
+      "repair_n": 8,
+      "top1_coverage_bp_avg": 10000,
+      "coverage_unmeasured": [
+        "T-14"
+      ],
+      "scope_violation_rate": 0.0,
+      "uses_param_rate": 1.0,
+      "compile": {
+        "valid_rate": null,
+        "semantic_equiv_rate": null,
+        "assumption_recall": null,
+        "injection_safe_rate": null
+      },
+      "latency_ms": {
+        "detect_ms": {
+          "p50": 70.0,
+          "p95": 202
+        },
+        "repair_ms": {
+          "p50": 314.0,
+          "p95": 330
+        }
+      }
+    }
+  },
+  "rows": [
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-01",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 54
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-01",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 62
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-02",
+      "category": "CLEAN",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [],
+      "detect_ms": 39
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-02",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 63
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-03",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 11
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-03",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 60
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-04",
+      "category": "CLEAN",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [],
+      "detect_ms": 13
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-04",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 72
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-05",
+      "category": "CLEAN",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [],
+      "detect_ms": 11
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-05",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 60
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-06",
+      "category": "CLEAN",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [],
+      "detect_ms": 11
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-06",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 66
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-07",
+      "category": "CLEAN",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [],
+      "detect_ms": 12
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-07",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 73
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-08",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 10
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-08",
+      "category": "CLEAN",
+      "found": [],
+      "gold": [],
+      "detect_ms": 70
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-09",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 11
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-09",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 203,
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 333,
+      "llm": "not_requested"
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-10",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-02"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02"
+      ],
+      "detect_ms": 11
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-10",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02"
+      ],
+      "detect_ms": 170,
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 264,
+      "llm": "not_requested"
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-11",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 10
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-11",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 202,
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 329,
+      "llm": "not_requested"
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-12",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 12
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-12",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 198,
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 312,
+      "llm": "not_requested"
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-13",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-02"
+      ],
+      "gold": [
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 9
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-13",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "gold": [
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 144,
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 266,
+      "llm": "not_requested"
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-14",
+      "category": "REG_BYPASS",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02"
+      ],
+      "detect_ms": 11
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-14",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02"
+      ],
+      "detect_ms": 166,
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": null,
+        "coverage_measured": false,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 260,
+      "llm": "not_requested"
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-15",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-02"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 11
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-15",
+      "category": "REG_BYPASS",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 198,
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 316,
+      "llm": "not_requested"
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-16",
+      "category": "DEAD",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [
+        "VC-03"
+      ],
+      "detect_ms": 9
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-16",
+      "category": "DEAD",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [
+        "VC-03"
+      ],
+      "detect_ms": 54
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-17",
+      "category": "DOMAIN",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [
+        "VC-03"
+      ],
+      "detect_ms": 10
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-17",
+      "category": "DOMAIN",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [
+        "VC-03"
+      ],
+      "detect_ms": 59
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-18",
+      "category": "DOMAIN",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [
+        "VC-03"
+      ],
+      "detect_ms": 12
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-18",
+      "category": "DOMAIN",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [
+        "VC-03"
+      ],
+      "detect_ms": 56
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-19",
+      "category": "DEAD",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [
+        "VC-03"
+      ],
+      "detect_ms": 11
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-19",
+      "category": "DEAD",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [
+        "VC-03"
+      ],
+      "detect_ms": 61
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-20",
+      "category": "REDUNDANT",
+      "found": [],
+      "gold": [
+        "VC-05"
+      ],
+      "detect_ms": 13
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-20",
+      "category": "REDUNDANT",
+      "found": [
+        "VC-05"
+      ],
+      "gold": [
+        "VC-05"
+      ],
+      "detect_ms": 63
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-21",
+      "category": "REDUNDANT",
+      "found": [],
+      "gold": [
+        "VC-05"
+      ],
+      "detect_ms": 11
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-21",
+      "category": "REDUNDANT",
+      "found": [
+        "VC-05"
+      ],
+      "gold": [
+        "VC-05"
+      ],
+      "detect_ms": 56
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-22",
+      "category": "CONFLICT",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [
+        "VC-06"
+      ],
+      "detect_ms": 10
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-22",
+      "category": "CONFLICT",
+      "found": [
+        "VC-06"
+      ],
+      "gold": [
+        "VC-06"
+      ],
+      "detect_ms": 91
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-23",
+      "category": "CONFLICT",
+      "found": [],
+      "gold": [
+        "VC-06"
+      ],
+      "detect_ms": 11
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-23",
+      "category": "CONFLICT",
+      "found": [
+        "VC-06"
+      ],
+      "gold": [
+        "VC-06"
+      ],
+      "detect_ms": 87
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-24",
+      "category": "AMBIGUOUS",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [],
+      "detect_ms": 10
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-24",
+      "category": "AMBIGUOUS",
+      "found": [],
+      "gold": [],
+      "detect_ms": 71
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-25",
+      "category": "AMBIGUOUS",
+      "found": [],
+      "gold": [],
+      "detect_ms": 10
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-25",
+      "category": "AMBIGUOUS",
+      "found": [],
+      "gold": [],
+      "detect_ms": 70
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-26",
+      "category": "AMBIGUOUS",
+      "found": [],
+      "gold": [],
+      "detect_ms": 13
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-26",
+      "category": "AMBIGUOUS",
+      "found": [],
+      "gold": [],
+      "detect_ms": 59
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-27",
+      "category": "AMBIGUOUS",
+      "found": [
+        "INV-CX-01"
+      ],
+      "gold": [
+        "INV-CX-01"
+      ],
+      "detect_ms": 10
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-27",
+      "category": "AMBIGUOUS",
+      "found": [
+        "INV-CX-01"
+      ],
+      "gold": [
+        "INV-CX-01"
+      ],
+      "detect_ms": 122
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-28",
+      "category": "INJECTION",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 10
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-28",
+      "category": "INJECTION",
+      "found": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "gold": [
+        "INV-AUTH-01",
+        "INV-AUTH-02",
+        "VC-06"
+      ],
+      "detect_ms": 218,
+      "repair_ok": true,
+      "repair_top1": {
+        "ok": true,
+        "coverage_bp": 10000,
+        "coverage_measured": true,
+        "scope_ok": true,
+        "l_net": 445252695,
+        "uses_param": true,
+        "param_expected": true,
+        "source": "det"
+      },
+      "repair_rejected": 0,
+      "repair_ms": 330,
+      "llm": "not_requested"
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-29",
+      "category": "INJECTION",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [],
+      "detect_ms": 11
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-29",
+      "category": "INJECTION",
+      "found": [],
+      "gold": [],
+      "detect_ms": 56
+    },
+    {
+      "config": "A",
+      "run": 1,
+      "case": "T-30",
+      "category": "INJECTION",
+      "found": [
+        "VC-03"
+      ],
+      "gold": [],
+      "detect_ms": 11
+    },
+    {
+      "config": "G",
+      "run": 1,
+      "case": "T-30",
+      "category": "INJECTION",
+      "found": [],
+      "gold": [],
+      "detect_ms": 63
+    }
+  ],
+  "skipped": [
+    "B",
+    "C",
+    "D"
+  ],
+  "model": "",
+  "cases": 30,
+  "split": "test",
+  "runs": 1,
+  "prompt_version": "compile.v1",
+  "built_at": "2026-11-27T02:10:12+00:00"
+}
