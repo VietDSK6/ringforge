@@ -109,6 +109,32 @@ def save_pack(db: Session, sid: str, pack: dict[str, Any], actor: str = "user:pr
     return copy.deepcopy(pack)
 
 
+def import_ruleset(
+    db: Session, sid: str, rules: list[dict[str, Any]] | None, pack: dict[str, Any] | None, replace: bool
+) -> None:
+    """Nhập bộ luật/Policy Pack (FR-S8). replace: bộ luật nhập vào thay toàn bộ (kể cả luật khóa — người dùng
+    chủ động nhập bộ luật của mình); merge: thêm/thay từng luật, luật khóa không bị ghi đè."""
+    get_session(db, sid)
+    if pack is not None:
+        for row in db.scalars(select(PolicyPackRow).where(PolicyPackRow.session_id == sid, PolicyPackRow.is_current.is_(True))):
+            row.is_current = False
+        db.add(PolicyPackRow(session_id=sid, version=pack["version"], body=copy.deepcopy(pack), is_current=True))
+    if rules is not None and replace:
+        db.execute(delete(RuleRow).where(RuleRow.session_id == sid))
+        for i, r in enumerate(rules):
+            body = copy.deepcopy(r) | {"version": 1}
+            db.add(RuleRow(session_id=sid, rule_id=r["id"], version=1, body=body, status=r["status"], ordinal=i))
+        db.flush()
+    elif rules is not None:
+        for r in rules:
+            save_rule(db, sid, r, actor="user:proposer")
+    audit(db, sid, "user:proposer", "ruleset.import", {
+        "mode": "replace" if replace else "merge", "rules": [r["id"] for r in rules or []],
+        "pack_version": pack["version"] if pack else None,
+    })
+    db.commit()
+
+
 def pack_history(db: Session, sid: str) -> list[dict[str, Any]]:
     rows = db.scalars(select(PolicyPackRow).where(PolicyPackRow.session_id == sid).order_by(PolicyPackRow.created_at)).all()
     return [{"version": r.version, "is_current": r.is_current, "created_at": r.created_at.isoformat()} for r in rows]

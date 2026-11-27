@@ -61,6 +61,7 @@ class Settings:
     llm_model_fallback: str
     llm_daily_call_cap: int
     llm_session_daily_cap: int
+    rate_limit_per_min: int
 
 
 def load_settings() -> Settings:
@@ -75,6 +76,7 @@ def load_settings() -> Settings:
         llm_model_fallback=os.environ.get("LLM_MODEL_FALLBACK", "").strip(),
         llm_daily_call_cap=_int_env("LLM_DAILY_CALL_CAP", 500),
         llm_session_daily_cap=_int_env("LLM_SESSION_DAILY_CAP", 40),
+        rate_limit_per_min=_int_env("RATE_LIMIT_PER_MIN", 60),
     )
 
 

@@ -6,6 +6,7 @@ from pathlib import Path
 os.environ["DATABASE_URL"] = f"sqlite:///{Path(tempfile.mkdtemp(prefix='rf-test-')) / 'test.sqlite3'}"
 os.environ["RINGFORGE_NO_DOTENV"] = "1"  # test không bao giờ đọc .env thật → không gọi LLM thật, không đụng DB thật
 os.environ.pop("LLM_API_KEY", None)
+os.environ["RATE_LIMIT_PER_MIN"] = "0"  # tắt giới hạn tần suất khi test (test riêng ở test_io.py)
 
 import pytest  # noqa: E402
 

@@ -8,6 +8,7 @@ export class ApiError extends Error {
     public status: number,
     public code: string,
     message: string,
+    public details?: unknown,
   ) {
     super(message);
   }
@@ -27,7 +28,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const body = await res.json().catch(() => null);
   if (!res.ok) {
     const msg = body?.message_vi ?? `Máy chủ trả mã lỗi HTTP ${res.status}.`;
-    throw new ApiError(res.status, body?.error_code ?? "HTTP_ERROR", msg);
+    throw new ApiError(res.status, body?.error_code ?? "HTTP_ERROR", msg, body?.details);
   }
   return body as T;
 }
@@ -58,6 +59,12 @@ export const api = {
   decide: (sid: string, id: string, decision: "approve" | "reject", note: string) =>
     post<ChangeSet>(`/sessions/${sid}/change-sets/${id}/decision`, { decision, note, role: "approver" }),
   audit: (sid: string) => request<{ events: AuditEvent[] }>(`/sessions/${sid}/audit`),
+  exportRuleset: (sid: string) => request<Record<string, unknown>>(`/sessions/${sid}/export`),
+  importRuleset: (sid: string, body: Record<string, unknown>) =>
+    post<{ imported: { rules: number; policy_pack: string | null; mode: string }; rules_total: number; verify: VerifyReport }>(
+      `/sessions/${sid}/import`,
+      body,
+    ),
   saveRule: (sid: string, rule: Rule | Record<string, unknown>) =>
     request<{ saved: boolean; rule?: Rule }>(`/sessions/${sid}/rules/${String(rule.id)}`, {
       method: "PUT",

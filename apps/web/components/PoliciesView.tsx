@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { ImportExport } from "@/components/ImportExport";
 import { RuleSentence } from "@/components/RuleSentence";
 import { VerdictBadge } from "@/components/VerdictBadge";
 import { ApiError, api } from "@/lib/api";
@@ -16,6 +17,7 @@ export function PoliciesView() {
   const [rules, setRules] = useState<Rule[] | null>(null);
   const [report, setReport] = useState<VerifyReport | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [version, setVersion] = useState(0); // tăng sau khi nhập bộ luật để tải lại
 
   useEffect(() => {
     let alive = true;
@@ -29,7 +31,7 @@ export function PoliciesView() {
     return () => {
       alive = false;
     };
-  }, [sid]);
+  }, [sid, version]);
 
   if (error) {
     return (
@@ -60,12 +62,15 @@ export function PoliciesView() {
           <h1 className="text-2xl font-bold tracking-tight">Bộ luật</h1>
           <p className="text-sm text-muted">Luật đang chạy và ứng viên trong sandbox của bạn.</p>
         </div>
-        <Link
-          href={`/s/${sid}/studio`}
-          className="inline-flex min-h-11 items-center rounded-xl bg-accent px-5 font-semibold text-white hover:opacity-90 dark:text-zinc-950"
-        >
-          + Thêm luật bằng lời
-        </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          <ImportExport sid={sid} onImported={() => setVersion((v) => v + 1)} />
+          <Link
+            href={`/s/${sid}/studio`}
+            className="inline-flex min-h-11 items-center rounded-xl bg-accent px-5 font-semibold text-white hover:opacity-90 dark:text-zinc-950"
+          >
+            + Thêm luật bằng lời
+          </Link>
+        </div>
       </header>
 
       <div role="status" className="flex flex-wrap items-center gap-3 rounded-2xl border border-line bg-surface p-4">

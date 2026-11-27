@@ -1,5 +1,6 @@
 import { EnterSandbox } from "@/components/EnterSandbox";
 import { HealthStatus } from "@/components/HealthStatus";
+import { API_URL } from "@/lib/api";
 
 const DEMOS = [
   {
@@ -59,7 +60,14 @@ export default function Landing() {
         </ul>
       </section>
 
-      <footer className="max-w-md">
+      <footer className="flex max-w-3xl flex-col gap-4">
+        <p className="text-sm text-muted">
+          Dùng được như công cụ thật: nhập bộ luật JSON của bạn ở màn Bộ luật, hoặc gọi thẳng{" "}
+          <a href={`${API_URL}/docs`} className="font-medium text-accent underline">
+            API công khai /verify và /backtest
+          </a>{" "}
+          (có ví dụ curl, không cần đăng nhập).
+        </p>
         <HealthStatus />
       </footer>
     </main>
