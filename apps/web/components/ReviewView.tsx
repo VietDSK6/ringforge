@@ -12,6 +12,7 @@ import type { AuditEvent, ChangeSet, ChangeSetState } from "@/lib/types";
 const STATE: Record<ChangeSetState, { label: string; cls: string }> = {
   DRAFT: { label: "Chưa đạt kiểm chứng", cls: "bg-red-50 text-danger ring-red-200 dark:bg-red-950 dark:ring-red-900" },
   VERIFIED: { label: "Chờ duyệt", cls: "bg-violet-50 text-accent ring-violet-200 dark:bg-violet-950 dark:ring-violet-900" },
+  SHADOW: { label: "Chờ duyệt · đã chạy shadow", cls: "bg-violet-50 text-accent ring-violet-200 dark:bg-violet-950 dark:ring-violet-900" },
   APPROVED: { label: "Đã phê duyệt", cls: "bg-emerald-50 text-ok ring-emerald-200 dark:bg-emerald-950 dark:ring-emerald-900" },
   REJECTED: { label: "Đã từ chối", cls: "bg-zinc-100 text-muted ring-zinc-300 dark:bg-zinc-900 dark:ring-zinc-700" },
 };
@@ -37,6 +38,9 @@ const ACTION_VI: Record<string, string> = {
   "changeset.approve": "Phê duyệt change set",
   "changeset.reject": "Từ chối change set",
   "changeset.approve_blocked": "Phê duyệt bị chặn: kiểm chứng không đạt",
+  "changeset.shadow": "Chạy shadow trên ngày phát lại",
+  "ruleset.import": "Nhập bộ luật / Policy Pack",
+  "ruleset.export": "Xuất bộ luật",
 };
 const AUTOMATIC = new Set(["verify.run", "backtest.run"]);
 
@@ -219,7 +223,7 @@ function ChangeSetDetail({ cs, onDecided }: { cs: ChangeSet; onDecided: () => vo
   const bt = cs.summary.backtest;
   const diff = cs.summary.semantic_diff;
   const blocked = verify.verdict === "FAIL" || verify.verdict === "UNKNOWN";
-  const open = cs.state === "DRAFT" || cs.state === "VERIFIED";
+  const open = cs.state === "DRAFT" || cs.state === "VERIFIED" || cs.state === "SHADOW";
   const errors = verify.checks.filter((c) => c.severity === "ERROR");
   const warns = verify.checks.filter((c) => c.severity === "WARN");
 
@@ -342,6 +346,8 @@ function ChangeSetDetail({ cs, onDecided }: { cs: ChangeSet; onDecided: () => vo
         )}
       </section>
 
+      <ShadowSection cs={cs} onDone={onDecided} />
+
       <section aria-labelledby={`${uid}-decide`} className="space-y-3 rounded-2xl border-2 border-line bg-surface p-4">
         <h3 id={`${uid}-decide`} className="font-semibold">
           Người duyệt
@@ -402,5 +408,115 @@ function ChangeSetDetail({ cs, onDecided }: { cs: ChangeSet; onDecided: () => vo
         )}
       </section>
     </article>
+  );
+}
+
+const LABEL_VI: Record<string, string> = { LEGIT: "Thật", APP_VICTIM: "Nạn nhân chuyển cho kẻ gian", ATO: "Chiếm tài khoản", MULE_LAYER: "Mule chuyển tiếp" };
+const DEC_SHORT: Record<string, string> = { ALLOW: "Cho qua", MONITOR: "Giám sát", HOLD: "Giữ", BLOCK: "Chặn" };
+const AUTH_SHORT: Record<string, string> = { NONE: "", OTP: " · OTP", BIOMETRIC: " · sinh trắc học" };
+
+/** Shadow mô phỏng (FR-A4): bộ luật cũ và mới chạy song song trên ngày 7 — ngày không dùng cho backtest. */
+function ShadowSection({ cs, onDone }: { cs: ChangeSet; onDone: () => void }) {
+  const { sid } = useParams<{ sid: string }>();
+  const uid = useId();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const sh = cs.summary.shadow;
+  const allowed = cs.state !== "DRAFT" && cs.state !== "REJECTED";
+
+  async function run() {
+    setBusy(true);
+    setError(null);
+    try {
+      await api.shadow(sid, cs.id);
+      onDone();
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : "Không chạy được shadow.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <section aria-labelledby={`${uid}-shadow`} className="space-y-3 rounded-2xl border border-line bg-surface p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h3 id={`${uid}-shadow`} className="font-semibold">
+          Shadow trên ngày phát lại (ngày 7)
+        </h3>
+        {allowed && (
+          <button
+            type="button"
+            onClick={run}
+            disabled={busy}
+            className="min-h-11 rounded-xl border border-line px-4 text-sm font-semibold hover:bg-background disabled:opacity-50"
+          >
+            {busy ? "Đang chạy shadow…" : sh ? "Chạy lại shadow" : "Chạy shadow trên ngày 7"}
+          </button>
+        )}
+      </div>
+      <p className="text-sm text-muted">
+        Bộ luật cũ và mới chạy song song trên ngày dữ liệu không dùng cho backtest; không giao dịch nào bị ảnh hưởng thật.
+      </p>
+      {!allowed && <p className="text-sm text-muted">Chỉ chạy shadow cho change set đã qua kiểm chứng.</p>}
+      {error && (
+        <p role="alert" className="text-sm text-danger">
+          {error}
+        </p>
+      )}
+      {sh && (
+        <>
+          <p className="text-sm">
+            {formatInt(sh.changed.tx_count)} / {formatInt(sh.n_tx)} giao dịch đổi kết quả: giữ/chặn thêm{" "}
+            <strong>{formatInt(sh.fraud_newly_stopped)} giao dịch gian lận</strong> và{" "}
+            <strong className={sh.legit_newly_stopped > 0 ? "text-warn" : undefined}>{formatInt(sh.legit_newly_stopped)} giao dịch thật</strong>
+            {sh.auth_lost > 0 && (
+              <>
+                ; <strong className="text-danger">{formatInt(sh.auth_lost)} giao dịch mất bước xác thực</strong>
+              </>
+            )}
+            . Δ L_net ngày 7: {sh.delta.l_net === 0 ? "không đổi" : `${sh.delta.l_net > 0 ? "+" : "−"}${formatVnd(Math.abs(sh.delta.l_net))}`}{" "}
+            <span className="text-xs text-muted">(hệ thống tính)</span>
+          </p>
+          {sh.samples.length > 0 && (
+            <div tabIndex={0} role="region" aria-labelledby={`${uid}-sh-cap`} className="overflow-x-auto rounded-xl border border-line">
+              <table className="w-full min-w-[640px] border-separate border-spacing-0 text-left text-sm">
+                <caption id={`${uid}-sh-cap`} className="px-3 pt-2 text-left text-xs text-muted">
+                  Giao dịch đổi kết quả{sh.sample_truncated ? ` (hiện ${sh.samples.length} giao dịch đầu, gian lận trước)` : ""} · nhãn là nhãn
+                  dữ liệu tổng hợp
+                </caption>
+                <thead className="text-xs text-muted">
+                  <tr>
+                    <th scope="col" className="border-b border-line px-3 py-2 font-medium">Giao dịch</th>
+                    <th scope="col" className="border-b border-line px-3 py-2 text-right font-medium">Số tiền</th>
+                    <th scope="col" className="border-b border-line px-3 py-2 font-medium">Nhãn</th>
+                    <th scope="col" className="border-b border-line px-3 py-2 font-medium">Luật cũ</th>
+                    <th scope="col" className="border-b border-line px-3 py-2 font-medium">Luật mới</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sh.samples.map((t) => (
+                    <tr key={t.tx_id}>
+                      <th scope="row" className="border-b border-line px-3 py-2 text-left font-mono text-xs font-normal">
+                        {t.tx_id} · {String(t.hour).padStart(2, "0")}:00
+                      </th>
+                      <td className="border-b border-line px-3 py-2 text-right tabular-nums">{formatVnd(t.amount)}</td>
+                      <td className={`border-b border-line px-3 py-2 ${t.label === "LEGIT" ? "" : "font-semibold"}`}>{LABEL_VI[t.label] ?? t.label}</td>
+                      <td className="border-b border-line px-3 py-2 text-muted">
+                        {DEC_SHORT[t.before.decision]}
+                        {AUTH_SHORT[t.before.auth]}
+                      </td>
+                      <td className="border-b border-line px-3 py-2 font-semibold">
+                        {DEC_SHORT[t.after.decision]}
+                        {AUTH_SHORT[t.after.auth]}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
+      )}
+    </section>
   );
 }

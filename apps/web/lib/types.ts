@@ -322,7 +322,24 @@ export interface BacktestResponse {
 
 // ---------- Change set + phê duyệt + audit (T4.5) ----------
 
-export type ChangeSetState = "DRAFT" | "VERIFIED" | "APPROVED" | "REJECTED";
+export type ChangeSetState = "DRAFT" | "VERIFIED" | "SHADOW" | "APPROVED" | "REJECTED";
+
+export interface ShadowResult {
+  days: number[];
+  n_tx: number;
+  changed: DataSummary;
+  stricter_count: number;
+  looser_count: number;
+  fraud_newly_stopped: number;
+  legit_newly_stopped: number;
+  legit_newly_biometric: number;
+  auth_lost: number;
+  before: BacktestSummary & { prevented: number; n_tx: number };
+  after: BacktestSummary & { prevented: number; n_tx: number };
+  delta: Record<string, number>;
+  samples: { tx_id: string; hour: number; amount: number; channel: string; label: string; scenario: string; before: Outcome; after: Outcome }[];
+  sample_truncated: boolean;
+}
 
 export interface ChangeSetItem {
   op: "add" | "replace" | "retire";
@@ -356,6 +373,7 @@ export interface ChangeSet {
     verify: VerifyReport;
     backtest: { before: BacktestSummary; after: BacktestSummary; delta: Record<string, number>; days: number[] };
     semantic_diff: SemanticDiff;
+    shadow?: ShadowResult;
   };
   note: string;
   decision_note: string | null;

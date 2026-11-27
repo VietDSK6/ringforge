@@ -58,6 +58,7 @@ export const api = {
   changeSets: (sid: string) => request<{ change_sets: ChangeSet[] }>(`/sessions/${sid}/change-sets`),
   decide: (sid: string, id: string, decision: "approve" | "reject", note: string) =>
     post<ChangeSet>(`/sessions/${sid}/change-sets/${id}/decision`, { decision, note, role: "approver" }),
+  shadow: (sid: string, id: string) => post<ChangeSet>(`/sessions/${sid}/change-sets/${id}/shadow`, {}),
   audit: (sid: string) => request<{ events: AuditEvent[] }>(`/sessions/${sid}/audit`),
   exportRuleset: (sid: string) => request<Record<string, unknown>>(`/sessions/${sid}/export`),
   importRuleset: (sid: string, body: Record<string, unknown>) =>

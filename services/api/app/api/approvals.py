@@ -15,6 +15,7 @@ from sqlalchemy.orm import Session
 
 from app.api.errors import AppError
 from app.backtest.metrics import Assumptions, delta, run_backtest
+from app.backtest.shadow import run_shadow
 from app.data.loader import transactions
 from app.dsl.render_vi import render_rule
 from app.dsl.validator import Issue, check_rule
@@ -138,7 +139,7 @@ def create_change_set(sid: str, req: ChangeSetRequest, db: Db) -> dict[str, Any]
     row = repo.add_change_set(
         db, sid, items=items, pack_version=pack["version"], state=state, verify_run_id=verify_run_id,
         backtest_run_id=backtest_run_id, note=req.note,
-        summary={"verify": report, "backtest": backtest, "semantic_diff": diff},
+        summary={"verify": report, "backtest": backtest, "semantic_diff": diff, "base_rules": current},
     )
     repo.audit(db, sid, "user:proposer", "changeset.create", {
         "change_set_id": row.id, "items": [f"{i['op']}:{i['rule_id']}" for i in items], "verdict": report["verdict"],
@@ -167,7 +168,7 @@ def get_change_set(sid: str, cs_id: str, db: Db) -> dict[str, Any]:
 def decide(sid: str, cs_id: str, req: DecisionRequest, db: Db) -> dict[str, Any]:
     repo.get_session(db, sid)
     row = _get(db, sid, cs_id)
-    if row.state in ("APPROVED", "REJECTED"):
+    if row.state in ("APPROVED", "REJECTED"):  # DRAFT, VERIFIED, SHADOW còn mở
         raise AppError(409, "ALREADY_DECIDED", f"Change set đã được {'phê duyệt' if row.state == 'APPROVED' else 'từ chối'} trước đó.")
     note = req.note.strip()
     if req.decision == "reject":
@@ -199,6 +200,29 @@ def decide(sid: str, cs_id: str, req: DecisionRequest, db: Db) -> dict[str, Any]
     row.state, row.decision_note, row.decided_at = "APPROVED", note or None, now()
     repo.audit(db, sid, "user:approver", "changeset.approve", {
         "change_set_id": row.id, "verdict": report["verdict"], "pack_version": pack["version"], "note": note or None,
+    })
+    db.commit()
+    return repo.change_set_dict(row)
+
+
+class ShadowRequest(BaseModel):
+    assumptions: Assumptions = Field(default_factory=Assumptions)
+
+
+@router.post("/{sid}/change-sets/{cs_id}/shadow", summary="Shadow mô phỏng: chạy bộ luật cũ và mới song song trên ngày 7 (dữ liệu phát lại)")
+def shadow(sid: str, cs_id: str, db: Db, req: ShadowRequest | None = None) -> dict[str, Any]:
+    repo.get_session(db, sid)
+    row = _get(db, sid, cs_id)
+    if row.state in ("DRAFT", "REJECTED"):
+        raise AppError(409, "SHADOW_NOT_ALLOWED", "Chỉ chạy shadow cho change set đã qua kiểm chứng và chưa bị từ chối.")
+    pack = repo.current_pack(db, sid)
+    base = row.summary.get("base_rules") or repo.current_rules(db, sid)
+    result = run_shadow(base, _proposed(base, row.items), pack, transactions(), (req or ShadowRequest()).assumptions)
+    if row.state == "VERIFIED":
+        row.state = "SHADOW"
+    row.summary = dict(row.summary) | {"shadow": result}
+    repo.audit(db, sid, "user:approver", "changeset.shadow", {
+        "change_set_id": row.id, "changed": result["changed"]["tx_count"], "days": result["days"],
     })
     db.commit()
     return repo.change_set_dict(row)
