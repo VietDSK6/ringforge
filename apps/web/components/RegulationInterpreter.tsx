@@ -2,6 +2,9 @@
 
 import { type FormEvent, useId, useState } from "react";
 
+import { Callout } from "@/components/Callout";
+import { Icon } from "@/components/Icon";
+import { SourceTag } from "@/components/SourceTag";
 import { ApiError, api } from "@/lib/api";
 import { formatInt, formatVnd } from "@/lib/format";
 import type { InterpretResult, PatchOp } from "@/lib/types";
@@ -34,12 +37,12 @@ export function RegulationInterpreter({ sid, onUse }: { sid: string; onUse: (pat
   }
 
   return (
-    <section aria-labelledby={`${uid}-title`} className="space-y-3 rounded-2xl border border-line bg-surface p-4">
+    <section aria-labelledby={`${uid}-title`} className="panel space-y-4 p-4 sm:p-5">
       <div>
-        <h2 id={`${uid}-title`} className="text-lg font-semibold">
+        <h2 id={`${uid}-title`} className="section-title">
           Dán mô tả quy định mới
         </h2>
-        <p className="text-sm text-muted">AI đọc văn bản và đề xuất bản vá Policy Pack. Không có gì thay đổi cho đến khi bạn phân tích tác động và áp dụng.</p>
+        <p className="section-lede">AI đọc văn bản và đề xuất bản vá Policy Pack. Không có gì thay đổi cho đến khi bạn phân tích tác động và áp dụng.</p>
       </div>
       <form onSubmit={submit} className="space-y-3">
         <label htmlFor={`${uid}-text`} className="sr-only">
@@ -52,34 +55,39 @@ export function RegulationInterpreter({ sid, onUse }: { sid: string; onUse: (pat
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder={SAMPLE}
-          className="w-full rounded-xl border border-zinc-400 bg-background p-3 leading-6 dark:border-zinc-600"
+          className="field resize-y leading-6"
         />
         <div className="flex flex-wrap items-center gap-3">
           <button
             type="submit"
             disabled={busy || !text.trim()}
-            className="min-h-11 rounded-xl bg-accent px-5 font-semibold text-white hover:opacity-90 disabled:opacity-50 dark:text-zinc-950"
+            className="btn btn-primary"
           >
+            {busy ? (
+              <span aria-hidden className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+            ) : (
+              <Icon name="spark" />
+            )}
             {busy ? "AI đang đọc văn bản…" : "Đề xuất bản vá"}
           </button>
-          <button type="button" onClick={() => setText(SAMPLE)} className="min-h-11 text-sm text-accent underline">
+          <button type="button" onClick={() => setText(SAMPLE)} className="btn btn-ghost">
             Điền ví dụ
           </button>
         </div>
       </form>
       {error && (
-        <p role="alert" className="rounded-xl bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-950 dark:text-amber-200">
+        <Callout tone="warn" role="alert">
           {error}
-        </p>
+        </Callout>
       )}
       {result && (
-        <div role="status" className="space-y-2 rounded-xl bg-background p-3 text-sm">
-          <p className="text-xs text-accent">AI đề xuất · đã kiểm cấu trúc và hợp lệ với Policy Pack (VC-01)</p>
+        <div role="status" className="space-y-3 rounded-lg border border-accent-line bg-sunken p-4 text-sm leading-6">
+          <SourceTag source="ai" label="AI đề xuất · đã kiểm cấu trúc và hợp lệ với Policy Pack (VC-01)" />
           {result.status === "OUT_OF_SCOPE" && <p>Văn bản này không nói về quy định xác thực/giao dịch thanh toán — không có bản vá.</p>}
           {result.status === "INVALID" && (
             <>
-              <p className="font-semibold text-danger">Bản vá AI đề xuất không hợp lệ nên không dùng được:</p>
-              <ul className="list-disc pl-5 text-danger">
+              <p className="font-semibold text-fail">Bản vá AI đề xuất không hợp lệ nên không dùng được:</p>
+              <ul className="list-disc pl-5 text-fail">
                 {(result.errors ?? []).map((e) => (
                   <li key={e}>{e}</li>
                 ))}
@@ -93,7 +101,7 @@ export function RegulationInterpreter({ sid, onUse }: { sid: string; onUse: (pat
                   <li key={i}>
                     {c.op === "set_param" ? (
                       <>
-                        {c.label_vi}: {fmt(c.old, c.unit)} → <strong>{fmt(c.new, c.unit)}</strong>
+                        {c.label_vi}: <span className="num">{fmt(c.old, c.unit)}</span> → <strong className="num">{fmt(c.new, c.unit)}</strong>
                       </>
                     ) : c.op === "add_invariant" ? (
                       <>
@@ -109,7 +117,7 @@ export function RegulationInterpreter({ sid, onUse }: { sid: string; onUse: (pat
               <button
                 type="button"
                 onClick={() => onUse(result.patch)}
-                className="min-h-11 rounded-xl border-2 border-accent px-4 font-semibold text-accent hover:bg-violet-50 dark:hover:bg-violet-950"
+                className="btn btn-outline-accent"
               >
                 Dùng bản vá này để phân tích tác động
               </button>

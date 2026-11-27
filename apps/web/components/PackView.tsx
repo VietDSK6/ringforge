@@ -3,11 +3,15 @@
 import { useParams, useSearchParams } from "next/navigation";
 import { type FormEvent, useEffect, useId, useRef, useState } from "react";
 
+import { Callout } from "@/components/Callout";
 import { CounterexampleCard } from "@/components/CounterexampleCard";
 import { GroundingLine } from "@/components/GroundingLine";
 import { GuidedTour, type TourStep } from "@/components/GuidedTour";
+import { Icon, type IconName } from "@/components/Icon";
+import { PageSkeleton } from "@/components/PageSkeleton";
 import { RegulationInterpreter } from "@/components/RegulationInterpreter";
 import { RuleSentence } from "@/components/RuleSentence";
+import { SourceTag } from "@/components/SourceTag";
 import { VerdictBadge } from "@/components/VerdictBadge";
 import { ApiError, api } from "@/lib/api";
 import { AUTH_VI, DECISION_VI, formatInt, formatVnd } from "@/lib/format";
@@ -161,12 +165,12 @@ export function PackView() {
 
   if (error && !pack) {
     return (
-      <p role="alert" className="rounded-2xl border border-line bg-surface p-6">
-        {error}
-      </p>
+      <Callout tone="fail" role="alert" title="Không tải được Policy Pack">
+        <p>{error}</p>
+      </Callout>
     );
   }
-  if (!pack) return <p className="text-muted">Đang tải Policy Pack…</p>;
+  if (!pack) return <PageSkeleton label="Đang tải Policy Pack…" rows={4} />;
 
   const byCat = (c: ImpactRule["category"]) => impact?.rules.filter((r) => r.category === c) ?? [];
   const nextVersion = impact?.pack_after.version;
@@ -174,44 +178,46 @@ export function PackView() {
   return (
     <div className="space-y-8">
       <GuidedTour id="demo2" steps={TOUR} enabled={isDemo} />
-      <header className="space-y-2">
-        <h1 className="text-2xl font-bold tracking-tight">Policy Pack</h1>
-        <p className="text-sm text-muted">
-          {pack.id} · phiên bản <span className="font-mono">{pack.version}</span>
-        </p>
-        <p className="rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200">
-          {pack.disclaimer}
-        </p>
+      <header className="space-y-3">
+        <div>
+          <h1 className="page-title">Policy Pack</h1>
+          <p className="page-lede flex flex-wrap items-center gap-2">
+            <span>{pack.id}</span>
+            <span className="chip font-mono text-[0.75rem]">phiên bản {pack.version}</span>
+          </p>
+        </div>
+        <Callout tone="warn">{pack.disclaimer}</Callout>
       </header>
 
       <form id={formId} onSubmit={analyze} aria-labelledby={`${formId}-title`} className="space-y-4">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h2 id={`${formId}-title`} className="text-lg font-semibold">
-              Tham số
-            </h2>
-            <p className="text-sm text-muted">Sửa giá trị rồi phân tích tác động. Chưa có gì thay đổi cho đến khi bạn áp dụng.</p>
-          </div>
+        <div>
+          <h2 id={`${formId}-title`} className="section-title scroll-mt-16">
+            Tham số
+          </h2>
+          <p className="section-lede">Sửa giá trị rồi phân tích tác động. Chưa có gì thay đổi cho đến khi bạn áp dụng.</p>
         </div>
         {isDemo && (
-          <p className="text-sm">
-            Demo 2 đã điền sẵn: hạ <strong>ngưỡng sinh trắc học/lần</strong> từ 10.000.000 đ xuống 5.000.000 đ (kịch bản giả lập). Bạn
-            có thể sửa giá trị khác.
-          </p>
+          <Callout tone="info">
+            Demo 2 đã điền sẵn: hạ <strong>ngưỡng sinh trắc học/lần</strong> từ 10.000.000 đ xuống 5.000.000 đ (kịch bản giả lập). Bạn có
+            thể sửa giá trị khác.
+          </Callout>
         )}
-        <ul className="divide-y divide-line rounded-2xl border border-line bg-surface">
+        <ul className="panel divide-y divide-line">
           {Object.entries(pack.params).map(([name, p]) => {
             const id = `${formId}-${name}`;
             const raw = digits(draft[name] ?? "");
             const changed = raw !== "" && Number(raw) !== p.value;
             return (
-              <li key={name} className="grid gap-3 p-4 md:grid-cols-[1fr_16rem] md:items-start">
+              <li
+                key={name}
+                className={`grid gap-3 p-4 sm:px-5 md:grid-cols-[1fr_17rem] md:items-start ${changed ? "bg-accent-soft/60 shadow-[inset_3px_0_0_var(--accent)]" : ""}`}
+              >
                 <div className="min-w-0">
                   <label htmlFor={id} className="font-medium">
                     {pack.params_vi?.[name] ?? name}
                   </label>
                   <p className="font-mono text-xs text-muted">{name}</p>
-                  <p className="mt-1 text-sm text-muted">Nguồn: {p.source}</p>
+                  <p className="mt-1 text-[0.8125rem] text-muted">Nguồn: {p.source}</p>
                 </div>
                 <div>
                   <input
@@ -225,14 +231,13 @@ export function PackView() {
                     onChange={(e) => onDraft(name, e.target.value)}
                     onBlur={() => raw && onDraft(name, formatInt(Number(raw)))}
                     aria-describedby={`${id}-hint`}
-                    className={`min-h-12 w-full rounded-xl border bg-background px-3 text-right tabular-nums ${
-                      changed ? "border-accent ring-1 ring-accent" : "border-zinc-400 dark:border-zinc-600"
-                    }`}
+                    className={`field num min-h-12 text-right text-[1.0625rem] font-medium ${changed ? "border-accent! ring-1 ring-accent" : ""}`}
                   />
-                  <p id={`${id}-hint`} className="mt-1 text-right text-xs text-muted">
+                  <p id={`${id}-hint`} className="num mt-1 text-right text-xs text-muted">
                     {changed ? (
                       <>
-                        Hiện hành {fmtParam(p.value, p.unit)} → <strong className="text-accent">{fmtParam(Number(raw), p.unit)}</strong>
+                        Hiện hành <span className="line-through">{fmtParam(p.value, p.unit)}</span> →{" "}
+                        <strong className="text-accent">{fmtParam(Number(raw), p.unit)}</strong>
                       </>
                     ) : (
                       `Đơn vị: ${p.unit === "VND" ? "đồng" : p.unit === "s" ? "giây" : p.unit}`
@@ -246,14 +251,15 @@ export function PackView() {
         {aiInvariants.length > 0 && (
           <ul className="space-y-2" aria-label="Invariant mới từ bản vá AI đề xuất">
             {aiInvariants.map((op) => (
-              <li key={op.invariant.id} className="flex flex-wrap items-center gap-3 rounded-xl border border-accent bg-surface p-3 text-sm">
+              <li key={op.invariant.id} className="flex flex-wrap items-center gap-3 rounded-lg border border-accent-line bg-accent-soft px-3.5 py-1.5 text-sm">
+                <Icon name="spark" className="size-4 text-accent" />
                 <span>
-                  Thêm invariant <span className="font-mono">{op.invariant.id}</span> (AI đề xuất)
+                  Thêm invariant <span className="font-mono font-semibold">{op.invariant.id}</span> (AI đề xuất)
                 </span>
                 <button
                   type="button"
                   onClick={() => setAiInvariants((xs) => xs.filter((x) => x.invariant.id !== op.invariant.id))}
-                  className="min-h-11 text-sm text-muted underline"
+                  className="btn btn-ghost btn-sm ml-auto"
                 >
                   Bỏ
                 </button>
@@ -262,12 +268,8 @@ export function PackView() {
           </ul>
         )}
         <div className="flex flex-wrap items-center gap-3">
-          <button
-            type="submit"
-            data-tour="analyze"
-            disabled={busy !== null || pending.length === 0}
-            className="min-h-12 rounded-xl bg-accent px-6 font-semibold text-white hover:opacity-90 disabled:opacity-50 dark:text-zinc-950"
-          >
+          <button type="submit" data-tour="analyze" disabled={busy !== null || pending.length === 0} className="btn btn-primary btn-lg">
+            {busy === "analyze" && <span aria-hidden className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />}
             {busy === "analyze" ? "Đang kiểm chứng lại bộ luật…" : "Phân tích tác động"}
           </button>
           <p className="text-sm text-muted" role="status">
@@ -279,69 +281,41 @@ export function PackView() {
       <RegulationInterpreter sid={sid} onUse={takeAiPatch} />
 
       {error && (
-        <p role="alert" className="rounded-xl border border-red-300 bg-red-50 p-3 text-sm text-danger dark:border-red-900 dark:bg-red-950">
+        <Callout tone="fail" role="alert">
           {error}
-        </p>
+        </Callout>
       )}
 
-      <section aria-labelledby={`${formId}-inv`} className="space-y-3">
-        <div>
-          <h2 id={`${formId}-inv`} className="text-lg font-semibold">
-            Invariant
-          </h2>
-          <p className="text-sm text-muted">Đặc tả mà toàn bộ bộ luật phải thỏa; Z3 kiểm chứng trên mọi giao dịch trong miền.</p>
-        </div>
-        <ul className="divide-y divide-line rounded-2xl border border-line bg-surface">
-          {pack.invariants.map((inv) => (
-            <li key={inv.id} className="grid gap-1 p-4 md:grid-cols-[9rem_1fr]">
-              <p className="font-mono text-sm font-semibold">{inv.id}</p>
-              <div>
-                <p className="text-sm">{pack.invariants_vi?.[inv.id] ?? inv.type}</p>
-                <p className="mt-1 text-xs text-muted">Nguồn: {inv.source}</p>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </section>
-
       {impact && (
-        <section aria-labelledby={`${formId}-impact`} className="space-y-6">
-          <div className="space-y-3 rounded-2xl border border-line bg-surface p-5">
-            <h2 id={`${formId}-impact`} ref={resultsRef} tabIndex={-1} className="text-xl font-bold tracking-tight">
-              Tác động của thay đổi
-            </h2>
-            <ul className="space-y-1">
-              {impact.changes.map((c) =>
-                c.op === "set_param" ? (
-                  <li key={c.param} className="text-base">
-                    {c.label_vi}: <span className="tabular-nums text-muted line-through">{fmtParam(c.old, c.unit)}</span> →{" "}
-                    <strong className="tabular-nums">{fmtParam(c.new, c.unit)}</strong>
-                  </li>
-                ) : null,
-              )}
-            </ul>
+        <section aria-labelledby={`${formId}-impact`} className="space-y-5">
+          <div className="panel space-y-5 border-l-4 border-l-accent p-4 sm:p-5">
+            <div className="space-y-2">
+              <h2 id={`${formId}-impact`} ref={resultsRef} tabIndex={-1} className="page-title text-[1.375rem] outline-none">
+                Tác động của thay đổi
+              </h2>
+              <ul className="space-y-1">
+                {impact.changes.map((c) =>
+                  c.op === "set_param" ? (
+                    <li key={c.param} className="text-base">
+                      {c.label_vi}: <span className="num text-muted line-through">{fmtParam(c.old, c.unit)}</span> →{" "}
+                      <strong className="num">{fmtParam(c.new, c.unit)}</strong>
+                    </li>
+                  ) : null,
+                )}
+              </ul>
+            </div>
             <div className="flex flex-wrap items-center gap-3">
-              <VerdictBadge verdict={impact.verify_after.verdict} />
-              <span className="text-sm text-muted">
-                Kiểm chứng lại {impact.verify_after.checked.rules.length} luật với {impact.verify_after.checked.invariants.length}{" "}
-                invariant của pack mới · {impact.ms} ms
+              <VerdictBadge verdict={impact.verify_after.verdict} large />
+              <span className="num text-sm text-muted">
+                Kiểm chứng lại {impact.verify_after.checked.rules.length} luật với {impact.verify_after.checked.invariants.length} invariant
+                của pack mới · {impact.ms} ms
               </span>
             </div>
-            <ul className="flex flex-wrap gap-2 text-sm" aria-label="Phân loại luật">
-              <li className="rounded-full bg-red-50 px-3 py-1 font-semibold text-danger ring-1 ring-red-200 dark:bg-red-950 dark:ring-red-900">
-                ❌ {impact.counts.incompatible} không còn tương thích
-              </li>
-              {impact.counts.review > 0 && (
-                <li className="rounded-full bg-amber-50 px-3 py-1 font-semibold text-warn ring-1 ring-amber-200 dark:bg-amber-950 dark:ring-amber-900">
-                  ⚠️ {impact.counts.review} cần xem lại
-                </li>
-              )}
-              {impact.counts.adaptive > 0 && (
-                <li className="rounded-full bg-emerald-50 px-3 py-1 font-semibold text-ok ring-1 ring-emerald-200 dark:bg-emerald-950 dark:ring-emerald-900">
-                  ✅ {impact.counts.adaptive} tự thích ứng
-                </li>
-              )}
-              <li className="rounded-full px-3 py-1 text-muted ring-1 ring-line">{impact.counts.unaffected} không bị ảnh hưởng</li>
+            <ul className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-line bg-line sm:grid-cols-4" aria-label="Phân loại luật">
+              <CountCell n={impact.counts.incompatible} label="không còn tương thích" tone="fail" icon="x" />
+              <CountCell n={impact.counts.review} label="cần xem lại" tone="warn" icon="alert" />
+              <CountCell n={impact.counts.adaptive} label="tự thích ứng" tone="pass" icon="check" />
+              <CountCell n={impact.counts.unaffected} label="không bị ảnh hưởng" />
             </ul>
             <FrictionLine impact={impact} />
           </div>
@@ -363,13 +337,16 @@ export function PackView() {
           ))}
 
           {byCat("adaptive").length > 0 && (
-            <div className="space-y-3 rounded-2xl border border-line bg-surface p-5">
-              <h3 className="font-semibold">✅ Luật tự thích ứng — tham chiếu tham số nên tự đúng theo giá trị mới</h3>
-              <ul className="space-y-3">
+            <div className="panel overflow-hidden">
+              <h3 className="flex items-center gap-2.5 border-b border-pass-line bg-pass-soft px-4 py-3 font-semibold sm:px-5">
+                <Icon name="check" className="size-5 text-pass" />
+                Luật tự thích ứng — tham chiếu tham số nên tự đúng theo giá trị mới
+              </h3>
+              <ul className="divide-y divide-line">
                 {byCat("adaptive").map((r) => (
-                  <li key={r.id}>
-                    <p className="font-mono text-sm font-semibold">
-                      {r.id} <span className="font-sans font-normal">{r.name}</span>
+                  <li key={r.id} className="space-y-1 px-4 py-3 sm:px-5">
+                    <p className="text-sm">
+                      <span className="font-mono font-semibold">{r.id}</span> <span className="font-medium">{r.name}</span>
                     </p>
                     <RuleSentence render={r.render_after} compact />
                   </li>
@@ -380,9 +357,12 @@ export function PackView() {
 
           <DiffSection impact={impact} catalog={catalog} />
 
-          <details className="rounded-2xl border border-line bg-surface p-5 text-sm">
-            <summary className="cursor-pointer font-medium">{impact.counts.unaffected} luật không bị ảnh hưởng</summary>
-            <ul className="mt-3 space-y-1">
+          <details className="group panel text-sm">
+            <summary className="flex min-h-12 cursor-pointer list-none items-center gap-2 px-4 font-medium sm:px-5 [&::-webkit-details-marker]:hidden">
+              <Icon name="arrow" className="size-3.5 text-muted transition-transform group-open:rotate-90" />
+              {impact.counts.unaffected} luật không bị ảnh hưởng
+            </summary>
+            <ul className="space-y-1 border-t border-line px-4 py-3 sm:px-5">
               {byCat("unaffected").map((r) => (
                 <li key={r.id}>
                   <span className="font-mono font-semibold">{r.id}</span> {r.name}
@@ -391,10 +371,11 @@ export function PackView() {
             </ul>
           </details>
 
-          <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-line bg-surface p-5">
+          <div className="panel flex flex-wrap items-center gap-x-4 gap-y-3 p-4 sm:p-5">
             {applied ? (
-              <p role="status" className="font-semibold text-ok">
-                ✅ Đã áp dụng Policy Pack phiên bản <span className="font-mono">{applied}</span>.
+              <p role="status" className="flex items-center gap-2 font-semibold text-pass">
+                <Icon name="check" className="size-5" />
+                Đã áp dụng Policy Pack phiên bản <span className="font-mono">{applied}</span>.
               </p>
             ) : (
               <>
@@ -402,7 +383,7 @@ export function PackView() {
                   type="button"
                   onClick={() => dialogRef.current?.showModal()}
                   disabled={busy !== null}
-                  className="min-h-12 rounded-xl border-2 border-accent px-5 font-semibold text-accent hover:bg-violet-50 disabled:opacity-50 dark:hover:bg-violet-950"
+                  className="btn btn-outline-accent btn-lg"
                 >
                   Áp dụng pack {nextVersion}
                 </button>
@@ -419,7 +400,7 @@ export function PackView() {
               if (dialogRef.current) dialogRef.current.returnValue = "";
               if (ok) void applyPack();
             }}
-            className="m-auto w-[min(32rem,calc(100%-2rem))] rounded-2xl border border-line bg-surface p-6 text-foreground backdrop:bg-black/50"
+            className="m-auto w-[min(32rem,calc(100%-2rem))] rounded-xl border border-line bg-surface p-6 text-foreground shadow-pop"
           >
             <h1 id={`${formId}-dialog`} className="text-lg font-bold">
               Áp dụng Policy Pack {nextVersion}?
@@ -427,29 +408,62 @@ export function PackView() {
             <ul className="mt-3 list-disc space-y-1 pl-5 text-sm">
               {impact.changes.map((c) =>
                 c.op === "set_param" ? (
-                  <li key={c.param}>
+                  <li key={c.param} className="num">
                     {c.label_vi}: {fmtParam(c.old, c.unit)} → {fmtParam(c.new, c.unit)}
                   </li>
                 ) : null,
               )}
             </ul>
             {impact.counts.incompatible > 0 && (
-              <p className="mt-3 text-sm text-danger">
+              <Callout tone="fail" className="mt-4">
                 {impact.counts.incompatible} luật sẽ không còn tương thích cho đến khi bạn lưu bản sửa.
-              </p>
+              </Callout>
             )}
-            <form method="dialog" className="mt-5 flex flex-wrap justify-end gap-3">
-              <button value="cancel" autoFocus className="min-h-11 rounded-xl border border-line px-4 font-medium hover:bg-background">
+            <form method="dialog" className="mt-6 flex flex-wrap justify-end gap-3">
+              <button value="cancel" autoFocus className="btn btn-secondary">
                 Hủy
               </button>
-              <button value="apply" className="min-h-11 rounded-xl bg-accent px-4 font-semibold text-white hover:opacity-90 dark:text-zinc-950">
+              <button value="apply" className="btn btn-primary">
                 Áp dụng pack
               </button>
             </form>
           </dialog>
         </section>
       )}
+
+      <section aria-labelledby={`${formId}-inv`} className="space-y-3">
+        <div>
+          <h2 id={`${formId}-inv`} className="section-title">
+            Invariant
+          </h2>
+          <p className="section-lede">Đặc tả mà toàn bộ bộ luật phải thỏa; Z3 kiểm chứng trên mọi giao dịch trong miền.</p>
+        </div>
+        <ul className="panel divide-y divide-line">
+          {pack.invariants.map((inv) => (
+            <li key={inv.id} className="grid gap-1 p-4 sm:px-5 md:grid-cols-[10rem_1fr] md:gap-4">
+              <p className="font-mono text-sm font-semibold">{inv.id}</p>
+              <div>
+                <p className="text-sm leading-6">{pack.invariants_vi?.[inv.id] ?? inv.type}</p>
+                <p className="mt-1 text-xs text-muted">Nguồn: {inv.source}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </section>
     </div>
+  );
+}
+
+function CountCell({ n, label, tone, icon }: { n: number; label: string; tone?: "fail" | "warn" | "pass"; icon?: IconName }) {
+  const color = n > 0 && tone ? { fail: "text-fail", warn: "text-warn", pass: "text-pass" }[tone] : "text-muted";
+  return (
+    <li className="flex items-start gap-2.5 bg-surface p-3">
+      {icon && <Icon name={icon} className={`mt-1 size-4 ${color}`} />}
+      <div>
+        <p className={`num text-2xl leading-8 font-bold ${n > 0 && tone ? color : ""}`}>{n}</p>
+        <p className="text-[0.8125rem] text-muted">{label}</p>
+      </div>
+    </li>
   );
 }
 
@@ -457,16 +471,23 @@ function FrictionLine({ impact }: { impact: PackImpact }) {
   const d = impact.friction.delta.friction_biometric;
   const days = impact.friction.days.length;
   return (
-    <p className="text-base" data-tour="friction">
-      Ma sát:{" "}
-      <strong className="tabular-nums">
-        {d >= 0 ? "+" : "−"}
-        {formatInt(Math.abs(d))} giao dịch hợp lệ
-      </strong>{" "}
-      phải xác thực sinh trắc học ({formatInt(impact.friction.before.friction_biometric)} →{" "}
-      {formatInt(impact.friction.after.friction_biometric)} trên {days} ngày dữ liệu).{" "}
-      <span className="text-xs text-muted">(hệ thống tính)</span>
-    </p>
+    <div className="flex flex-wrap items-start justify-between gap-3 rounded-lg bg-sunken p-4" data-tour="friction">
+      <div className="space-y-0.5">
+        <p className="label">Ma sát</p>
+        <p className="text-base">
+          <strong className="num text-2xl font-bold tracking-tight">
+            {d >= 0 ? "+" : "−"}
+            {formatInt(Math.abs(d))} giao dịch hợp lệ
+          </strong>{" "}
+          phải xác thực sinh trắc học
+        </p>
+        <p className="num text-sm text-muted">
+          {formatInt(impact.friction.before.friction_biometric)} → {formatInt(impact.friction.after.friction_biometric)} trên {days} ngày
+          dữ liệu
+        </p>
+      </div>
+      <SourceTag source="system" />
+    </div>
   );
 }
 
@@ -492,67 +513,71 @@ function AffectedRuleCard({
     <article
       aria-labelledby={`impact-${r.id}`}
       data-tour={bad ? "incompatible" : undefined}
-      className={`space-y-4 rounded-2xl border-2 bg-surface p-5 ${bad ? "border-red-300 dark:border-red-900" : "border-amber-300 dark:border-amber-800"}`}
+      className={`panel overflow-hidden ${bad ? "border-fail-line" : "border-warn-line"}`}
     >
-      <header className="flex flex-wrap items-baseline justify-between gap-2">
-        <h3 id={`impact-${r.id}`} className="text-lg font-semibold">
+      <header
+        className={`flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-b px-4 py-3 sm:px-5 ${
+          bad ? "border-fail-line bg-fail-soft" : "border-warn-line bg-warn-soft"
+        }`}
+      >
+        <h3 id={`impact-${r.id}`} className="text-base font-semibold">
           <span className="font-mono">{r.id}</span> — {r.name}
         </h3>
-        <span className={`text-sm font-semibold ${bad ? "text-danger" : "text-warn"}`}>
-          {bad ? "❌ Không còn tương thích" : "⚠️ Cần xem lại"}
+        <span className={`inline-flex items-center gap-1.5 text-sm font-semibold ${bad ? "text-fail" : "text-warn"}`}>
+          <Icon name={bad ? "x" : "alert"} />
+          {bad ? "Không còn tương thích" : "Cần xem lại"}
         </span>
       </header>
-      <RuleSentence render={r.render_before} compact />
-      {r.reasons.map((reason, i) => (
-        <div key={i} className="space-y-3">
-          <p className="text-sm">{reason.message_vi}</p>
-          {reason.counterexample && (
-            <CounterexampleCard
-              check={reason}
-              catalog={catalog}
-              title={reason.outcomes ? "Giao dịch nhân chứng (do hệ thống tìm)" : undefined}
-            />
-          )}
-          {reason.grounding && (
-            <GroundingLine
-              g={reason.grounding}
-              what={reason.code === "STALE_LITERAL" ? "khớp luật khác đi chỉ vì mốc viết cứng" : undefined}
-            />
-          )}
-        </div>
-      ))}
-      {r.fix?.rule && (
-        <div className="space-y-3 rounded-xl border border-line bg-background p-4">
-          <p className="flex flex-wrap items-center gap-2 text-sm font-semibold">
-            Bản sửa tất định
-            <span className="rounded-full border border-line px-2 py-0.5 text-xs font-normal">Tất định · không dùng AI</span>
-            {r.fix.passes ? <VerdictBadge verdict={r.fix.verdict} /> : <VerdictBadge verdict="FAIL" />}
-          </p>
-          <RuleSentence render={r.fix.rule.render!} compact />
-          <ul className="list-disc space-y-1 pl-5 text-sm text-muted">
-            {r.fix.notes_vi.map((n) => (
-              <li key={n}>{n}</li>
-            ))}
-          </ul>
-          {onSave &&
-            (savedVersion ? (
-              <p role="status" className="text-sm font-semibold text-ok">
-                ✅ Đã lưu {r.id} phiên bản {savedVersion}.
-              </p>
-            ) : (
-              <button
-                type="button"
-                data-tour="fix"
-                onClick={onSave}
-                disabled={busy || !r.fix.passes}
-                className="min-h-11 rounded-xl bg-accent px-4 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50 dark:text-zinc-950"
-              >
-                {applied ? "Lưu bản sửa" : "Áp dụng pack mới và lưu bản sửa"}
-              </button>
-            ))}
-        </div>
-      )}
-      {ai && !savedVersion && <AiPackRepair ruleId={r.id} applied={applied} busy={busy} {...ai} />}
+      <div className="space-y-4 p-4 sm:p-5">
+        <RuleSentence render={r.render_before} compact />
+        {r.reasons.map((reason, i) => (
+          <div key={i} className="space-y-3">
+            <p className="max-w-[75ch] text-sm leading-6">{reason.message_vi}</p>
+            <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+              {reason.counterexample && (
+                <CounterexampleCard
+                  check={reason}
+                  catalog={catalog}
+                  title={reason.outcomes ? "Giao dịch nhân chứng (do hệ thống tìm)" : undefined}
+                />
+              )}
+              {reason.grounding && (
+                <GroundingLine
+                  g={reason.grounding}
+                  what={reason.code === "STALE_LITERAL" ? "khớp luật khác đi chỉ vì mốc viết cứng" : undefined}
+                />
+              )}
+            </div>
+          </div>
+        ))}
+        {r.fix?.rule && (
+          <div className="space-y-3 rounded-lg border border-line bg-sunken p-4">
+            <p className="flex flex-wrap items-center gap-2 text-sm font-semibold">
+              Bản sửa tất định
+              <SourceTag source="det" label="Tất định · không dùng AI" />
+              {r.fix.passes ? <VerdictBadge verdict={r.fix.verdict} /> : <VerdictBadge verdict="FAIL" />}
+            </p>
+            <RuleSentence render={r.fix.rule.render!} compact />
+            <ul className="list-disc space-y-1 pl-5 text-sm text-muted">
+              {r.fix.notes_vi.map((n) => (
+                <li key={n}>{n}</li>
+              ))}
+            </ul>
+            {onSave &&
+              (savedVersion ? (
+                <p role="status" className="flex items-center gap-2 text-sm font-semibold text-pass">
+                  <Icon name="check" />
+                  Đã lưu {r.id} phiên bản {savedVersion}.
+                </p>
+              ) : (
+                <button type="button" data-tour="fix" onClick={onSave} disabled={busy || !r.fix.passes} className="btn btn-primary">
+                  {applied ? "Lưu bản sửa" : "Áp dụng pack mới và lưu bản sửa"}
+                </button>
+              ))}
+          </div>
+        )}
+        {ai && !savedVersion && <AiPackRepair ruleId={r.id} applied={applied} busy={busy} {...ai} />}
+      </div>
     </article>
   );
 }
@@ -596,67 +621,73 @@ function AiPackRepair({
   }
 
   const aiCands = data?.candidates.filter((c) => c.source === "ai") ?? [];
+  const mark = (ok: boolean, warn = false) => (
+    <Icon name={ok ? "check" : warn ? "alert" : "x"} className={`mt-1 size-3.5 ${ok ? "text-pass" : warn ? "text-warn" : "text-fail"}`} />
+  );
   return (
     <div className="space-y-3">
       {!data && (
-        <button
-          type="button"
-          onClick={run}
-          disabled={loading || busy}
-          className="min-h-11 rounded-xl border-2 border-accent px-4 text-sm font-semibold text-accent hover:bg-violet-50 disabled:opacity-50 dark:hover:bg-violet-950"
-        >
+        <button type="button" onClick={run} disabled={loading || busy} className="btn btn-outline-accent">
+          {loading ? (
+            <span aria-hidden className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+          ) : (
+            <Icon name="spark" />
+          )}
           {loading ? "AI đang đề xuất, hệ thống kiểm chứng lại từng bản…" : "Sửa bằng AI"}
         </button>
       )}
       {error && (
-        <p role="alert" className="text-sm text-danger">
+        <Callout tone="fail" role="alert">
           {error}
-        </p>
+        </Callout>
       )}
       {data && (
         <div className="space-y-3" role="status">
-          {LLM_NOTE[data.llm] && (
-            <p className="rounded-xl bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-950 dark:text-amber-200">{LLM_NOTE[data.llm]}</p>
-          )}
+          {LLM_NOTE[data.llm] && <Callout tone="warn">{LLM_NOTE[data.llm]}</Callout>}
           {aiCands.map((c) => (
-            <div key={c.rank} className="space-y-2 rounded-xl border border-line bg-background p-4">
+            <div key={c.rank} className="space-y-3 rounded-lg border border-accent-line bg-surface p-4">
               <p className="flex flex-wrap items-center gap-2 text-sm font-semibold">
                 Bản AI #{c.rank}
-                <span className="rounded-full bg-violet-100 px-2 py-0.5 text-xs font-medium text-violet-900 dark:bg-violet-950 dark:text-violet-200">
-                  AI đề xuất · đã kiểm chứng lại
-                </span>
+                <SourceTag source="ai" label="AI đề xuất · đã kiểm chứng lại" />
                 <VerdictBadge verdict={c.verdict} />
               </p>
               {c.rules.map((rule) => rule.render && <RuleSentence key={rule.id} render={rule.render} compact />)}
               <ul className="space-y-1 text-sm">
-                <li>{c.stale_params.length === 0 ? "✅ Không còn mốc viết cứng giá trị cũ" : "❌ Vẫn viết cứng giá trị cũ"}</li>
+                <li className="flex gap-2">
+                  {mark(c.stale_params.length === 0)}
+                  {c.stale_params.length === 0 ? "Không còn mốc viết cứng giá trị cũ" : "Vẫn viết cứng giá trị cũ"}
+                </li>
                 {c.relations.map((rel) => (
-                  <li key={rel.invariant}>
-                    {rel.kept ? "✅" : "⚠️"} {rel.message_vi}
+                  <li key={rel.invariant} className="flex gap-2">
+                    {mark(rel.kept, true)}
+                    {rel.message_vi}
                   </li>
                 ))}
-                <li>{c.uses_param ? "✅ Tham chiếu tham số Policy Pack" : "⚠️ Không tham chiếu tham số"}</li>
-                <li className="text-muted">
-                  Δ L_net: {c.delta.l_net === 0 ? "không đổi" : `${c.delta.l_net > 0 ? "+" : "−"}${formatVnd(Math.abs(c.delta.l_net))}`} · Δ giao dịch
-                  thật phải sinh trắc học: {formatInt(c.delta.friction_biometric)} <span className="text-xs">(hệ thống tính)</span>
+                <li className="flex gap-2">
+                  {mark(c.uses_param, true)}
+                  {c.uses_param ? "Tham chiếu tham số Policy Pack" : "Không tham chiếu tham số"}
+                </li>
+                <li className="num pl-5.5 text-muted">
+                  Δ L_net: {c.delta.l_net === 0 ? "không đổi" : `${c.delta.l_net > 0 ? "+" : "−"}${formatVnd(Math.abs(c.delta.l_net))}`} · Δ giao
+                  dịch thật phải sinh trắc học: {formatInt(c.delta.friction_biometric)} <span className="text-xs">(hệ thống tính)</span>
                 </li>
               </ul>
               {c.rationale_vi && <p className="text-sm text-muted">{c.rationale_vi}</p>}
-              <button
-                type="button"
-                onClick={() => onSaveRules(c.rules)}
-                disabled={busy}
-                className="min-h-11 rounded-xl bg-accent px-4 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50 dark:text-zinc-950"
-              >
+              <button type="button" onClick={() => onSaveRules(c.rules)} disabled={busy} className="btn btn-primary">
                 {applied ? "Lưu bản này" : "Áp dụng pack mới và lưu bản này"}
               </button>
             </div>
           ))}
-          {data.llm === "used" && aiCands.length === 0 && <p className="text-sm">Chưa có bản AI nào qua kiểm chứng; dùng bản sửa tất định ở trên.</p>}
+          {data.llm === "used" && aiCands.length === 0 && (
+            <p className="text-sm">Chưa có bản AI nào qua kiểm chứng; dùng bản sửa tất định ở trên.</p>
+          )}
           {data.rejected.length > 0 && (
-            <details className="text-sm text-muted">
-              <summary className="cursor-pointer">{data.rejected.length} đề xuất khác bị loại (bấm xem lý do)</summary>
-              <ul className="mt-2 list-disc space-y-1 pl-5">
+            <details className="group text-sm text-muted">
+              <summary className="inline-flex min-h-11 cursor-pointer list-none items-center gap-2 hover:text-foreground [&::-webkit-details-marker]:hidden">
+                <Icon name="arrow" className="size-3.5 transition-transform group-open:rotate-90" />
+                {data.rejected.length} đề xuất khác bị loại (bấm xem lý do)
+              </summary>
+              <ul className="mt-1 list-disc space-y-1 pl-10">
                 {data.rejected.map((x, i) => (
                   <li key={i}>
                     {x.source === "ai" ? "AI" : "Tất định"} · {x.strategy}: {x.reason_vi}
@@ -675,23 +706,22 @@ function DiffSection({ impact, catalog }: { impact: PackImpact; catalog: Catalog
   const diff = impact.semantic_diff;
   if (diff.status === "EQUIVALENT") return null;
   return (
-    <div className="space-y-4 rounded-2xl border border-line bg-surface p-5">
+    <div className="panel space-y-4 p-4 sm:p-5">
       <div>
-        <h3 className="font-semibold">Giao dịch đổi kết quả (semantic diff)</h3>
-        <p className="text-sm text-muted">{diff.message_vi}</p>
+        <h3 className="section-title">Giao dịch đổi kết quả (semantic diff)</h3>
+        <p className="section-lede">{diff.message_vi}</p>
       </div>
-      <ul className="space-y-4">
+      <ul className="divide-y divide-line">
         {diff.diffs.map((k) => (
-          <li key={k.label_vi} className="grid gap-3 md:grid-cols-2">
-            <div className="space-y-1">
+          <li key={k.label_vi} className="grid gap-4 py-4 first:pt-0 last:pb-0 md:grid-cols-2">
+            <div className="space-y-1.5">
               <p className="font-medium">{k.label_vi}</p>
               <p className="text-sm text-muted">
-                {DECISION_VI[k.before.decision]} · {AUTH_VI[k.before.auth]} → {DECISION_VI[k.after.decision]} ·{" "}
-                {AUTH_VI[k.after.auth]}
+                {DECISION_VI[k.before.decision]} · {AUTH_VI[k.before.auth]} → {DECISION_VI[k.after.decision]} · {AUTH_VI[k.after.auth]}
               </p>
               {k.data && (
                 <p className="text-sm">
-                  <strong className="tabular-nums">
+                  <strong className="num">
                     {formatInt(k.data.tx_count)} giao dịch · {formatVnd(k.data.amount_sum)}
                   </strong>{" "}
                   trong dữ liệu, trong đó {formatInt(k.data.by_label.LEGIT ?? 0)} hợp lệ.{" "}
