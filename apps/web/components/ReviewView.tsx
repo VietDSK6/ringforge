@@ -39,6 +39,7 @@ const ACTION_VI: Record<string, string> = {
   "changeset.reject": "Từ chối change set",
   "changeset.approve_blocked": "Phê duyệt bị chặn: kiểm chứng không đạt",
   "changeset.shadow": "Chạy shadow trên ngày phát lại",
+  "changeset.summary": "Viết tóm tắt cho người duyệt",
   "ruleset.import": "Nhập bộ luật / Policy Pack",
   "ruleset.export": "Xuất bộ luật",
 };
@@ -250,6 +251,7 @@ function ChangeSetDetail({ cs, onDecided }: { cs: ChangeSet; onDecided: () => vo
         <span className="text-xs text-muted">Policy Pack {cs.pack_version}</span>
       </header>
       {cs.note && <p className="text-sm">Người đề xuất ghi: “{cs.note}”</p>}
+      <SummaryBlock cs={cs} onDone={onDecided} />
 
       <ul className="space-y-3">
         {cs.items.map((it) => (
@@ -516,6 +518,62 @@ function ShadowSection({ cs, onDone }: { cs: ChangeSet; onDone: () => void }) {
             </div>
           )}
         </>
+      )}
+    </section>
+  );
+}
+
+/** Tóm tắt cho người duyệt (docs/05 mục 6): AI chỉ viết lời; mọi con số được đối chiếu với số liệu hệ thống. */
+function SummaryBlock({ cs, onDone }: { cs: ChangeSet; onDone: () => void }) {
+  const { sid } = useParams<{ sid: string }>();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const s = cs.summary.review_summary;
+
+  async function run() {
+    setBusy(true);
+    setError(null);
+    try {
+      await api.summarize(sid, cs.id);
+      onDone();
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : "Không tạo được tóm tắt.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const tag =
+    s?.source === "ai"
+      ? "AI viết · mọi con số đã đối chiếu với số liệu hệ thống"
+      : s?.ai === "rejected"
+        ? `Mẫu tất định · bản AI bị loại vì có số không có trong dữ liệu (${(s.rejected_numbers ?? []).join(", ")})`
+        : "Mẫu tất định · không dùng AI";
+  return (
+    <section aria-label="Tóm tắt cho người duyệt" className="space-y-2 rounded-2xl border border-line bg-surface p-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h3 className="font-semibold">Tóm tắt cho người duyệt</h3>
+        <button
+          type="button"
+          onClick={run}
+          disabled={busy}
+          className="min-h-11 rounded-xl border border-line px-4 text-sm font-semibold hover:bg-background disabled:opacity-50"
+        >
+          {busy ? "Đang viết tóm tắt…" : s ? "Viết lại" : "Tạo tóm tắt"}
+        </button>
+      </div>
+      {s ? (
+        <>
+          <p className="text-sm leading-6">{s.summary_vi}</p>
+          <p className={`text-xs ${s.source === "ai" ? "text-accent" : "text-muted"}`}>{tag}</p>
+        </>
+      ) : (
+        <p className="text-sm text-muted">Tóm tắt 3–5 câu từ kết quả kiểm chứng, backtest và shadow; không thay quyết định của bạn.</p>
+      )}
+      {error && (
+        <p role="alert" className="text-sm text-danger">
+          {error}
+        </p>
       )}
     </section>
   );

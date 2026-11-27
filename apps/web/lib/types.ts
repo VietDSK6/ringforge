@@ -374,6 +374,13 @@ export interface ChangeSet {
     backtest: { before: BacktestSummary; after: BacktestSummary; delta: Record<string, number>; days: number[] };
     semantic_diff: SemanticDiff;
     shadow?: ShadowResult;
+    review_summary?: {
+      summary_vi: string;
+      source: "ai" | "template";
+      ai: "used" | "unavailable" | "error" | "rejected";
+      rejected_numbers?: string[];
+      model?: string;
+    };
   };
   note: string;
   decision_note: string | null;

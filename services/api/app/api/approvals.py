@@ -15,7 +15,10 @@ from sqlalchemy.orm import Session
 
 from app.api.errors import AppError
 from app.backtest.metrics import Assumptions, delta, run_backtest
+from app.ai.client import get_client
+from app.ai.summary_task import summarize_change_set
 from app.backtest.shadow import run_shadow
+from app.config import settings
 from app.data.loader import transactions
 from app.dsl.render_vi import render_rule
 from app.dsl.validator import Issue, check_rule
@@ -224,5 +227,23 @@ def shadow(sid: str, cs_id: str, db: Db, req: ShadowRequest | None = None) -> di
     repo.audit(db, sid, "user:approver", "changeset.shadow", {
         "change_set_id": row.id, "changed": result["changed"]["tx_count"], "days": result["days"],
     })
+    db.commit()
+    return repo.change_set_dict(row)
+
+
+class SummaryRequest(BaseModel):
+    use_ai: bool = Field(default=True, description="Gọi AI viết lời (số liệu luôn do hệ thống tính và được kiểm lại)")
+
+
+@router.post("/{sid}/change-sets/{cs_id}/summary", summary="Tóm tắt cho người duyệt: AI viết lời từ số liệu, mọi con số được kiểm lại")
+def summary(sid: str, cs_id: str, db: Db, req: SummaryRequest | None = None) -> dict[str, Any]:
+    repo.get_session(db, sid)
+    row = _get(db, sid, cs_id)
+    client = get_client() if (req or SummaryRequest()).use_ai else None
+    if client is not None and client.available and not repo.use_llm_quota(db, sid, settings.llm_session_daily_cap, settings.llm_daily_call_cap):
+        client = None
+    result = summarize_change_set(db, sid, repo.change_set_dict(row), client)
+    result.pop("facts", None)
+    row.summary = dict(row.summary) | {"review_summary": result}
     db.commit()
     return repo.change_set_dict(row)
