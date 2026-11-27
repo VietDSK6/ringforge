@@ -27,7 +27,8 @@ def test_catalog():
 
 def test_verify_seed_only_passes():
     body = client.post("/verify", json={"include_seed_rules": True}).json()
-    assert body["verdict"] == "PASS" and body["checks"] == []
+    assert body["verdict"] == "PASS_WITH_WARNINGS"  # LG-09 thừa (VC-05)
+    assert [(c["code"], c["redundant"]) for c in body["checks"]] == [("VC-05", "LG-09")]
     assert len(body["rules_vi"]) == 9 and body["ms"] < 3_000
 
 

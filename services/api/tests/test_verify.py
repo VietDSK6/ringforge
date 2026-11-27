@@ -35,7 +35,8 @@ def draft_fixed():
 
 def test_seed_rules_pass_vc03_and_vc04_fast():
     report = verify_rules(seed_rules(), seed_pack())
-    assert report["verdict"] == "PASS" and report["checks"] == []
+    assert report["verdict"] == "PASS_WITH_WARNINGS"  # docs/03 mục 6.3: seed sạch VC-04, VC-05 phát hiện LG-09 thừa
+    assert [(c["code"], c["redundant"], c["covered_by"]) for c in report["checks"]] == [("VC-05", "LG-09", "FR-01")]
     assert len(report["checked"]["rules"]) == 9 and len(report["checked"]["invariants"]) == 3
     assert report["ms"] < 3_000  # FR-V9
 
@@ -66,7 +67,7 @@ def test_counterexample_is_feasible_and_interpreter_agrees():
 
 
 def test_fixed_draft_passes():
-    assert verify_rules(seed_rules() + [draft_fixed()], seed_pack())["verdict"] == "PASS"
+    assert verify_rules(seed_rules() + [draft_fixed()], seed_pack())["verdict"] == "PASS_WITH_WARNINGS"
 
 
 def test_decision_at_most_violation_blames_hold_rule():
@@ -111,7 +112,7 @@ def test_dead_rule_with_conflicting_conditions(when, conflict):
 def test_retired_rules_are_not_checked_and_do_not_apply():
     r = valid(copy.deepcopy(DRAFT_0001) | {"status": "RETIRED"})
     report = verify_rules(seed_rules() + [r], seed_pack())
-    assert report["verdict"] == "PASS" and "DRAFT-0001" not in report["checked"]["rules"]
+    assert report["verdict"] == "PASS_WITH_WARNINGS" and "DRAFT-0001" not in report["checked"]["rules"]
 
 
 def test_param_change_is_respected():
@@ -129,3 +130,42 @@ def test_timeout_is_unknown_never_pass(monkeypatch):
     assert report["verdict"] == "UNKNOWN"
     assert report["checks"] and all(c["status"] == "UNKNOWN" for c in report["checks"])
     assert checks.verdict_of([{"severity": "ERROR", "status": "UNKNOWN"}]) != "PASS"
+
+
+# ---------- VC-05 / VC-06 (T3.4) ----------
+
+
+def by_code(report, code):
+    return [c for c in report["checks"] if c["code"] == code]
+
+
+def test_vc05_duplicate_rule_reported_once_and_weaker_effect_not_redundant():
+    fr01 = next(r for r in seed_rules() if r["id"] == "FR-01")
+    dup = valid(copy.deepcopy(fr01) | {"id": "FR-99", "name": "Bản sao FR-01", "status": "CANDIDATE"})
+    found = by_code(verify_rules(seed_rules() + [dup], seed_pack()), "VC-05")
+    pairs = {(c["redundant"], c["covered_by"]) for c in found}
+    assert pairs == {("LG-09", "FR-01"), ("FR-99", "FR-01")}  # bản sao mới bị báo thừa, FR-01 giữ nguyên
+    # Cùng điều kiện nhưng hiệu ứng mạnh hơn (BLOCK) → không thừa so với FR-01.
+    stronger = valid(copy.deepcopy(fr01) | {"id": "FR-98", "name": "FR-01 chặn", "then": {"decision": "BLOCK"}})
+    found = by_code(verify_rules(seed_rules() + [stronger], seed_pack()), "VC-05")
+    assert all(c["redundant"] != "FR-98" for c in found)
+
+
+def test_vc06_exemption_overlapping_fraud_auth_rule():
+    report = verify_rules(seed_rules() + [valid(DRAFT_0001)], seed_pack())
+    (c,) = by_code(report, "VC-06")
+    assert (c["rule_id"], c["conflicts_with"]) == ("DRAFT-0001", "FR-02")  # REG-01/02 đã báo ở VC-04
+    w = c["counterexample"]
+    assert w["sender_dormant_days"] >= 90 and w["is_new_device"] and w["receiver_is_familiar"] and 0 <= w["hour"] <= 5
+
+
+def test_vc06_without_invariant_violation_is_warning_only():
+    """Miễn trừ thu hẹp dưới ngưỡng (đạt VC-04) vẫn chồng FR-02 → chỉ cảnh báo, không chặn phê duyệt."""
+    report = verify_rules(seed_rules() + [draft_fixed()], seed_pack())
+    assert report["verdict"] == "PASS_WITH_WARNINGS"
+    assert {c["code"] for c in report["checks"]} == {"VC-05", "VC-06"}
+    assert all(c["severity"] == "WARN" for c in report["checks"])
+
+
+def test_seed_verification_still_fast():
+    assert verify_rules(seed_rules(), seed_pack())["ms"] < 3_000  # FR-V9

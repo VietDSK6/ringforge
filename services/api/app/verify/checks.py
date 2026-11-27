@@ -148,6 +148,85 @@ def check_invariants(
     return findings
 
 
+# ---------- VC-05 luật thừa, VC-06 xung đột miễn trừ (P1) ----------
+
+
+def _effect(r: dict[str, Any]) -> tuple[int, int, bool, int]:
+    t = r["then"]
+    dec = DEC[t["decision"]] if "decision" in t else 0
+    auth = AUTH[t["auth"]] if "auth" in t else 0
+    hold = t.get("hold_seconds", 0) if t.get("decision") == "HOLD" else 0
+    return dec, auth, bool(t.get("exempt_auth")), hold
+
+
+def _covers(s: tuple[int, int, bool, int], r: tuple[int, int, bool, int]) -> bool:
+    """Hiệu ứng của s bao trùm r: bỏ r không đổi kết quả ở đâu cả khi s cũng khớp."""
+    return s[0] >= r[0] and s[1] >= r[1] and (not r[2] or s[2]) and s[3] >= r[3]
+
+
+def check_redundant(
+    rules: list[dict[str, Any]], pack: dict[str, Any], ctx: z3.Context, v: dict[str, z3.ExprRef], timeout_ms: int
+) -> list[dict[str, Any]]:
+    """VC-05 (docs/03 mục 3): r thừa so với s nếu r ⊆ s và hiệu ứng của s bao trùm r; chỉ xét cùng kind hoặc s pháp lý."""
+    active = [r for r in rules if r["status"] in ACTIVE_STATUSES]
+    dom = domain(v, ctx)
+    whens = {r["id"]: enc(r["when"], v, pack["params"], ctx) for r in active}
+    findings, flagged = [], set()
+    # Xét từ luật thêm sau về trước: khi hai luật trùng nhau, luật mới (thường là ứng viên) mới là luật thừa.
+    for r in reversed(active):
+        for s in active:
+            if r is s or s["id"] in flagged or not (r["kind"] == s["kind"] or s["kind"] == "REGULATORY"):
+                continue
+            if not _covers(_effect(s), _effect(r)):
+                continue
+            sol = _new_solver(ctx, timeout_ms)
+            sol.add(dom, whens[r["id"]], z3.Not(whens[s["id"]]))
+            if _check(sol) != "unsat":
+                continue  # sat: r không nằm trong s; unknown: không kết luận → không báo
+            flagged.add(r["id"])
+            findings.append({
+                "code": "VC-05", "severity": "WARN", "status": "REDUNDANT", "redundant": r["id"], "covered_by": s["id"],
+                "message_vi": f"Luật {r['id']} thừa: mọi giao dịch nó khớp đều đã được {s['id']} xử lý ở mức bằng hoặc chặt hơn.",
+            })
+            break
+    order = {r["id"]: i for i, r in enumerate(active)}
+    return sorted(findings, key=lambda f: order[f["redundant"]])
+
+
+def check_exemption_conflicts(
+    rules: list[dict[str, Any]], pack: dict[str, Any], ctx: z3.Context, v: dict[str, z3.ExprRef], timeout_ms: int,
+    vc04: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """VC-06: luật miễn trừ r chồng lấn luật s yêu cầu xác thực ≥ OTP → miễn trừ thắng ở vùng chồng lấn.
+    Bỏ qua cặp (r, luật pháp lý) khi r đã bị VC-04 quy lỗi — lỗi đó đã được báo ở mức ERROR."""
+    active = [r for r in rules if r["status"] in ACTIVE_STATUSES]
+    already = {b for f in vc04 for b in f.get("blamed_rules", [])}
+    dom = domain(v, ctx)
+    findings = []
+    for r in (x for x in active if x["then"].get("exempt_auth")):
+        for s in active:
+            if s is r or AUTH.get(s["then"].get("auth", "NONE"), 0) < AUTH["OTP"]:
+                continue
+            if s["kind"] == "REGULATORY" and r["id"] in already:
+                continue
+            hard = z3.And(dom, enc(r["when"], v, pack["params"], ctx), enc(s["when"], v, pack["params"], ctx))
+            sol = _new_solver(ctx, timeout_ms)
+            sol.add(hard)
+            if _check(sol) != "sat":
+                continue
+            m = readable_model(ctx, v, hard, timeout_ms) or sol.model()
+            level = LEVEL_VI[s["then"]["auth"]]
+            findings.append({
+                "code": "VC-06", "severity": "WARN", "status": "CONFLICT", "rule_id": r["id"], "conflicts_with": s["id"],
+                "message_vi": (
+                    f"Luật {r['id']} miễn xác thực cả những giao dịch mà {s['id']} yêu cầu {level}: "
+                    f"miễn trừ thắng, nên {s['id']} mất tác dụng ở vùng chồng lấn."
+                ),
+                "counterexample": model_to_tx(m, v),
+            })
+    return findings
+
+
 # ---------- Tổng hợp ----------
 
 
@@ -166,7 +245,11 @@ def verify_rules(rules: list[dict[str, Any]], pack: dict[str, Any], timeout_ms: 
     started = time.perf_counter_ns()
     ctx = z3.Context()
     v = make_vars(ctx)
-    findings = check_dead_rules(rules, pack, ctx, v, timeout_ms) + check_invariants(rules, pack, ctx, v, timeout_ms)
+    findings = check_dead_rules(rules, pack, ctx, v, timeout_ms)
+    vc04 = check_invariants(rules, pack, ctx, v, timeout_ms)
+    findings += vc04
+    findings += check_redundant(rules, pack, ctx, v, timeout_ms)
+    findings += check_exemption_conflicts(rules, pack, ctx, v, timeout_ms, vc04)
     return {
         "verdict": verdict_of(findings),
         "ms": (time.perf_counter_ns() - started) // 1_000_000,

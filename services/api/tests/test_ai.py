@@ -141,7 +141,7 @@ def test_compile_demo1_then_verify_fails(client, use_llm):
     # Vertical slice phía API: luật vừa biên dịch → kiểm chứng → FAIL kèm phản ví dụ.
     rule.pop("render")
     report = client.post(f"/sessions/{sid}/verify", json={"rules": [rule]}).json()
-    inv = {c["invariant"]: c for c in report["checks"]}
+    inv = {c["invariant"]: c for c in report["checks"] if c["code"] == "VC-04"}
     assert report["verdict"] == "FAIL" and inv["INV-AUTH-01"]["counterexample"]["amount"] == 10_000_001
     actions = [e["action"] for e in client.get(f"/sessions/{sid}/audit").json()["events"]]
     assert actions[:2] == ["verify.run", "rule.compile"]

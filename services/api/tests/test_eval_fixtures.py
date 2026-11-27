@@ -44,7 +44,8 @@ def test_gold_is_valid_and_violations_match(case):
     report = verify_rules(seed_rules() + [rule], seed_pack())
     found = {c["invariant"] for c in report["checks"] if c["code"] == "VC-04"}
     found |= {"VC-03"} if any(c["code"] == "VC-03" for c in report["checks"]) else set()
-    expected = {v for v in case["gold_violations"] if v.startswith("INV-") or v == "VC-03"}  # VC-05/06 là P1
+    found |= {"VC-05"} if any(c.get("redundant") == "DRAFT-0001" for c in report["checks"]) else set()
+    expected = {v for v in case["gold_violations"] if v.startswith("INV-") or v in ("VC-03", "VC-05")}
     assert found == expected
 
 

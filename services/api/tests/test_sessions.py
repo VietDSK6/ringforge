@@ -69,10 +69,10 @@ def test_invalid_rule_not_saved(client):
 
 def test_session_verify_demo1_and_audit(client):
     sid = new_session(client)
-    assert client.post(f"/sessions/{sid}/verify", json={}).json()["verdict"] == "PASS"
+    assert client.post(f"/sessions/{sid}/verify", json={}).json()["verdict"] == "PASS_WITH_WARNINGS"
     body = client.post(f"/sessions/{sid}/verify", json={"rules": [DEMO1_RULE]}).json()
     assert body["verdict"] == "FAIL" and body["verify_run_id"]
-    inv = {c["invariant"]: c for c in body["checks"]}
+    inv = {c["invariant"]: c for c in body["checks"] if c["code"] == "VC-04"}
     assert inv["INV-AUTH-01"]["counterexample"]["amount"] == 10_000_001
     actions = [e["action"] for e in client.get(f"/sessions/{sid}/audit").json()["events"]]
     assert actions[0] == "verify.run" and actions[-1] == "session.create"
