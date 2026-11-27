@@ -54,7 +54,11 @@ def condition_diff(original: dict[str, Any], candidate: dict[str, Any], pack: di
 def coverage_bp(
     original: dict[str, Any], candidates: list[dict[str, Any]], violated_whens: list[dict[str, Any]], df: pd.DataFrame, params: dict[str, Any]
 ) -> int | None:
-    """Tỷ lệ giao dịch luật gốc khớp NGOÀI vùng vi phạm mà bản sửa vẫn khớp (docs/05 mục 4.4)."""
+    """Tỷ lệ giao dịch luật gốc khớp NGOÀI vùng vi phạm mà bản sửa vẫn khớp (docs/05 mục 4.4).
+
+    "Vẫn khớp" hiểu là vẫn áp dụng CÙNG hành động của luật gốc: bản sửa giữ điều kiện nhưng đổi hành động
+    (ví dụ bỏ miễn trừ) không được tính là giữ ý định.
+    """
     orig = condition_mask(original["when"], df, params)
     viol = np.zeros(len(df), dtype=bool)
     for w in violated_whens:
@@ -62,7 +66,8 @@ def coverage_bp(
     base = orig & ~viol
     cand = np.zeros(len(df), dtype=bool)
     for c in candidates:
-        cand |= condition_mask(c["when"], df, params)
+        if c.get("then", original.get("then")) == original.get("then"):
+            cand |= condition_mask(c["when"], df, params)
     n = int(base.sum())
     return int((base & cand).sum()) * 10_000 // n if n else None
 

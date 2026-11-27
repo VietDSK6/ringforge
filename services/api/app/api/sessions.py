@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from app.ai.client import LLMError, get_client
+from app.ai.repair_task import propose_repairs
 from app.ai.tasks import MAX_TEXT, cache_key, compile_requirement, lookup_cache
 from app.api.errors import AppError
 from app.backtest.metrics import Assumptions, delta, run_backtest
@@ -194,24 +195,34 @@ def repair_session(sid: str, req: RepairRequest, db: Db) -> dict[str, Any]:
                 "candidates": [], "rejected": [], "llm": "not_needed"}
 
     df = transactions()
+    ground_findings(report["checks"], rules, pack, df)
     baseline = run_backtest(current, df, pack, req.assumptions)
-    proposals: list[dict[str, Any]] = []
+    candidates: list[dict[str, Any]] = []
     rejected: list[dict[str, Any]] = []
+
+    def judge(proposals: list[dict[str, Any]]) -> list[str]:
+        """Kiểm chứng lại + backtest từng đề xuất; trả lý do bị loại (để phản hồi cho AI ở vòng sau)."""
+        reasons = []
+        for p in proposals:
+            sig = [(r["when"], r["then"]) for r in p["rules"]]
+            if any(sig == [(r["when"], r["then"]) for r in c["rules"]] for c in candidates):
+                continue  # trùng một bản đã có (ví dụ AI đề xuất đúng bản tất định)
+            ev = evaluate(p["rules"], original, current, pack, df, violated, baseline, req.assumptions)
+            entry = {k: v for k, v in p.items() if k != "rules"} | ev
+            if ev["passes"]:
+                candidates.append(entry)
+                continue
+            errs = [c["message_vi"] for c in ev["remaining_checks"] if c["severity"] == "ERROR"]
+            reason = "Không qua kiểm chứng: " + " ".join(errs)
+            rejected.append({"source": p["source"], "strategy": p["strategy"], "reason_vi": reason})
+            reasons.append(f"{p['strategy']}: {reason}")
+        return reasons
+
     if (det := _det_proposal(original, report["checks"], pack)) is not None:
-        proposals.append(det)
+        judge([det])
     llm_status = "not_requested"
     if req.use_ai:
-        llm_status = _ai_proposals(db, sid, original, report, pack, rules, proposals, rejected)
-
-    candidates = []
-    for p in proposals:
-        ev = evaluate(p["rules"], original, current, pack, df, violated, baseline, req.assumptions)
-        entry = {k: v for k, v in p.items() if k != "rules"} | ev
-        if ev["passes"]:
-            candidates.append(entry)
-        else:
-            errs = [c["message_vi"] for c in ev["remaining_checks"] if c["severity"] == "ERROR"]
-            rejected.append({"source": p["source"], "strategy": p["strategy"], "reason_vi": "Không qua kiểm chứng: " + " ".join(errs)})
+        llm_status = _ai_rounds(db, sid, original, report["checks"], pack, judge, rejected)
     candidates.sort(key=rank_key)
     for i, c in enumerate(candidates, 1):
         c["rank"] = i
@@ -230,9 +241,28 @@ def repair_session(sid: str, req: RepairRequest, db: Db) -> dict[str, Any]:
     }
 
 
-def _ai_proposals(db, sid, original, report, pack, rules, proposals, rejected) -> str:
-    """Bản sửa do AI đề xuất — T3.3. Trả trạng thái LLM."""
-    return "unavailable"
+MAX_AI_ROUNDS = 2  # docs/05 mục 4: không bản nào qua thì gửi lại AI kèm lỗi kiểm chứng, tối đa 2 vòng
+
+
+def _ai_rounds(db, sid, original, findings, pack, judge, rejected) -> str:
+    """AI đề xuất bản sửa (T3.3). Trả trạng thái: used | unavailable | quota | error."""
+    client = get_client()
+    if not client.available:
+        return "unavailable"
+    feedback: list[str] | None = None
+    for _ in range(MAX_AI_ROUNDS):
+        if not repo.use_llm_quota(db, sid, settings.llm_session_daily_cap, settings.llm_daily_call_cap):
+            return "quota"
+        try:
+            proposals, bad = propose_repairs(db, sid, original, findings, pack, client, feedback)
+        except LLMError:
+            return "error"
+        rejected.extend(bad)
+        reasons = judge(proposals)
+        if proposals and len(reasons) < len(proposals):
+            return "used"  # có ít nhất một bản AI qua kiểm chứng
+        feedback = reasons + [r["reason_vi"] for r in bad]
+    return "used"
 
 
 # ---------- backtest ----------

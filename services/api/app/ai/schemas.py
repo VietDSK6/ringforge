@@ -66,6 +66,21 @@ def compile_schema(param_names: list[str]) -> dict[str, Any]:
     return root | {"$defs": condition_defs(param_names)}
 
 
+REPAIR_STRATEGIES = ["NARROW_SCOPE", "CHANGE_ACTION", "SPLIT_RULE", "OTHER"]
+
+
+def repair_schema(param_names: list[str]) -> dict[str, Any]:
+    """Output của task T2 (docs/05 mục 4)."""
+    candidate = _obj({
+        "strategy": {"type": "string", "enum": REPAIR_STRATEGIES},
+        "rules": {"type": "array", "items": {"$ref": "#/$defs/RuleOut"}},
+        "rationale": {"type": "string"},
+        "intent_preserved": {"type": "string"},
+        "intent_lost": {"type": "string"},
+    })
+    return _obj({"candidates": {"type": "array", "items": candidate}}) | {"$defs": condition_defs(param_names)}
+
+
 # ---------- kiểm lại phía server (không tin output LLM) ----------
 
 
@@ -93,6 +108,18 @@ class CompileOutput(_M):
     assumptions: list[Assumption] = Field(default_factory=list, max_length=20)
     clarifying_questions: list[str] = Field(default_factory=list, max_length=10)
     unsupported_parts: list[str] = Field(default_factory=list, max_length=10)
+
+
+class RepairCandidate(_M):
+    strategy: Literal["NARROW_SCOPE", "CHANGE_ACTION", "SPLIT_RULE", "OTHER"]
+    rules: list[RuleOut] = Field(min_length=1, max_length=2)
+    rationale: str = Field(max_length=1000)
+    intent_preserved: str = Field(default="", max_length=500)
+    intent_lost: str = Field(default="", max_length=500)
+
+
+class RepairOutput(_M):
+    candidates: list[RepairCandidate] = Field(max_length=5)
 
 
 def strip_nulls(obj: Any) -> Any:
