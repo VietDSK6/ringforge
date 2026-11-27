@@ -3,8 +3,11 @@
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 
+import { Callout } from "@/components/Callout";
 import { GuidedTour, type TourStep } from "@/components/GuidedTour";
+import { Icon } from "@/components/Icon";
 import { LnetStackedBar, type LnetRow } from "@/components/LnetStackedBar";
+import { PageSkeleton } from "@/components/PageSkeleton";
 import { VerdictBadge } from "@/components/VerdictBadge";
 import { ApiError, api } from "@/lib/api";
 import { formatInt, formatVnd } from "@/lib/format";
@@ -169,50 +172,71 @@ export function CompareView() {
   return (
     <div className="space-y-8">
       <GuidedTour id="demo3" steps={TOUR} enabled={search.get("demo") === "3"} />
-      <header className="space-y-2">
-        <h1 className="text-2xl font-bold tracking-tight">So sánh phương án</h1>
-        <p className="max-w-3xl text-sm text-muted">
-          Luật <span className="font-mono">{RULE_ID}</span> giữ hoặc chặn khoản chuyển cá nhân vào tài khoản nhận mới mở đang gom tiền từ
-          nhiều người — kiểu nạn nhân chuyển cho mule lớp 1. Mỗi phương án được thêm vào bộ luật đang chạy, kiểm chứng bằng Z3 rồi backtest
-          trên 6 ngày dữ liệu tổng hợp.
+      <header>
+        <h1 className="page-title">So sánh phương án</h1>
+        <p className="page-lede">
+          Luật <span className="font-mono text-foreground">{RULE_ID}</span> giữ hoặc chặn khoản chuyển cá nhân vào tài khoản nhận mới mở đang
+          gom tiền từ nhiều người — kiểu nạn nhân chuyển cho mule lớp 1. Mỗi phương án được thêm vào bộ luật đang chạy, kiểm chứng bằng Z3
+          rồi backtest trên 6 ngày dữ liệu tổng hợp.
         </p>
       </header>
 
       <section aria-labelledby={`${uid}-variants`} className="space-y-3">
         <div className="flex flex-wrap items-end justify-between gap-3">
-          <h2 id={`${uid}-variants`} className="text-lg font-semibold">
+          <h2 id={`${uid}-variants`} className="section-title">
             Phương án
           </h2>
           <button
             type="button"
             disabled={variants.length >= MAX_VARIANTS}
             onClick={() => setVariants((vs) => [...vs, { ...PRESETS[1], key: nextKey.current++ }])}
-            className="min-h-11 rounded-xl border border-line px-4 text-sm font-medium hover:bg-surface disabled:opacity-50"
+            className="btn btn-secondary btn-sm"
           >
-            + Thêm phương án
+            <Icon name="plus" />
+            Thêm phương án
           </button>
         </div>
-        <ul className="grid gap-4 lg:grid-cols-2" data-tour="variants">
+        <ul className="grid gap-4 xl:grid-cols-2" data-tour="variants">
           {variants.map((v, i) => {
             const id = `${uid}-v${v.key}`;
             const sentence = data?.variants[i]?.rules_vi?.[RULE_ID];
             return (
-              <li key={v.key} className="rounded-2xl border border-line bg-surface p-4">
-                <fieldset className="space-y-3">
-                  <legend className="flex w-full items-center justify-between gap-2 font-semibold">
-                    {variantName(v, i)}
+              <li key={v.key} className="panel">
+                <fieldset className="space-y-4 p-4 sm:p-5">
+                  <legend className="float-left flex w-full items-center justify-between gap-2">
+                    <span className="font-semibold">{variantName(v, i)}</span>
+                    {variants.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => setVariants((vs) => vs.filter((x) => x.key !== v.key))}
+                        className="btn btn-ghost btn-sm -mr-2"
+                      >
+                        <Icon name="x" className="size-3.5" />
+                        Bỏ phương án này
+                      </button>
+                    )}
                   </legend>
-                  <div className="flex flex-wrap gap-x-5 gap-y-2" role="radiogroup" aria-label={`Cửa sổ thời gian của ${variantName(v, i)}`}>
-                    {([15, 30, 60] as Window[]).map((w) => (
-                      <label key={w} className="inline-flex min-h-11 items-center gap-2 text-sm">
-                        <input type="radio" name={`${id}-w`} checked={v.window === w} onChange={() => update(v.key, { window: w })} />
-                        Cửa sổ {w} phút
-                      </label>
-                    ))}
+                  <div className="clear-both flex flex-wrap items-end gap-x-6 gap-y-3">
+                    <Segmented
+                      caption="Cửa sổ"
+                      label={`Cửa sổ thời gian của ${variantName(v, i)}`}
+                      name={`${id}-w`}
+                      options={([15, 30, 60] as Window[]).map((w) => ({ value: w, label: `${w} phút` }))}
+                      value={v.window}
+                      onChange={(w) => update(v.key, { window: w })}
+                    />
+                    <Segmented
+                      caption="Hành động"
+                      label={`Hành động của ${variantName(v, i)}`}
+                      name={`${id}-act`}
+                      options={(["HOLD", "BLOCK"] as Action[]).map((a) => ({ value: a, label: ACTION_VI[a] }))}
+                      value={v.action}
+                      onChange={(a) => update(v.key, { action: a })}
+                    />
                   </div>
                   <div className="grid gap-3 sm:grid-cols-2">
                     <div>
-                      <label htmlFor={`${id}-s`} className="text-sm">
+                      <label htmlFor={`${id}-s`} className="label">
                         Số người gửi khác nhau, từ
                       </label>
                       <input
@@ -225,11 +249,11 @@ export function CompareView() {
                           const n = commitInt(e.currentTarget, 1, 50);
                           if (n !== null) update(v.key, { senders: n });
                         }}
-                        className="mt-1 min-h-11 w-full rounded-xl border border-zinc-400 bg-background px-3 tabular-nums dark:border-zinc-600"
+                        className="field num mt-1"
                       />
                     </div>
                     <div>
-                      <label htmlFor={`${id}-a`} className="text-sm">
+                      <label htmlFor={`${id}-a`} className="label">
                         Tuổi tài khoản nhận dưới (ngày)
                       </label>
                       <input
@@ -244,38 +268,26 @@ export function CompareView() {
                           const n = commitInt(e.currentTarget, 1, 3650);
                           if (n !== null) update(v.key, { maxAge: n });
                         }}
-                        className="mt-1 min-h-11 w-full rounded-xl border border-zinc-400 bg-background px-3 tabular-nums disabled:opacity-50 dark:border-zinc-600"
+                        className="field num mt-1"
                       />
                     </div>
                   </div>
-                  <div className="flex flex-wrap gap-x-5 gap-y-1 text-sm">
-                    <label className="inline-flex min-h-11 items-center gap-2">
-                      <input type="checkbox" checked={v.maxAge === null} onChange={(e) => update(v.key, { maxAge: e.target.checked ? null : 14 })} />
+                  <div className="flex flex-wrap gap-x-6 text-sm">
+                    <label className="inline-flex min-h-11 cursor-pointer items-center gap-2.5">
+                      <input
+                        type="checkbox"
+                        className="size-4"
+                        checked={v.maxAge === null}
+                        onChange={(e) => update(v.key, { maxAge: e.target.checked ? null : 14 })}
+                      />
                       Không xét tuổi tài khoản nhận
                     </label>
-                    <label className="inline-flex min-h-11 items-center gap-2">
-                      <input type="checkbox" checked={v.p2pOnly} onChange={(e) => update(v.key, { p2pOnly: e.target.checked })} />
+                    <label className="inline-flex min-h-11 cursor-pointer items-center gap-2.5">
+                      <input type="checkbox" className="size-4" checked={v.p2pOnly} onChange={(e) => update(v.key, { p2pOnly: e.target.checked })} />
                       Chỉ chuyển tiền cá nhân
                     </label>
                   </div>
-                  <div className="flex flex-wrap gap-x-5 gap-y-1" role="radiogroup" aria-label={`Hành động của ${variantName(v, i)}`}>
-                    {(["HOLD", "BLOCK"] as Action[]).map((a) => (
-                      <label key={a} className="inline-flex min-h-11 items-center gap-2 text-sm">
-                        <input type="radio" name={`${id}-act`} checked={v.action === a} onChange={() => update(v.key, { action: a })} />
-                        {ACTION_VI[a]}
-                      </label>
-                    ))}
-                  </div>
-                  {sentence && <p className="rounded-xl bg-background p-3 text-sm leading-6">{sentence}</p>}
-                  {variants.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => setVariants((vs) => vs.filter((x) => x.key !== v.key))}
-                      className="min-h-11 text-sm text-muted underline hover:text-foreground"
-                    >
-                      Bỏ phương án này
-                    </button>
-                  )}
+                  {sentence && <p className="well px-3 py-2.5 text-sm leading-6">{sentence}</p>}
                 </fieldset>
               </li>
             );
@@ -283,25 +295,26 @@ export function CompareView() {
         </ul>
       </section>
 
-      <section aria-labelledby={`${uid}-assume`} className="space-y-3 rounded-2xl border border-amber-300 bg-surface p-5 dark:border-amber-800">
-        <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 id={`${uid}-assume`} className="text-lg font-semibold">
+      <section aria-labelledby={`${uid}-assume`} className="panel space-y-4 p-4 sm:p-5">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 id={`${uid}-assume`} className="section-title">
             Giả định
           </h2>
-          <span className="rounded-full bg-amber-100 px-3 py-0.5 text-xs font-semibold text-amber-900 dark:bg-amber-950 dark:text-amber-200">
+          <span className="chip tone-warn">
+            <Icon name="alert" className="size-3.5" />
             giả định — không phải số thật
           </span>
         </div>
-        <div className="grid gap-x-8 gap-y-4 md:grid-cols-2">
+        <div className="grid gap-x-10 gap-y-2 md:grid-cols-2">
           {SLIDERS.map((s) => {
             const id = `${uid}-${s.key}`;
             return (
               <div key={s.key}>
-                <div className="flex items-baseline justify-between gap-3">
+                <div className="flex items-baseline justify-between gap-4">
                   <label htmlFor={id} className="text-sm">
                     {s.label}
                   </label>
-                  <output htmlFor={id} className="text-sm font-semibold tabular-nums">
+                  <output htmlFor={id} className="num shrink-0 text-sm font-semibold">
                     {s.fmt(assumptions[s.key])}
                   </output>
                 </div>
@@ -313,57 +326,60 @@ export function CompareView() {
                   max={s.max}
                   step={s.step}
                   value={assumptions[s.key]}
+                  aria-valuetext={s.fmt(assumptions[s.key])}
                   onChange={(e) => setAssumptions((a) => ({ ...a, [s.key]: Number(e.target.value) }))}
-                  className="mt-1 w-full accent-[var(--accent)]"
+                  className="range"
                 />
               </div>
             );
           })}
         </div>
-        <button
-          type="button"
-          onClick={() => setAssumptions(DEFAULT_ASSUMPTIONS)}
-          className="min-h-11 text-sm text-muted underline hover:text-foreground"
-        >
+        <button type="button" onClick={() => setAssumptions(DEFAULT_ASSUMPTIONS)} className="btn btn-ghost btn-sm -ml-2.5">
+          <Icon name="reset" className="size-3.5" />
           Về giả định mặc định
         </button>
       </section>
 
       <section aria-labelledby={`${uid}-results`} className="space-y-4" aria-busy={running}>
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 id={`${uid}-results`} className="text-lg font-semibold">
+          <h2 id={`${uid}-results`} className="section-title">
             Kết quả
           </h2>
-          <p role="status" className="text-sm text-muted">
+          <p role="status" className="flex items-center gap-2 text-sm text-muted">
+            {running && <span aria-hidden className="size-3.5 animate-spin rounded-full border-2 border-accent border-t-transparent" />}
             {running ? "Đang kiểm chứng và backtest…" : data ? `Tính trong ${formatInt(data.ms)} ms · hệ thống tính` : ""}
           </p>
         </div>
         {error && (
-          <p role="alert" className="rounded-xl border border-red-300 bg-red-50 p-3 text-sm text-danger dark:border-red-900 dark:bg-red-950">
+          <Callout tone="fail" role="alert">
             {error}
-          </p>
+          </Callout>
         )}
+        {!data && !error && <PageSkeleton label="Đang kiểm chứng và backtest…" rows={5} />}
         {best && (
-          <p className="text-base">
-            Tốt nhất theo L_net trong các phương án qua cổng invariant: <strong>{best.name}</strong> —{" "}
-            <strong className="tabular-nums">{formatVnd(best.result!.l_net)}</strong>
-            {best.delta && (
-              <span className="text-muted">
-                {" "}
-                ({best.delta.l_net <= 0 ? "giảm" : "tăng"} {formatVnd(Math.abs(best.delta.l_net))} so với bộ luật hiện hành)
-              </span>
-            )}
-            .{" "}
+          <div className="panel flex flex-wrap items-center justify-between gap-x-8 gap-y-4 border-l-4 border-l-accent p-4 sm:p-5">
+            <div className="min-w-0 space-y-1">
+              <p className="text-sm text-muted">Tốt nhất theo L_net trong các phương án qua cổng invariant</p>
+              <p className="text-lg font-semibold">{best.name}</p>
+              <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <strong className="num text-3xl font-bold tracking-tight">{formatVnd(best.result!.l_net)}</strong>
+                {best.delta && (
+                  <span className={`num text-sm font-medium ${best.delta.l_net <= 0 ? "text-pass" : "text-fail"}`}>
+                    {best.delta.l_net <= 0 ? "giảm" : "tăng"} {formatVnd(Math.abs(best.delta.l_net))} so với bộ luật hiện hành
+                  </span>
+                )}
+              </p>
+            </div>
             <button
               type="button"
               data-tour="changeset"
               onClick={() => proposeChangeSet(data!.variants.indexOf(best))}
               disabled={running}
-              className="ml-1 min-h-11 rounded-xl bg-accent px-4 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50 dark:text-zinc-950"
+              className="btn btn-primary btn-lg"
             >
               Tạo change set cho phương án này
             </button>
-          </p>
+          </div>
         )}
         {data && <ResultsTable uid={uid} rows={rows} />}
         {data && <LnetStackedBar rows={chartRows} />}
@@ -373,55 +389,94 @@ export function CompareView() {
   );
 }
 
+/** Nhóm radio dạng nút phân đoạn: radio gốc vẫn nhận bàn phím (mũi tên), nhãn đang chọn nổi lên + in đậm. */
+function Segmented<T extends string | number>({
+  caption,
+  label,
+  name,
+  options,
+  value,
+  onChange,
+}: {
+  caption: string;
+  label: string;
+  name: string;
+  options: { value: T; label: string }[];
+  value: T;
+  onChange: (v: T) => void;
+}) {
+  return (
+    <div>
+      <p aria-hidden className="label mb-1">
+        {caption}
+      </p>
+      <div role="radiogroup" aria-label={label} className="inline-flex flex-wrap rounded-lg border border-line bg-sunken p-0.5">
+        {options.map((o) => (
+          <label
+            key={String(o.value)}
+            className="inline-flex min-h-10 cursor-pointer items-center rounded-md px-3 text-sm text-muted hover:text-foreground has-[:checked]:bg-surface has-[:checked]:font-semibold has-[:checked]:text-foreground has-[:checked]:shadow-sm has-[:checked]:ring-1 has-[:checked]:ring-line-strong has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-1 has-[:focus-visible]:outline-accent pointer-coarse:min-h-11"
+          >
+            <input type="radio" name={name} className="sr-only" checked={value === o.value} onChange={() => onChange(o.value)} />
+            {o.label}
+          </label>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 type Row = { name: string; r: BacktestResult; rank?: number; eligible: boolean; verdict?: string; errors?: string[] };
 
 function ResultsTable({ uid, rows }: { uid: string; rows: Row[] }) {
   const exposure = (r: BacktestResult) => r.compliance_exposure.reduce((n, e) => n + e.count, 0);
   return (
-    <div tabIndex={0} role="region" aria-labelledby={`${uid}-cmp-cap`} data-tour="results" className="overflow-x-auto rounded-2xl border border-line bg-surface">
-      <table className="w-full min-w-[880px] border-separate border-spacing-0 text-left text-sm">
-        <caption id={`${uid}-cmp-cap`} className="px-4 pt-3 text-left text-sm text-muted">
+    <div tabIndex={0} role="region" aria-labelledby={`${uid}-cmp-cap`} data-tour="results" className="table-wrap">
+      <table className="data-table min-w-[860px]">
+        <caption id={`${uid}-cmp-cap`}>
           L_net = lọt gian lận + chi phí duyệt + mất do khách bỏ (đ, làm tròn xuống theo nhóm). Hàng in đậm là phương án tốt nhất.
         </caption>
-        <thead className="text-xs text-muted">
+        <thead>
           <tr>
-            <th scope="col" className="sticky left-0 border-b border-line bg-surface px-4 py-3 font-medium">Phương án</th>
-            <th scope="col" className="border-b border-line px-3 py-3 text-right font-medium">L_net</th>
-            <th scope="col" className="border-b border-line px-3 py-3 text-right font-medium">Lọt gian lận</th>
-            <th scope="col" className="border-b border-line px-3 py-3 text-right font-medium">Chặn nhầm (giữ / chặn)</th>
-            <th scope="col" className="border-b border-line px-3 py-3 text-right font-medium">Chi phí duyệt</th>
-            <th scope="col" className="border-b border-line px-3 py-3 text-right font-medium">Mất do khách bỏ</th>
-            <th scope="col" className="border-b border-line px-3 py-3 text-right font-medium">Dòng tiền mule bị giữ/chặn</th>
-            <th scope="col" className="border-b border-line px-3 py-3 font-medium">Cổng invariant</th>
+            <th scope="col" className="sticky-col min-w-40">Phương án</th>
+            <th scope="col" className="n">L_net</th>
+            <th scope="col" className="n">Lọt gian lận</th>
+            <th scope="col" className="n">Chặn nhầm (giữ / chặn)</th>
+            <th scope="col" className="n">Chi phí duyệt</th>
+            <th scope="col" className="n">Mất do khách bỏ</th>
+            <th scope="col" className="n">Dòng tiền mule bị giữ/chặn</th>
+            <th scope="col">Cổng invariant</th>
           </tr>
         </thead>
         <tbody>
           {rows.map((row, i) => {
             const top = row.rank === 1;
             const exp = exposure(row.r);
+            const cell = top ? "bg-accent-soft" : "";
             return (
               <tr key={row.name} className={top ? "font-semibold" : undefined}>
-                <th scope="row" className={`sticky left-0 border-b border-line px-4 py-3 text-left align-top ${top ? "bg-violet-50 dark:bg-violet-950" : "bg-surface"}`}>
+                <th scope="row" className={`sticky-col text-left ${top ? "bg-accent-soft! shadow-[inset_3px_0_0_var(--accent)]" : ""}`}>
                   <span className="block">{row.name}</span>
-                  {top && <span className="text-xs text-accent">Tốt nhất · hạng 1</span>}
-                  {!top && row.rank && <span className="text-xs font-normal text-muted">Hạng {row.rank}</span>}
+                  {top && <span className="mt-1 inline-block text-xs font-semibold text-accent">Tốt nhất · hạng 1</span>}
+                  {!top && row.rank && <span className="mt-0.5 block text-xs font-normal text-muted">Hạng {row.rank}</span>}
+                  {i === 0 && <span className="mt-0.5 block text-xs font-normal text-muted">Mốc so sánh</span>}
                 </th>
-                <td className="border-b border-line px-3 py-3 text-right tabular-nums">{formatVnd(row.r.l_net)}</td>
-                <td className="border-b border-line px-3 py-3 text-right tabular-nums">{formatVnd(row.r.fn_loss)}</td>
-                <td className="border-b border-line px-3 py-3 text-right tabular-nums">
+                <td className={`n text-[0.9375rem] ${cell} ${top ? "font-bold" : "font-medium"}`}>{formatVnd(row.r.l_net)}</td>
+                <td className={`n ${cell}`}>{formatVnd(row.r.fn_loss)}</td>
+                <td className={`n ${cell}`}>
                   {formatInt(row.r.fp_hold)} / {formatInt(row.r.fp_block)}
                 </td>
-                <td className="border-b border-line px-3 py-3 text-right tabular-nums">{formatVnd(row.r.review_cost)}</td>
-                <td className="border-b border-line px-3 py-3 text-right tabular-nums">{formatVnd(row.r.churn_loss)}</td>
-                <td className="border-b border-line px-3 py-3 text-right tabular-nums">{formatVnd(row.r.mule_flow_stopped)}</td>
-                <td className="border-b border-line px-3 py-3 align-top">
+                <td className={`n ${cell}`}>{formatVnd(row.r.review_cost)}</td>
+                <td className={`n ${cell}`}>{formatVnd(row.r.churn_loss)}</td>
+                <td className={`n ${cell}`}>{formatVnd(row.r.mule_flow_stopped)}</td>
+                <td className={`${cell} whitespace-nowrap`}>
                   {i === 0 ? (
-                    <span className="text-xs font-normal text-muted">Mốc so sánh</span>
+                    <span className="text-xs font-normal text-muted">—</span>
                   ) : row.eligible ? (
                     <VerdictBadge verdict={(row.verdict as "PASS") ?? "PASS"} />
                   ) : (
-                    <span className="text-sm font-semibold text-danger">
-                      ❌ Không hợp lệ{exp > 0 ? ` · ${formatInt(exp)} giao dịch phạm tuân thủ` : ""}
+                    <span className="chip tone-fail font-semibold">
+                      <Icon name="x" className="size-3.5" />
+                      Không hợp lệ{exp > 0 ? ` · ${formatInt(exp)} giao dịch phạm tuân thủ` : ""}
                     </span>
                   )}
                 </td>
@@ -437,16 +492,16 @@ function ResultsTable({ uid, rows }: { uid: string; rows: Row[] }) {
 function ScenarioTable({ uid, rows }: { uid: string; rows: Row[] }) {
   const scenarios = SCENARIO_ORDER.filter((s) => rows[0]?.r.by_scenario[s]);
   return (
-    <div tabIndex={0} role="region" aria-labelledby={`${uid}-sc-cap`} data-tour="scenarios" className="overflow-x-auto rounded-2xl border border-line bg-surface">
-      <table className="w-full min-w-[720px] border-separate border-spacing-0 text-left text-sm">
-        <caption id={`${uid}-sc-cap`} className="px-4 pt-3 text-left text-sm font-semibold">
+    <div tabIndex={0} role="region" aria-labelledby={`${uid}-sc-cap`} data-tour="scenarios" className="table-wrap">
+      <table className="data-table min-w-[760px]">
+        <caption id={`${uid}-sc-cap`} className="font-semibold text-foreground!">
           Phân rã theo kịch bản: lọt gian lận và số giao dịch thật bị giữ/chặn nhầm
         </caption>
-        <thead className="text-xs text-muted">
+        <thead>
           <tr>
-            <th scope="col" className="sticky left-0 border-b border-line bg-surface px-4 py-3 font-medium">Kịch bản</th>
+            <th scope="col" className="sticky-col">Kịch bản</th>
             {rows.map((row, i) => (
-              <th key={row.name} scope="col" className="border-b border-line px-3 py-3 text-right font-medium">
+              <th key={row.name} scope="col" className="n">
                 {i === 0 ? "Hiện hành" : row.name.split(" · ")[0]}
               </th>
             ))}
@@ -455,14 +510,14 @@ function ScenarioTable({ uid, rows }: { uid: string; rows: Row[] }) {
         <tbody>
           {scenarios.map((sc) => (
             <tr key={sc}>
-              <th scope="row" className="sticky left-0 border-b border-line bg-surface px-4 py-3 text-left font-medium">
+              <th scope="row" className="sticky-col text-left font-medium">
                 {rows[0].r.by_scenario[sc].label_vi}
               </th>
               {rows.map((row) => {
                 const m = row.r.by_scenario[sc];
                 const fp = m.fp_hold + m.fp_block;
                 return (
-                  <td key={row.name} className="border-b border-line px-3 py-3 text-right align-top tabular-nums">
+                  <td key={row.name} className="n">
                     {m.loss_total > 0 && <span className="block">Lọt {formatVnd(m.fn_loss)}</span>}
                     <span className={`block ${fp > 0 ? "font-semibold text-warn" : "text-muted"}`}>Chặn nhầm {formatInt(fp)}</span>
                   </td>

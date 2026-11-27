@@ -427,7 +427,7 @@ dialog::backdrop {
     font-size: 0.8125rem;
   }
   .data-table thead th {
-    padding: 0.625rem 0.75rem;
+    padding: 0.625rem;
     background: var(--sunken);
     border-block: 1px solid var(--border);
     color: var(--muted);
@@ -437,7 +437,7 @@ dialog::backdrop {
   }
   .data-table tbody th,
   .data-table tbody td {
-    padding: 0.75rem;
+    padding: 0.75rem 0.625rem;
     border-bottom: 1px solid var(--border);
     vertical-align: top;
   }
@@ -452,8 +452,14 @@ dialog::backdrop {
   }
   .data-table .n {
     text-align: right;
-    white-space: nowrap;
     font-variant-numeric: tabular-nums;
+  }
+  .data-table td.n {
+    white-space: nowrap;
+  }
+  /* Tiêu đề cột số: đủ rộng để không vỡ thành nhiều dòng hẹp. */
+  .data-table th.n {
+    min-width: 6rem;
   }
   .data-table .sticky-col {
     position: sticky;
