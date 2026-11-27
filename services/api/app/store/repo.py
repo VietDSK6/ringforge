@@ -16,6 +16,7 @@ from app.store.models import (
     AICallRow,
     AuditRow,
     BacktestRunRow,
+    ChangeSetRow,
     PolicyPackRow,
     RuleRow,
     SessionRow,
@@ -70,6 +71,7 @@ def reset_session(db: Session, sid: str) -> None:
     get_session(db, sid)
     db.execute(delete(RuleRow).where(RuleRow.session_id == sid))
     db.execute(delete(PolicyPackRow).where(PolicyPackRow.session_id == sid))
+    db.execute(delete(ChangeSetRow).where(ChangeSetRow.session_id == sid))
     _seed_into(db, sid)
     audit(db, sid, "system", "session.reset", None)
     db.commit()
@@ -196,6 +198,37 @@ def use_llm_quota(db: Session, sid: str, session_cap: int, global_cap: int) -> b
     return True
 
 
+# ---------- change set ----------
+
+
+def change_set_dict(row: ChangeSetRow) -> dict[str, Any]:
+    return {
+        "id": row.id, "state": row.state, "items": row.items, "pack_version": row.pack_version,
+        "verify_run_id": row.verify_run_id, "backtest_run_id": row.backtest_run_id, "summary": row.summary,
+        "note": row.note, "decision_note": row.decision_note,
+        "decided_at": row.decided_at.isoformat() if row.decided_at else None, "created_at": row.created_at.isoformat(),
+    }
+
+
+def add_change_set(db: Session, sid: str, **fields: Any) -> ChangeSetRow:
+    row = ChangeSetRow(session_id=sid, **fields)
+    db.add(row)
+    db.flush()
+    return row
+
+
+def get_change_set(db: Session, sid: str, cs_id: str) -> ChangeSetRow:
+    row = db.get(ChangeSetRow, cs_id)
+    if row is None or row.session_id != sid:
+        raise NotFound(cs_id)
+    return row
+
+
+def list_change_sets(db: Session, sid: str) -> list[dict[str, Any]]:
+    rows = db.scalars(select(ChangeSetRow).where(ChangeSetRow.session_id == sid).order_by(ChangeSetRow.created_at.desc())).all()
+    return [change_set_dict(r) for r in rows]
+
+
 def audit(db: Session, sid: str, actor: str, action: str, ref: dict[str, Any] | None) -> None:
     db.add(AuditRow(session_id=sid, actor=actor, action=action, ref=ref))
 
@@ -204,7 +237,15 @@ def list_audit(db: Session, sid: str, limit: int = 200) -> list[dict[str, Any]]:
     rows = db.scalars(
         select(AuditRow).where(AuditRow.session_id == sid).order_by(AuditRow.id.desc()).limit(limit)
     ).all()
-    return [
-        {"id": r.id, "actor": r.actor, "action": r.action, "ref": r.ref, "created_at": r.created_at.isoformat()}
-        for r in rows
-    ]
+    # FR-A3: bản ghi của AI kèm model, phiên bản prompt và hash prompt (lấy từ ai_calls).
+    call_ids = {r.ref["ai_call_id"] for r in rows if isinstance(r.ref, dict) and r.ref.get("ai_call_id")}
+    calls = {c.id: c for c in db.scalars(select(AICallRow).where(AICallRow.id.in_(call_ids)))} if call_ids else {}
+    out = []
+    for r in rows:
+        e = {"id": r.id, "actor": r.actor, "action": r.action, "ref": r.ref, "created_at": r.created_at.isoformat()}
+        c = calls.get((r.ref or {}).get("ai_call_id")) if isinstance(r.ref, dict) else None
+        if c is not None:
+            e["ai_call"] = {"model": c.model, "prompt_version": c.prompt_version, "prompt_hash": c.prompt_hash[:12],
+                            "from_cache": c.from_cache, "schema_valid": c.schema_valid, "latency_ms": c.latency_ms}
+        out.append(e)
+    return out

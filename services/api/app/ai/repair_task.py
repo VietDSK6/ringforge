@@ -111,12 +111,14 @@ def propose_repairs(
         res = client.complete_json(system, user, repair_schema(list(pack["params"])), "rf_repair")
     except LLMError as e:
         repo.add_ai_call(db, sid, model=client.model, error=f"{e.code}: {e}", **common)
+        repo.audit(db, sid, "ai", "rule.repair_propose", {"ai_call_id": call_id, "rule_id": original["id"], "error": e.code})
         raise
     try:
         out = RepairOutput.model_validate(res.data)
     except ValidationError as e:
         repo.add_ai_call(db, sid, model=res.model, output=res.data, tokens_in=res.tokens_in, tokens_out=res.tokens_out,
                          latency_ms=res.latency_ms, error=str(e)[:2000], **common)
+        repo.audit(db, sid, "ai", "rule.repair_propose", {"ai_call_id": call_id, "rule_id": original["id"], "error": "SCHEMA_INVALID"})
         return [], [{"source": "ai", "strategy": "OTHER", "reason_vi": "AI trả về sai định dạng nên bị loại."}]
 
     proposals, rejected = [], []
@@ -137,4 +139,8 @@ def propose_repairs(
         })
     repo.add_ai_call(db, sid, model=res.model, output=res.data, schema_valid=True, semantic_valid=bool(proposals),
                      tokens_in=res.tokens_in, tokens_out=res.tokens_out, latency_ms=res.latency_ms, **common)
+    repo.audit(db, sid, "ai", "rule.repair_propose", {
+        "ai_call_id": call_id, "rule_id": original["id"], "model": res.model,
+        "proposals": len(proposals), "rejected_vc01": len(rejected),
+    })
     return proposals, rejected

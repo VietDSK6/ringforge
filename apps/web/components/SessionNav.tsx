@@ -11,6 +11,7 @@ const ITEMS = [
   { href: "studio", label: "Rule Studio", icon: "✍️" },
   { href: "compare", label: "So sánh", icon: "📊" },
   { href: "pack", label: "Policy Pack", icon: "⚖️" },
+  { href: "review", label: "Duyệt", icon: "✅" },
 ];
 
 /** Thanh bên trái (desktop) / thanh dưới (mobile). Đây là điều hướng trang, không phải tab ARIA. */

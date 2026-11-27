@@ -319,3 +319,55 @@ export interface BacktestResponse {
   ms: number;
   backtest_run_id: string;
 }
+
+// ---------- Change set + phê duyệt + audit (T4.5) ----------
+
+export type ChangeSetState = "DRAFT" | "VERIFIED" | "APPROVED" | "REJECTED";
+
+export interface ChangeSetItem {
+  op: "add" | "replace" | "retire";
+  rule_id: string;
+  rule?: Rule;
+  before_vi?: string | null;
+  after_vi?: string;
+}
+
+export interface BacktestSummary {
+  l_net: number;
+  fn_loss: number;
+  review_cost: number;
+  churn_loss: number;
+  fp_hold: number;
+  fp_block: number;
+  friction_biometric: number;
+  mule_flow_stopped: number;
+  valid: boolean;
+  compliance_exposure: { invariant: string; count: number; amount_sum: number }[];
+}
+
+export interface ChangeSet {
+  id: string;
+  state: ChangeSetState;
+  items: ChangeSetItem[];
+  pack_version: string;
+  verify_run_id: string | null;
+  backtest_run_id: string | null;
+  summary: {
+    verify: VerifyReport;
+    backtest: { before: BacktestSummary; after: BacktestSummary; delta: Record<string, number>; days: number[] };
+    semantic_diff: SemanticDiff;
+  };
+  note: string;
+  decision_note: string | null;
+  decided_at: string | null;
+  created_at: string;
+}
+
+export interface AuditEvent {
+  id: number;
+  actor: "user:proposer" | "user:approver" | "ai" | "system" | string;
+  action: string;
+  ref: Record<string, unknown> | null;
+  created_at: string;
+  ai_call?: { model: string; prompt_version: string; prompt_hash: string; from_cache: boolean; schema_valid: boolean; latency_ms: number };
+}

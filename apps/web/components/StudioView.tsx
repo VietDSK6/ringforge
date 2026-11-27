@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { type FormEvent, type KeyboardEvent, useEffect, useId, useRef, useState } from "react";
 
 import { RepairPanel } from "@/components/RepairPanel";
@@ -45,6 +45,7 @@ function withoutRender(rule: Rule): Omit<Rule, "render"> {
 export function StudioView() {
   const { sid } = useParams<{ sid: string }>();
   const search = useSearchParams();
+  const router = useRouter();
   const [text, setText] = useState(() => (search.get("demo") === "1" ? DEMO1 : ""));
   const [phase, setPhase] = useState<Phase>("idle");
   const [compiled, setCompiled] = useState<CompileResult | null>(null);
@@ -164,6 +165,19 @@ export function StudioView() {
       setSavedNote(ids.length ? `Đã lưu ${ids.join(", ")} vào bộ luật của sandbox (trạng thái ứng viên).` : "Không lưu được luật.");
     } catch (err) {
       setSavedNote(err instanceof ApiError ? err.message : "Không lưu được luật.");
+    }
+  }
+
+  async function onChangeSet() {
+    try {
+      const cs = await api.createChangeSet(
+        sid,
+        verified.map((r) => ({ rule: r })),
+        `Tạo từ Rule Studio${text ? `: “${text.slice(0, 200)}”` : ""}`,
+      );
+      router.push(`/s/${sid}/review?cs=${cs.id}`);
+    } catch (err) {
+      setSavedNote(err instanceof ApiError ? err.message : "Không tạo được change set.");
     }
   }
 
@@ -322,6 +336,16 @@ export function StudioView() {
                     className="min-h-12 rounded-xl border border-line px-5 font-semibold hover:bg-background"
                   >
                     Lưu vào bộ luật (ứng viên)
+                  </button>
+                )}
+                {verified.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={onChangeSet}
+                    disabled={busy}
+                    className="min-h-12 rounded-xl border border-line px-5 font-semibold hover:bg-background disabled:opacity-60"
+                  >
+                    Tạo change set để duyệt
                   </button>
                 )}
                 <p role="status" className="text-sm text-ok">

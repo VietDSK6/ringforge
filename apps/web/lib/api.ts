@@ -1,5 +1,5 @@
 // Client gọi API RingForge. Lỗi API trả về dạng {error_code, message_vi} → ApiError.
-import type { Assumptions, BacktestResponse, Catalog, CompileResult, PackImpact, PatchOp, PolicyPack, RepairResponse, Rule, VerifyReport } from "./types";
+import type { Assumptions, AuditEvent, BacktestResponse, Catalog, ChangeSet, CompileResult, PackImpact, PatchOp, PolicyPack, RepairResponse, Rule, VerifyReport } from "./types";
 
 export const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000").replace(/\/+$/, "");
 
@@ -53,6 +53,11 @@ export const api = {
       body: JSON.stringify({ variants, assumptions }),
       signal,
     }),
+  createChangeSet: (sid: string, items: unknown[], note = "") => post<ChangeSet>(`/sessions/${sid}/change-sets`, { items, note }),
+  changeSets: (sid: string) => request<{ change_sets: ChangeSet[] }>(`/sessions/${sid}/change-sets`),
+  decide: (sid: string, id: string, decision: "approve" | "reject", note: string) =>
+    post<ChangeSet>(`/sessions/${sid}/change-sets/${id}/decision`, { decision, note, role: "approver" }),
+  audit: (sid: string) => request<{ events: AuditEvent[] }>(`/sessions/${sid}/audit`),
   saveRule: (sid: string, rule: Rule | Record<string, unknown>) =>
     request<{ saved: boolean; rule?: Rule }>(`/sessions/${sid}/rules/${String(rule.id)}`, {
       method: "PUT",

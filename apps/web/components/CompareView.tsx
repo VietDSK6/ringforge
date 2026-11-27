@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 
 import { LnetStackedBar, type LnetRow } from "@/components/LnetStackedBar";
@@ -86,11 +86,13 @@ function commitInt(input: HTMLInputElement, lo: number, hi: number): number | nu
 /** So sánh phương án luật bằng L_net (docs/07 mục 3.5 — Demo 3). Mọi con số do backtest tính. */
 export function CompareView() {
   const { sid } = useParams<{ sid: string }>();
+  const router = useRouter();
   const uid = useId();
   const nextKey = useRef(PRESETS.length);
   const [variants, setVariants] = useState<VariantForm[]>(() => PRESETS.map((p, key) => ({ ...p, key })));
   const [assumptions, setAssumptions] = useState<Assumptions>(DEFAULT_ASSUMPTIONS);
   const [data, setData] = useState<BacktestResponse | null>(null);
+  const [sent, setSent] = useState<typeof payload>([]);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -107,6 +109,7 @@ export function CompareView() {
       try {
         const res = await api.backtest(sid, payload, assumptions, ctrl.signal);
         setData(res);
+        setSent(payload);
         setError(null);
       } catch (e) {
         if (!ctrl.signal.aborted) setError(e instanceof ApiError ? e.message : "Backtest thất bại.");
@@ -119,6 +122,17 @@ export function CompareView() {
       ctrl.abort();
     };
   }, [sid, payload, assumptions]);
+
+  async function proposeChangeSet(index: number) {
+    const change = sent[index];
+    if (!change) return;
+    try {
+      const cs = await api.createChangeSet(sid, [{ rule: change.rule_changes[0].rule }], `Phương án ${change.name} từ màn So sánh`);
+      router.push(`/s/${sid}/review?cs=${cs.id}`);
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : "Không tạo được change set.");
+    }
+  }
 
   const update = (key: number, patch: Partial<VariantForm>) =>
     setVariants((vs) => vs.map((v) => (v.key === key ? { ...v, ...patch } : v)));
@@ -327,7 +341,15 @@ export function CompareView() {
                 ({best.delta.l_net <= 0 ? "giảm" : "tăng"} {formatVnd(Math.abs(best.delta.l_net))} so với bộ luật hiện hành)
               </span>
             )}
-            .
+            .{" "}
+            <button
+              type="button"
+              onClick={() => proposeChangeSet(data!.variants.indexOf(best))}
+              disabled={running}
+              className="ml-1 min-h-11 rounded-xl bg-accent px-4 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50 dark:text-zinc-950"
+            >
+              Tạo change set cho phương án này
+            </button>
           </p>
         )}
         {data && <ResultsTable uid={uid} rows={rows} />}

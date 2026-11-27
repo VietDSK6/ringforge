@@ -58,6 +58,22 @@ class RuleRow(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
 
 
+class ChangeSetRow(Base):
+    __tablename__ = "change_sets"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    session_id: Mapped[str] = mapped_column(ForeignKey("sessions.id", ondelete="CASCADE"), index=True)
+    items: Mapped[list[dict[str, Any]]] = mapped_column(JsonType)  # [{op, rule_id, rule?}] — ảnh chụp luật đã kiểm chứng
+    pack_version: Mapped[str] = mapped_column(Text)
+    state: Mapped[str] = mapped_column(String(16))  # DRAFT | VERIFIED | APPROVED | REJECTED
+    verify_run_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    backtest_run_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    summary: Mapped[dict[str, Any]] = mapped_column(JsonType)  # kết luận kiểm chứng, backtest trước/sau, VC-07
+    note: Mapped[str] = mapped_column(Text, default="")
+    decision_note: Mapped[str | None] = mapped_column(Text, nullable=True)
+    decided_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+
 class VerifyRunRow(Base):
     __tablename__ = "verify_runs"
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
