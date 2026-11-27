@@ -41,15 +41,12 @@ export function EnterSandbox({
         type="button"
         onClick={enter}
         disabled={busy}
-        className={
-          variant === "primary"
-            ? "min-h-12 rounded-xl bg-accent px-6 text-base font-semibold text-white shadow-sm hover:opacity-90 disabled:opacity-60 dark:text-zinc-950"
-            : "min-h-10 rounded-lg border border-line px-4 text-sm font-medium hover:bg-background disabled:opacity-60"
-        }
+        className={variant === "primary" ? "btn btn-primary btn-lg min-h-12 px-6" : "btn btn-secondary"}
       >
+        {busy && <span aria-hidden className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />}
         {busy ? "Đang tạo sandbox…" : label}
       </button>
-      <p role="status" className="mt-2 text-sm text-danger">
+      <p role="status" className={`text-sm text-fail ${error ? "mt-2" : ""}`}>
         {error}
       </p>
     </div>

@@ -48,24 +48,21 @@ export function HealthStatus() {
   }, []);
 
   return (
-    <section
-      aria-live="polite"
-      className="w-full rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900"
-    >
+    <section aria-live="polite" className="panel w-full p-4 md:w-80">
       {state.kind === "loading" && (
-        <StatusLine dotClass="bg-amber-400 animate-pulse" title="Đang kết nối API…" />
+        <StatusLine dotClass="bg-warn animate-pulse" title="Đang khởi động máy chủ…" detail="Lần đầu có thể mất đến một phút." />
       )}
       {state.kind === "ok" && (
         <StatusLine
-          dotClass="bg-emerald-500"
+          dotClass="bg-pass"
           title="API ok"
           detail={`Z3 ${state.health.z3_version} · môi trường ${state.health.app_env} · phản hồi sau ${state.ms.toLocaleString("vi-VN")} ms`}
         />
       )}
       {state.kind === "error" && (
-        <StatusLine dotClass="bg-red-500" title="Không kết nối được API" detail={state.message} />
+        <StatusLine dotClass="bg-fail" title="Không kết nối được API" detail={state.message} />
       )}
-      <p className="mt-3 break-all font-mono text-xs text-zinc-500">Địa chỉ API: {API_URL}</p>
+      <p className="mt-3 border-t border-line pt-3 font-mono text-xs break-all text-muted">Địa chỉ API: {API_URL}</p>
     </section>
   );
 }
@@ -73,10 +70,10 @@ export function HealthStatus() {
 function StatusLine({ dotClass, title, detail }: { dotClass: string; title: string; detail?: string }) {
   return (
     <div className="flex items-start gap-3">
-      <span className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${dotClass}`} aria-hidden />
+      <span className={`mt-1.5 size-2.5 shrink-0 rounded-full ${dotClass}`} aria-hidden />
       <div>
-        <p className="font-semibold">{title}</p>
-        {detail && <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">{detail}</p>}
+        <p className="text-sm font-semibold">{title}</p>
+        {detail && <p className="mt-0.5 text-[0.8125rem] leading-5 text-muted">{detail}</p>}
       </div>
     </div>
   );
