@@ -29,3 +29,6 @@ data/seed/transactions.parquet
 
 # Kết quả chạy eval (sinh lại được)
 eval/*_report.json
+
+# Bản PDF xuất từ HTML (chỉ đính kèm khi nộp, link production)
+docs/submission/*.pdf

@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RingForge — hướng dẫn dùng thử</title>
+<style>
+  @page { size: A4; margin: 0; }
+  :root {
+    --ink: #18181b; --muted: #52525b; --line: #e4e4e7; --accent: #6d28d9; --accent-soft: #f3efff;
+    --warn-bg: #fff7e6; --warn-ink: #7a3e00; --ok: #047857; --danger: #b91c1c;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #fff; color: var(--ink); }
+  body {
+    width: 210mm; height: 297mm; padding: 11mm 12mm 10mm; overflow: hidden;
+    font: 9.4pt/1.4 -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  h1, h2, h3, p, ol, ul { margin: 0; }
+  header { display: flex; justify-content: space-between; align-items: baseline; gap: 8mm; }
+  .brand { font-size: 20pt; font-weight: 800; letter-spacing: -0.02em; }
+  .brand span { color: var(--accent); }
+  .tagline { margin-top: 1mm; font-size: 11pt; color: var(--muted); }
+  .doc { font-size: 8.5pt; color: var(--muted); text-align: right; }
+  .open {
+    margin-top: 4mm; display: grid; grid-template-columns: 1fr auto; gap: 2mm 6mm; align-items: center;
+    padding: 4mm 5mm; border-radius: 4mm; background: var(--accent-soft); border: 0.4mm solid var(--accent);
+  }
+  .open .url { font-size: 15pt; font-weight: 800; color: var(--accent); word-break: break-all; }
+  .open .meta { font-size: 8.8pt; color: var(--ink); }
+  .open .meta strong { color: var(--ok); }
+  .lead { margin-top: 3.5mm; }
+  .demos { margin-top: 3.5mm; display: grid; grid-template-columns: repeat(3, 1fr); gap: 4mm; }
+  .demo { border: 0.3mm solid var(--line); border-radius: 3mm; padding: 3.5mm 3.5mm 3mm; display: flex; flex-direction: column; gap: 2mm; }
+  .demo h2 { font-size: 10.5pt; line-height: 1.25; }
+  .demo .where { font-size: 8.3pt; color: var(--muted); }
+  ol { padding-left: 4.2mm; display: grid; gap: 1.6mm; }
+  ol li::marker { color: var(--accent); font-weight: 700; }
+  .see { margin-top: auto; padding: 2mm 2.5mm; border-radius: 2mm; background: #f7f7f8; font-size: 8.6pt; }
+  .see b { color: var(--danger); }
+  .tool { margin-top: 4mm; display: grid; grid-template-columns: 1fr 1.15fr; gap: 4mm; }
+  .tool > div { border: 0.3mm solid var(--line); border-radius: 3mm; padding: 3.5mm; }
+  .tool h2 { font-size: 10.5pt; margin-bottom: 1.6mm; }
+  .tool ul { padding-left: 4mm; display: grid; gap: 1.2mm; }
+  pre {
+    margin: 2mm 0 0; padding: 2.5mm; border-radius: 2mm; background: #18181b; color: #f4f4f5;
+    font: 7.4pt/1.4 "SF Mono", Menlo, Consolas, monospace; white-space: pre-wrap; word-break: break-all;
+  }
+  .notes { margin-top: 4mm; display: grid; grid-template-columns: 1.3fr 1fr; gap: 4mm; font-size: 8.6pt; }
+  .warn { padding: 3mm 3.5mm; border-radius: 3mm; background: var(--warn-bg); color: var(--warn-ink); }
+  .warn h2, .tips h2 { font-size: 9.6pt; margin-bottom: 1.2mm; }
+  .warn ul, .tips ul { padding-left: 4mm; display: grid; gap: 1mm; }
+  .tips { padding: 3mm 0 0; }
+  footer { position: absolute; left: 12mm; right: 12mm; bottom: 8mm; display: flex; justify-content: space-between; font-size: 8pt; color: var(--muted); border-top: 0.3mm solid var(--line); padding-top: 2mm; }
+  body { position: relative; }
+</style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1 class="brand">Ring<span>Forge</span></h1>
+      <p class="tagline">Kiểm chứng luật chống gian lận trước khi bật</p>
+    </div>
+    <p class="doc">Hướng dẫn dùng thử cho giám khảo<br>MoMo Tech Contest 2026</p>
+  </header>
+
+  <section class="open" aria-label="Mở sản phẩm">
+    <p class="url">{{WEB_URL}}</p>
+    <p class="meta"><strong>Không cần tài khoản</strong><br>Chrome, Safari, Edge bản mới<br>Máy tính hoặc điện thoại</p>
+  </section>
+
+  <p class="lead">Viết luật chống gian lận bằng tiếng Việt. Hệ thống chứng minh luật không phá yêu cầu bắt buộc (ví dụ sinh trắc học theo QĐ 2345), chỉ ra một giao dịch cụ thể nếu có lỗi, tính tổn thất bằng VNĐ và đề xuất bản sửa đã kiểm chứng lại. Ở trang chủ có ba thẻ demo, mỗi thẻ mở một sandbox riêng kèm hướng dẫn từng bước.</p>
+
+  <section class="demos">
+    <article class="demo">
+      <h2>1 · Bắt lỗi chuyên viên bỏ sót</h2>
+      <p class="where">Thẻ “Bắt lỗi chuyên viên bỏ sót” → Rule Studio</p>
+      <ol>
+        <li>Giữ hoặc sửa câu luật mẫu “khách thân thiết… không cần xác thực thêm”, bấm <b>Biên dịch</b>.</li>
+        <li>Bấm <b>Kiểm chứng</b>.</li>
+        <li>Bấm <b>Sửa bằng AI</b>, chọn một bản sửa, rồi <b>Tạo change set để duyệt</b>.</li>
+      </ol>
+      <p class="see">Bạn thấy: giao dịch <b>10.000.001 đ</b> lọt qua sinh trắc học; dòng “0 giao dịch trong dữ liệu — backtest sẽ không phát hiện”; ở màn Duyệt, nút phê duyệt bị khóa khi còn vi phạm.</p>
+    </article>
+    <article class="demo">
+      <h2>2 · Quy định thay đổi</h2>
+      <p class="where">Thẻ “Quy định thay đổi” → Policy Pack</p>
+      <ol>
+        <li>Ngưỡng sinh trắc học/lần đã điền sẵn 10 → 5 triệu (kịch bản giả lập).</li>
+        <li>Bấm <b>Phân tích tác động</b>.</li>
+        <li>Lưu bản sửa tất định, hoặc bấm <b>Sửa bằng AI</b> trên thẻ luật bị báo.</li>
+      </ol>
+      <p class="see">Bạn thấy: luật LG-07 viết cứng 10.000.000 bị báo <b>không còn tương thích</b> kèm giao dịch nhân chứng; luật dùng tham số tự đúng; số giao dịch thật phải sinh trắc học thêm.</p>
+    </article>
+    <article class="demo">
+      <h2>3 · Chọn luật ít tổn thất nhất</h2>
+      <p class="where">Thẻ “Chọn luật ít tổn thất nhất” → So sánh</p>
+      <ol>
+        <li>Xem bốn phương án chặn khoản nạn nhân chuyển cho mule: cửa sổ 15/30/60 phút, giữ hay chặn.</li>
+        <li>Kéo thanh trượt <b>Hiệu quả khoảng dừng</b> lên 100%.</li>
+        <li>Bấm <b>Tạo change set cho phương án này</b>.</li>
+      </ol>
+      <p class="see">Bạn thấy: bảng tổn thất ròng (VNĐ), lọt gian lận, chặn nhầm; thứ hạng đổi khi giả định đổi; flash-sale cho thấy giao dịch thật bị giữ nhầm.</p>
+    </article>
+  </section>
+
+  <section class="tool">
+    <div>
+      <h2>Dùng như công cụ thật</h2>
+      <ul>
+        <li><b>Bộ luật → Nhập JSON:</b> dán bộ luật của anh/chị (hoặc bấm “Điền ví dụ”); hệ thống kiểm chứng ngay. <b>Xuất JSON</b> để lấy bộ luật hiện tại.</li>
+        <li><b>Rule Studio:</b> gõ luật bất kỳ bằng tiếng Việt, hoặc viết thẳng bằng JSON.</li>
+        <li><b>Policy Pack:</b> sửa tham số, hoặc dán mô tả một quy định mới để AI đề xuất bản vá.</li>
+        <li><b>Duyệt:</b> chạy shadow trên ngày dữ liệu chưa dùng, xem nhật ký người/AI/hệ thống.</li>
+      </ul>
+    </div>
+    <div>
+      <h2>API công khai — {{API_URL}}/docs</h2>
+      <p>Không cần đăng nhập. Ví dụ: kiểm chứng một luật miễn trừ cùng bộ luật mẫu.</p>
+<pre>curl -X POST {{API_URL}}/verify -H 'Content-Type: application/json' -d '{"include_seed_rules": true, "rules": [{"id": "MY-01", "name": "Fast-path", "kind": "FRICTION", "status": "CANDIDATE", "when": {"field": "receiver_is_familiar", "op": "==", "value": true}, "then": {"exempt_auth": true}}]}'</pre>
+    </div>
+  </section>
+
+  <section class="notes">
+    <div class="warn">
+      <h2>Lưu ý</h2>
+      <ul>
+        <li>Dữ liệu 100% tổng hợp, không phải dữ liệu MoMo; Policy Pack là bản giả lập có dẫn nguồn, không phải diễn giải pháp lý.</li>
+        <li>Mọi con số do hệ thống tính (Z3, backtest). AI chỉ biên dịch câu tiếng Việt, đề xuất bản sửa và viết lời tóm tắt.</li>
+        <li>Nếu AI tạm thời không khả dụng, trang hiện dải màu vàng; kiểm chứng, sửa tất định, backtest và duyệt vẫn chạy.</li>
+      </ul>
+    </div>
+    <div class="tips">
+      <h2>Mẹo</h2>
+      <ul>
+        <li>Thử đổi câu chữ theo ý anh/chị, ví dụ “trên 2 năm”, “người nhận là người thân”.</li>
+        <li><b>Reset sandbox</b> (menu trái hoặc thanh dưới) đưa mọi thứ về ban đầu.</li>
+        <li>Lần mở đầu tiên máy chủ có thể cần vài giây để khởi động.</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <span>Mã nguồn và tài liệu: README trong tệp nộp bài</span>
+    <span>Liên hệ: {{CONTACT}}</span>
+  </footer>
+</body>
+</html>
