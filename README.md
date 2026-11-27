@@ -18,6 +18,7 @@
 
 Ngoài 3 demo — dùng như công cụ thật:
 - **Nhập/xuất JSON** bộ luật + Policy Pack (màn Bộ luật), kiểm chứng ngay sau khi nhập.
+- **Policy Pack:** dán mô tả một quy định mới để AI đề xuất bản vá (chỉ đề xuất, người dùng xác nhận sau khi xem tác động); "Sửa bằng AI" cho luật không còn tương thích — mọi bản được chấm theo pack mới (kiểm chứng, hết mốc viết cứng, giữ quan hệ với phạm vi quy định).
 - **Change set + phê duyệt** (màn Duyệt): kiểm chứng lại lúc duyệt, nút phê duyệt khóa khi FAIL; **shadow** trên ngày 7 (ngày không dùng cho backtest); tóm tắt cho người duyệt (AI viết lời, mọi con số được đối chiếu với số liệu hệ thống); **audit** ghi người, AI (model, phiên bản prompt, hash prompt), hệ thống.
 - **API công khai không cần phiên:** `POST /verify`, `POST /backtest`, `GET /catalog`; giới hạn 60 yêu cầu/phút/IP.
 - Guided tour cho cả 3 demo; chế độ dự phòng khi AI không khả dụng (kiểm chứng, sửa tất định, backtest, duyệt không cần AI).
@@ -181,7 +182,7 @@ Nhanh nhất: **New → Blueprint** → chọn repo; Render đọc [`render.yaml
 ## Công cụ AI
 
 - **Dùng khi phát triển:** **Claude Code** (Anthropic, model Claude Opus 5.5) hỗ trợ dựng khung, viết mã, test và tài liệu theo đặc tả trong `docs/`; prompt các phiên làm việc lưu ở [`KICKOFF_PROMPTS.md`](KICKOFF_PROMPTS.md). Mọi thay đổi do đội đọc lại và chịu trách nhiệm.
-- **Dùng trong sản phẩm:** OpenAI qua Responses API với Structured Outputs (JSON Schema strict); model đặt bằng `LLM_MODEL`/`LLM_MODEL_FALLBACK`, sẽ chốt sau khi chạy `eval/run_tune.py` và ghi lại tại đây. Prompt có phiên bản: `compile.v1`, `repair.v1`, `summary.v1` (`services/api/app/ai/prompts/`).
+- **Dùng trong sản phẩm:** OpenAI qua Responses API với Structured Outputs (JSON Schema strict); model đặt bằng `LLM_MODEL`/`LLM_MODEL_FALLBACK`, sẽ chốt sau khi chạy `eval/run_tune.py` và ghi lại tại đây. Prompt có phiên bản: `compile.v1`, `repair.v1`, `pack_repair.v1`, `interpret.v1`, `summary.v1` (`services/api/app/ai/prompts/`).
 
 ## Tài sản có sẵn
 
