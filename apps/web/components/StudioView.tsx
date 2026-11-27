@@ -4,6 +4,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { type FormEvent, type KeyboardEvent, useEffect, useId, useRef, useState } from "react";
 
 import { Callout } from "@/components/Callout";
+import { AutoPlay } from "@/components/AutoPlay";
 import { GuidedTour, type TourStep } from "@/components/GuidedTour";
 import { RepairPanel } from "@/components/RepairPanel";
 import { RuleSentence } from "@/components/RuleSentence";
@@ -15,6 +16,11 @@ import type { Catalog, CompileResult, PolicyPack, RepairCandidate, RepairRespons
 
 const DEMO1 =
   "Để giảm phiền hà cho khách thân thiết: tài khoản trên 1 năm, chuyển cho người nhận quen thì không cần xác thực thêm.";
+
+// Demo 1, phần 2: lỗ hổng mà dữ liệu cũ không có giao dịch nào rơi vào (cache AI ghi sẵn, có test so khớp).
+const DEMO1_PART2 = "Thanh toán QR cho merchant đã xác minh thì miễn xác thực thêm.";
+const AUTO_TEXTS: [string, string] = [DEMO1, DEMO1_PART2];
+const SAMPLE_TAG: Record<string, string> = { [DEMO1]: "Demo 1", [DEMO1_PART2]: "Demo 1 · phần 2" };
 
 const SUGGESTIONS = [
   "Tài khoản mới dưới 7 ngày nhận tiền từ 5 người trong 1 giờ rồi chuyển đi gần hết thì giữ lại 2 phút.",
@@ -62,6 +68,7 @@ export function StudioView() {
   const { sid } = useParams<{ sid: string }>();
   const search = useSearchParams();
   const router = useRouter();
+  const auto = search.get("auto") === "1";
   const [text, setText] = useState(() => (search.get("demo") === "1" ? DEMO1 : ""));
   const [phase, setPhase] = useState<Phase>("idle");
   const [compiled, setCompiled] = useState<CompileResult | null>(null);
@@ -218,7 +225,8 @@ export function StudioView() {
 
   return (
     <div className="space-y-6">
-      <GuidedTour id="demo1" steps={TOUR} enabled={search.get("demo") === "1"} />
+      <GuidedTour id="demo1" steps={TOUR} enabled={search.get("demo") === "1" && !auto} />
+      <AutoPlay enabled={auto} sid={sid} texts={AUTO_TEXTS} setText={setText} report={report} />
       <header className="flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
         <div>
           <h1 className="page-title">Rule Studio</h1>
@@ -274,7 +282,7 @@ export function StudioView() {
           <div className="border-t border-line p-4 sm:p-5">
             <p className="label mb-2">Thử câu khác</p>
             <ul className="-mx-2 space-y-0.5">
-              {[DEMO1, ...SUGGESTIONS].map((s) => (
+              {[DEMO1, DEMO1_PART2, ...SUGGESTIONS].map((s) => (
                 <li key={s}>
                   <button
                     type="button"
@@ -284,6 +292,7 @@ export function StudioView() {
                       text === s ? "bg-sunken font-medium text-foreground" : "text-muted hover:bg-sunken hover:text-foreground"
                     }`}
                   >
+                    {SAMPLE_TAG[s] && <span className="mr-2 font-mono text-xs font-semibold text-accent">{SAMPLE_TAG[s]}</span>}
                     <span>{s}</span>
                   </button>
                 </li>

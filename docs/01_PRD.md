@@ -188,6 +188,7 @@ Làm sao cập nhật chính sách chống gian lận nhanh mà không tạo ra 
   3. Grounding: "X giao dịch / Y đ trong dữ liệu rơi vào vùng này" (số thật từ dữ liệu).
   4. Repair: bản sửa giới hạn miễn trừ dưới ngưỡng, tham chiếu tham số Policy Pack; qua kiểm chứng; L_net và ma sát hiển thị.
 - **Nghiệm thu:** giám khảo đổi câu chữ (ví dụ "trên 2 năm", "người nhận là người thân") vẫn ra kết quả đúng logic.
+- **Phần 2 — lỗ hổng dữ liệu cũ không có (bổ sung 27/11):** câu "Thanh toán QR cho merchant đã xác minh thì miễn xác thực thêm." Z3 báo vi phạm INV-AUTH-01 với phản ví dụ thanh toán QR 10.000.001 đ; grounding của vi phạm này là **0 giao dịch** trong dữ liệu (đo 27/11 trên seed hiện tại), nên chạy thử trên dữ liệu cũ không báo. INV-AUTH-02 vẫn có giao dịch trong dữ liệu. Báo cáo kiểm chứng hiển thị khung "Chạy thử trên dữ liệu: thấy x/y lỗ hổng" cạnh "Z3: y/y". Câu này có trong cache AI và trong danh sách câu mẫu của Studio. Phần 1 (câu fast-path) có grounding khác 0, giữ nguyên.
 
 ### Demo 2 — "Quy định thay đổi"
 - **Thao tác:** sửa `biometric_per_tx_threshold` từ 10.000.000 xuống 5.000.000 (ghi rõ: kịch bản giả lập).

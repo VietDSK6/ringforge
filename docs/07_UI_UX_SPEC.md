@@ -28,7 +28,7 @@ Ngôn ngữ giao diện: tiếng Việt. Định dạng tiền `10.000.000 đ` (
 ### 3.1 Landing
 - Tiêu đề: "RingForge — kiểm chứng luật chống gian lận trước khi bật"
 - Phụ đề: "Viết luật bằng tiếng Việt. Hệ thống chứng minh luật không phá quy định, tính tổn thất bằng VNĐ, và đề xuất bản sửa đã kiểm chứng."
-- Nút chính: **Vào sandbox** (tạo phiên, chuyển tới guided tour).
+- Nút chính: **Xem demo 60 giây** (tạo phiên, tự chạy Demo 1 phần 1 và phần 2 có lời dẫn; dừng được bất cứ lúc nào). Nút phụ: **Vào sandbox** (tạo phiên, mở Demo 1 kèm guided tour). Thêm hai câu "vì sao cần" và khung so sánh "chạy thử trên dữ liệu cũ" với "kiểm chứng Z3".
 - 3 thẻ: "Bắt lỗi chuyên viên bỏ sót" · "Quy định thay đổi" · "Chọn luật ít tổn thất nhất". Mỗi thẻ mở thẳng màn hình tương ứng với đầu vào điền sẵn.
 
 ### 3.2 Workspace

@@ -22,7 +22,7 @@ Thể lệ (theo context đội đã đọc): một bài hợp lệ mỗi đội
 2. **Vấn đề**: mỗi luật mới có thể phá luật cũ hoặc phá quy định. Ví dụ một dòng: luật "fast-path khách thân thiết" vô tình bỏ sinh trắc học với giao dịch > 10 triệu (QĐ 2345). Backtest chỉ thấy lỗi đã từng xảy ra.
 3. **Hiện trạng và khoảng trống**: công cụ hiện có (viết luật bằng lời + backtest + shadow: Sardine, SEON, Oscilar). Thiếu: chứng minh "**không tồn tại**" giao dịch vi phạm. Tiền lệ: SMT cho chính sách truy cập đám mây. RingForge mang tư tưởng đó sang luật rủi ro thanh toán.
 4. **Cơ chế**: sơ đồ 5 bước (Biên dịch → Kiểm chứng → Backtest → Sửa → Duyệt). Ranh giới AI/tất định trong một bảng nhỏ.
-5. **Demo 1** (ảnh chụp): câu tiếng Việt → phản ví dụ 10.000.001 đ → "0 giao dịch trong dữ liệu: backtest không bắt được" → bản sửa đã kiểm chứng.
+5. **Demo 1** (ảnh chụp): câu fast-path → phản ví dụ 10.000.001 đ (dữ liệu cũng có giao dịch như vậy) → **phần 2**: câu "Thanh toán QR cho merchant đã xác minh thì miễn xác thực thêm" → khung "Chạy thử trên dữ liệu: 0 giao dịch, bỏ sót / Z3: tìm ra thanh toán QR 10.000.001 đ" → bản sửa đã kiểm chứng.
 6. **Demo 2 + 3** (2 ảnh): quy định đổi → luật nào gãy; bảng L_net giữa các phương án.
 7. **AI impact — ablation**: bảng A/B/C/D với số thật trên 30 case; một câu kết luận trung thực.
 8. **An toàn & tin cậy**: LLM không tính tiền, không tự bật luật; mọi đề xuất kiểm chứng lại; invariant là cổng cứng; audit; giới hạn của Z3 (nói thẳng).
@@ -36,7 +36,7 @@ Thiết kế: ít chữ, mỗi trang một ý, ảnh chụp sản phẩm thật.
 | Thời gian | Hình | Lời |
 |---|---|---|
 | 0:00–0:15 | Landing | "Mỗi luật chống gian lận mới có thể vô tình phá một yêu cầu bắt buộc. RingForge bắt lỗi đó trước khi luật được bật." |
-| 0:15–1:15 | Demo 1 | Gõ câu fast-path → luật + giả định → Kiểm chứng → phản ví dụ 10.000.001 đ → "backtest không bắt được" → Sửa bằng AI → bản sửa đã kiểm chứng, % giữ ý định, L_net |
+| 0:15–1:15 | Demo 1 (dùng nút "Xem demo 60 giây") | Gõ câu fast-path → luật + giả định → Kiểm chứng → phản ví dụ 10.000.001 đ → phần 2: câu QR merchant → "dữ liệu cũ 0 giao dịch, chỉ Z3 bắt được" → Sửa bằng AI → bản sửa đã kiểm chứng, % giữ ý định, L_net |
 | 1:15–1:50 | Demo 2 | Đổi ngưỡng 10 → 5 triệu → luật viết cứng bị báo, luật dùng tham số tự đúng, ma sát tăng N giao dịch |
 | 1:50–2:25 | Demo 3 | So 3 phương án luật mule; kéo thanh trượt; flash-sale lộ chặn nhầm |
 | 2:25–2:45 | Review + audit | Nút duyệt bị khóa khi FAIL; duyệt bản sửa; audit ghi AI và người |

@@ -160,6 +160,8 @@ export function VerifyReportView({
           <Summary report={report} errors={errors} otherWarnings={otherWarnings.length} pack={pack} />
         </div>
 
+        <DataVsProof errors={errors} />
+
         {actions && <div className="border-t border-line pt-4">{actions}</div>}
       </div>
 
@@ -186,6 +188,65 @@ export function VerifyReportView({
         </details>
       )}
     </section>
+  );
+}
+
+/**
+ * Đặt cạnh nhau: chạy thử trên dữ liệu cũ thấy được lỗ hổng nào (có giao dịch thật rơi vào vùng vi phạm)
+ * và kiểm chứng hình thức thấy được lỗ hổng nào (luôn kèm một giao dịch cụ thể). Số liệu đều do hệ thống tính.
+ */
+function DataVsProof({ errors }: { errors: Check[] }) {
+  const holes = errors.filter((c) => c.code === "VC-04" && c.grounding);
+  if (holes.length === 0) return null;
+  const days = holes[0].grounding!.days.length;
+  const seen = holes.filter((c) => c.grounding!.tx_count > 0);
+  const missed = holes.length - seen.length;
+  return (
+    <div data-tour="datavsz3" className="space-y-3 border-t border-line pt-4">
+      <p className="text-sm font-semibold">So với cách test thông thường</p>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className={`rounded-md border p-3.5 ${missed > 0 ? "border-warn-line bg-warn-soft" : "border-line bg-sunken"}`}>
+          <p className="text-[0.8125rem] text-muted">Chạy thử trên {days} ngày dữ liệu cũ</p>
+          <p className="num mt-0.5 text-2xl font-bold tracking-tight">
+            Thấy {seen.length}/{holes.length} lỗ hổng
+          </p>
+          <ul className="mt-2 space-y-1 text-[0.8125rem] leading-5">
+            {holes.map((c) => (
+              <li key={c.invariant} className="num">
+                <span className="font-mono">{c.invariant}</span>:{" "}
+                {c.grounding!.tx_count > 0 ? (
+                  `${formatInt(c.grounding!.tx_count)} giao dịch trong dữ liệu`
+                ) : (
+                  <strong className="text-warn">0 giao dịch, bỏ sót</strong>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="rounded-md border border-line bg-sunken p-3.5">
+          <p className="text-[0.8125rem] text-muted">Kiểm chứng Z3, xét mọi giao dịch có thể có</p>
+          <p className="num mt-0.5 text-2xl font-bold tracking-tight">
+            Thấy {holes.length}/{holes.length} lỗ hổng
+          </p>
+          <ul className="mt-2 space-y-1 text-[0.8125rem] leading-5">
+            {holes.map((c) => (
+              <li key={c.invariant} className="num">
+                <span className="font-mono">{c.invariant}</span>:{" "}
+                {c.counterexample ? `ví dụ giao dịch ${formatVnd(Number(c.counterexample.amount))}` : "có giao dịch vi phạm"}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+      {missed > 0 && (
+        <p className="max-w-[72ch] text-[0.9375rem] leading-7">
+          <strong>
+            {missed} lỗ hổng chưa từng xảy ra trong dữ liệu cũ, nên chạy thử trên dữ liệu không báo.
+          </strong>{" "}
+          Kẻ gian vẫn có thể tạo ra đúng giao dịch đó; chỉ kiểm chứng hình thức bắt được trước khi bật luật.
+        </p>
+      )}
+    </div>
   );
 }
 

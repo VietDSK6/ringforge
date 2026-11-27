@@ -41,6 +41,37 @@
     "status": "OK",
     "unsupported_parts": []
   },
+  "5140dbb130269d07d7aadcbee9b37c301bc9d449f84ba42134763b07f24be9d9": {
+    "assumptions": [],
+    "clarifying_questions": [],
+    "rule": {
+      "description": "Miễn xác thực bổ sung cho thanh toán QR đến merchant đã xác minh.",
+      "kind": "FRICTION",
+      "name": "Miễn xác thực cho merchant đã xác minh qua QR",
+      "then": {
+        "auth": null,
+        "decision": null,
+        "exempt_auth": true,
+        "hold_seconds": null
+      },
+      "when": {
+        "all": [
+          {
+            "field": "channel",
+            "op": "==",
+            "value": "MERCHANT_QR"
+          },
+          {
+            "field": "receiver_is_verified_merchant",
+            "op": "==",
+            "value": true
+          }
+        ]
+      }
+    },
+    "status": "OK",
+    "unsupported_parts": []
+  },
   "622410a08c72b1efae8a8864f2faf8d2b84b94b354bcc33e6c0a7f991929a938": {
     "assumptions": [
       {
@@ -177,11 +208,11 @@
     "unsupported_parts": []
   },
   "_meta": {
-    "built_at": "2026-11-27T11:26:28+00:00",
+    "built_at": "2026-11-27T12:56:54+00:00",
     "model": "openai/gpt-6-luna",
     "pack_version": "2026.11-sim.1",
     "prompt_version": "compile.v1",
-    "samples": 4,
+    "samples": 5,
     "task": "compile"
   }
 }

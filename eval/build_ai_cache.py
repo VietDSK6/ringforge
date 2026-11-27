@@ -26,6 +26,8 @@ from app.data.loader import seed_pack, seed_path, seed_rules  # noqa: E402
 # Phải trùng từng chữ với DEMO1 và SUGGESTIONS trong apps/web/components/StudioView.tsx (có test kiểm).
 SAMPLES = [
     "Để giảm phiền hà cho khách thân thiết: tài khoản trên 1 năm, chuyển cho người nhận quen thì không cần xác thực thêm.",
+    # Demo 1, phần 2: lỗ hổng mà 6 ngày dữ liệu không có giao dịch nào rơi vào → chỉ kiểm chứng hình thức bắt được.
+    "Thanh toán QR cho merchant đã xác minh thì miễn xác thực thêm.",
     "Tài khoản mới dưới 7 ngày nhận tiền từ 5 người trong 1 giờ rồi chuyển đi gần hết thì giữ lại 2 phút.",
     "Chuyển tiền từ 5 triệu trở lên lúc nửa đêm cho tài khoản nhận mới mở dưới 3 ngày thì gắn cờ giám sát.",
     "Thanh toán QR cho merchant đã xác minh dưới 500 nghìn thì miễn xác thực thêm.",
