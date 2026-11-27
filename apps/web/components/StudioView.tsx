@@ -3,9 +3,12 @@
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { type FormEvent, type KeyboardEvent, useEffect, useId, useRef, useState } from "react";
 
+import { Callout } from "@/components/Callout";
 import { GuidedTour, type TourStep } from "@/components/GuidedTour";
+import { Icon } from "@/components/Icon";
 import { RepairPanel } from "@/components/RepairPanel";
 import { RuleSentence } from "@/components/RuleSentence";
+import { type Source, SourceTag } from "@/components/SourceTag";
 import { VerifyReportView } from "@/components/VerifyReportView";
 import { ApiError, api } from "@/lib/api";
 import { KIND_VI } from "@/lib/format";
@@ -210,25 +213,32 @@ export function StudioView() {
   const blamed = report?.checks.some((c) => c.code === "VC-04" && c.blamed_rules?.includes(String(draftId))) ?? false;
   const passed = report !== null && (report.verdict === "PASS" || report.verdict === "PASS_WITH_WARNINGS");
 
+  const done = [text.trim() !== "", rule !== null || manual, report !== null, repair !== null];
+  const running = phase === "compiling" ? 1 : phase === "verifying" ? 2 : phase === "repairing" ? 3 : -1;
+  const current = running >= 0 ? running : done.indexOf(false);
+
   return (
     <div className="space-y-6">
       <GuidedTour id="demo1" steps={TOUR} enabled={search.get("demo") === "1"} />
-      <header>
-        <h1 className="text-2xl font-bold tracking-tight">Rule Studio</h1>
-        <p className="text-sm text-muted">Viết luật bằng tiếng Việt → AI biên dịch → Z3 kiểm chứng với Policy Pack.</p>
+      <header className="flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
+        <div>
+          <h1 className="page-title">Rule Studio</h1>
+          <p className="page-lede">Viết luật bằng tiếng Việt → AI biên dịch → Z3 kiểm chứng với Policy Pack.</p>
+        </div>
+        <Stepper steps={["Viết yêu cầu", "Biên dịch", "Kiểm chứng", "Sửa / duyệt"]} done={done} current={current} running={running >= 0} />
       </header>
 
       {banner && (
-        <div role="alert" className="rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200">
+        <Callout tone="warn" role="alert">
           {banner}
-        </div>
+        </Callout>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid items-start gap-6 lg:grid-cols-2">
         {/* Cột trái: yêu cầu tiếng Việt */}
-        <section aria-labelledby="req-title" className="space-y-4">
-          <form onSubmit={onCompile} className="space-y-3 rounded-2xl border border-line bg-surface p-4">
-            <label id="req-title" htmlFor="requirement" className="block font-semibold">
+        <section aria-labelledby="req-title" className="panel">
+          <form onSubmit={onCompile} className="space-y-3 p-4 sm:p-5">
+            <label id="req-title" htmlFor="requirement" className="section-title block">
               Yêu cầu luật (tiếng Việt)
             </label>
             <textarea
@@ -242,41 +252,42 @@ export function StudioView() {
               onChange={(e) => setText(e.target.value)}
               placeholder={DEMO1}
               aria-describedby="req-help"
-              className="w-full rounded-xl border border-zinc-400 bg-background p-3 leading-6 dark:border-zinc-600"
+              className="field resize-y leading-7"
             />
-            <p id="req-help" className="text-xs text-muted">
+            <p id="req-help" className="text-[0.8125rem] text-muted">
               Tối đa 1.000 ký tự. AI chỉ đề xuất luật; kết luận đạt/không đạt do bộ kiểm chứng tính.
             </p>
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3 pt-1">
               <button
                 type="submit"
                 data-tour="compile"
                 disabled={phase === "compiling" || phase === "verifying"}
-                className="min-h-11 rounded-xl bg-accent px-5 font-semibold text-white hover:opacity-90 disabled:opacity-60 dark:text-zinc-950"
+                className="btn btn-primary"
               >
+                <Icon name="spark" />
                 Biên dịch
               </button>
-              <button
-                type="button"
-                onClick={() => startManualJson(null)}
-                className="min-h-11 rounded-xl border border-line px-4 text-sm hover:bg-background"
-              >
+              <button type="button" onClick={() => startManualJson(null)} className="btn btn-secondary">
                 Viết luật bằng JSON
               </button>
             </div>
           </form>
 
-          <div className="space-y-2">
-            <p className="text-sm font-medium text-muted">Thử câu khác:</p>
-            <ul className="flex flex-col gap-2">
+          <div className="border-t border-line p-4 sm:p-5">
+            <p className="label mb-2">Thử câu khác</p>
+            <ul className="-mx-2 space-y-0.5">
               {[DEMO1, ...SUGGESTIONS].map((s) => (
                 <li key={s}>
                   <button
                     type="button"
                     onClick={() => setText(s)}
-                    className="w-full rounded-xl border border-line bg-surface px-3 py-2 text-left text-sm hover:border-accent"
+                    aria-pressed={text === s}
+                    className={`flex w-full gap-2.5 rounded-md px-2 py-2 text-left text-sm leading-6 ${
+                      text === s ? "bg-accent-soft text-foreground" : "text-muted hover:bg-sunken hover:text-foreground"
+                    }`}
                   >
-                    {s}
+                    <Icon name="arrow" className={`mt-1 size-3.5 ${text === s ? "text-accent" : ""}`} />
+                    <span>{s}</span>
                   </button>
                 </li>
               ))}
@@ -289,17 +300,19 @@ export function StudioView() {
           <h2 id="rule-title" className="sr-only">
             Luật sau biên dịch
           </h2>
-          <p role="status" aria-live="polite" className="min-h-6 text-sm font-medium text-accent">
+          <p role="status" aria-live="polite" className={`flex min-h-6 items-center gap-2 text-sm font-medium text-accent ${progress ? "" : "sr-only"}`}>
+            {progress && <span aria-hidden className="size-3.5 animate-spin rounded-full border-2 border-accent border-t-transparent" />}
             {progress}
           </p>
           {error && (
-            <p role="alert" className="rounded-xl bg-red-50 p-3 text-sm text-danger dark:bg-red-950">
+            <Callout tone="fail" role="alert">
               {error}
-            </p>
+            </Callout>
           )}
           {phase === "idle" && !error && (
-            <div className="rounded-2xl border border-dashed border-line p-6 text-sm text-muted">
-              Luật sau khi biên dịch sẽ hiện ở đây, kèm các giả định để bạn xác nhận trước khi kiểm chứng.
+            <div className="empty flex min-h-48 flex-col items-center justify-center gap-2 p-6 text-center">
+              <Icon name="studio" className="size-6 text-faint" />
+              <p className="max-w-sm">Luật sau khi biên dịch sẽ hiện ở đây, kèm các giả định để bạn xác nhận trước khi kiểm chứng.</p>
             </div>
           )}
           {compiled && compiled.status !== "OK" && <CompileNotice result={compiled} />}
@@ -317,12 +330,8 @@ export function StudioView() {
             />
           )}
           {canVerify && (
-            <button
-              type="button"
-              onClick={onVerify}
-              data-tour="verify"
-              className="min-h-14 w-full rounded-2xl bg-zinc-900 text-lg font-bold text-white shadow hover:opacity-90 dark:bg-white dark:text-zinc-900"
-            >
+            <button type="button" onClick={onVerify} data-tour="verify" className="btn btn-primary min-h-14 w-full text-lg shadow-sm">
+              <Icon name="shield" className="size-5" />
               Kiểm chứng
             </button>
           )}
@@ -330,7 +339,7 @@ export function StudioView() {
       </div>
 
       {report && (
-        <div ref={reportRef} tabIndex={-1} className="outline-none">
+        <div ref={reportRef} tabIndex={-1} className="scroll-mt-16 outline-none">
           <VerifyReportView
             report={report}
             pack={pack}
@@ -338,36 +347,22 @@ export function StudioView() {
             actions={
               <div className="flex flex-wrap items-center gap-3">
                 {blamed && (
-                  <button
-                    type="button"
-                    onClick={onRepair}
-                    data-tour="repair"
-                    disabled={busy}
-                    className="min-h-12 rounded-xl bg-accent px-6 font-semibold text-white hover:opacity-90 disabled:opacity-60 dark:text-zinc-950"
-                  >
+                  <button type="button" onClick={onRepair} data-tour="repair" disabled={busy} className="btn btn-primary btn-lg">
+                    <Icon name="spark" />
                     Sửa bằng AI
                   </button>
                 )}
                 {passed && verified.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={onSave}
-                    className="min-h-12 rounded-xl border border-line px-5 font-semibold hover:bg-background"
-                  >
+                  <button type="button" onClick={onSave} className="btn btn-secondary btn-lg">
                     Lưu vào bộ luật (ứng viên)
                   </button>
                 )}
                 {verified.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={onChangeSet}
-                    disabled={busy}
-                    className="min-h-12 rounded-xl border border-line px-5 font-semibold hover:bg-background disabled:opacity-60"
-                  >
+                  <button type="button" onClick={onChangeSet} disabled={busy} className="btn btn-secondary btn-lg">
                     Tạo change set để duyệt
                   </button>
                 )}
-                <p role="status" className="text-sm text-ok">
+                <p role="status" className="text-sm text-pass">
                   {savedNote}
                 </p>
               </div>
@@ -377,7 +372,7 @@ export function StudioView() {
       )}
 
       {repair && (
-        <div ref={repairRef}>
+        <div ref={repairRef} className="scroll-mt-16">
           <RepairPanel data={repair} onUse={onUse} busy={busy} />
         </div>
       )}
@@ -385,37 +380,72 @@ export function StudioView() {
   );
 }
 
+/** Tiến trình pipeline của Studio: viết → biên dịch → kiểm chứng → sửa. */
+function Stepper({ steps, done, current, running }: { steps: string[]; done: boolean[]; current: number; running: boolean }) {
+  return (
+    <ol aria-label="Tiến trình" className="flex flex-wrap items-center gap-x-2 gap-y-2 text-[0.8125rem]">
+      {steps.map((s, i) => {
+        const isCurrent = i === current;
+        const isDone = done[i] && !isCurrent;
+        return (
+          <li key={s} aria-current={isCurrent ? "step" : undefined} className="flex items-center gap-2">
+            {i > 0 && <span aria-hidden className={`hidden h-px w-6 sm:block ${done[i - 1] ? "bg-accent" : "bg-line-strong"}`} />}
+            <span
+              className={`inline-flex items-center gap-1.5 rounded-full border py-0.5 pr-2.5 pl-1 ${
+                isCurrent
+                  ? "border-accent bg-accent-soft font-semibold text-foreground"
+                  : isDone
+                    ? "border-line bg-surface text-foreground"
+                    : "border-dashed border-line-strong text-muted"
+              }`}
+            >
+              <span
+                aria-hidden
+                className={`num inline-flex size-5 items-center justify-center rounded-full text-[0.6875rem] font-semibold ${
+                  isDone ? "bg-accent text-accent-fg" : isCurrent ? "bg-accent text-accent-fg" : "bg-sunken text-muted"
+                } ${isCurrent && running ? "animate-pulse" : ""}`}
+              >
+                {isDone ? <Icon name="check" className="size-3" /> : i + 1}
+              </span>
+              {s}
+              <span className="sr-only">{isDone ? " (xong)" : isCurrent ? " (bước hiện tại)" : ""}</span>
+            </span>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
 function CompileNotice({ result }: { result: CompileResult }) {
   if (result.status === "OUT_OF_SCOPE") {
     return (
-      <div className="rounded-2xl border border-line bg-surface p-4 text-sm">
-        Mình chưa hiểu đây là luật rủi ro giao dịch. Thử mô tả điều kiện (số tiền, kênh, thời gian, tài khoản…) và hành
-        động (giữ lại, chặn, yêu cầu xác thực…), ví dụ: “{SUGGESTIONS[0]}”
-      </div>
+      <Callout tone="info">
+        Mình chưa hiểu đây là luật rủi ro giao dịch. Thử mô tả điều kiện (số tiền, kênh, thời gian, tài khoản…) và hành động (giữ lại,
+        chặn, yêu cầu xác thực…), ví dụ: “{SUGGESTIONS[0]}”
+      </Callout>
     );
   }
   if (result.status === "NEEDS_CLARIFICATION") {
     return (
-      <div className="space-y-2 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200">
-        <p className="font-semibold">Cần làm rõ:</p>
+      <Callout tone="warn" title="Cần làm rõ:">
         <ul className="list-disc pl-5">
           {result.clarifying_questions.map((q) => (
             <li key={q}>{q}</li>
           ))}
         </ul>
-      </div>
+      </Callout>
     );
   }
   return (
-    <div className="space-y-2 rounded-2xl border border-red-300 bg-red-50 p-4 text-sm text-danger dark:border-red-900 dark:bg-red-950">
-      <p className="font-semibold">AI chưa tạo được luật hợp lệ sau 2 lần thử:</p>
+    <Callout tone="fail" title="AI chưa tạo được luật hợp lệ sau 2 lần thử:">
       <ul className="list-disc pl-5">
         {result.errors.map((e) => (
           <li key={e}>{e}</li>
         ))}
       </ul>
       <p>Bạn có thể viết lại câu cho rõ hơn, hoặc viết luật bằng JSON.</p>
-    </div>
+    </Callout>
   );
 }
 
@@ -451,30 +481,28 @@ function RuleCard({
   }
 
   const by = rule?.provenance?.created_by;
-  const source = manual
-    ? "Người viết (JSON)"
+  const source: { kind: Source; label: string } = manual
+    ? { kind: "human", label: "Người viết (JSON)" }
     : by === "det_repair"
-      ? "Sửa tất định"
+      ? { kind: "det", label: "Sửa tất định" }
       : by === "ai_repair"
-        ? "AI sửa"
+        ? { kind: "ai", label: "AI sửa" }
         : by === "human"
-          ? "Người viết"
+          ? { kind: "human", label: "Người viết" }
           : compiled?.source === "cache"
-            ? "AI · kết quả đã lưu"
-            : "AI đề xuất";
+            ? { kind: "cache", label: "AI · kết quả đã lưu" }
+            : { kind: "ai", label: "AI đề xuất" };
 
   return (
-    <article className="space-y-4 rounded-2xl border border-line bg-surface p-4">
-      <header className="flex flex-wrap items-center gap-2">
+    <article className="panel">
+      <header className="flex flex-wrap items-center gap-x-3 gap-y-2 px-4 pt-4 sm:px-5">
         {rule && <span className="font-mono text-sm font-semibold">{rule.id}</span>}
         {rule && <span className="font-semibold">{rule.name}</span>}
-        {rule && <span className="rounded-full bg-background px-2 py-0.5 text-xs">{KIND_VI[rule.kind]}</span>}
-        <span className="ml-auto rounded-full bg-violet-100 px-2 py-0.5 text-xs font-medium text-violet-900 dark:bg-violet-950 dark:text-violet-200">
-          {source}
-        </span>
+        {rule && <span className="chip text-muted">{KIND_VI[rule.kind]}</span>}
+        <SourceTag source={source.kind} label={source.label} className="ml-auto" />
       </header>
 
-      <div role="tablist" aria-label="Cách xem luật" className="flex gap-4 border-b border-line">
+      <div role="tablist" aria-label="Cách xem luật" className="mt-3 flex gap-5 border-b border-line px-4 sm:px-5">
         {tabs.map((t) => (
           <button
             key={t.key}
@@ -485,14 +513,14 @@ function RuleCard({
             tabIndex={tab === t.key ? 0 : -1}
             onClick={() => setTab(t.key)}
             onKeyDown={onTabKey}
-            className="pb-2 text-sm font-medium"
+            className={`min-h-11 text-sm font-medium ${tab === t.key ? "" : "text-muted hover:text-foreground"}`}
           >
             {t.label}
           </button>
         ))}
       </div>
 
-      <div role="tabpanel" aria-labelledby={`${id}-sentence-tab`} hidden={tab !== "sentence"}>
+      <div role="tabpanel" aria-labelledby={`${id}-sentence-tab`} hidden={tab !== "sentence"} className="p-4 sm:p-5">
         <div className="space-y-4">
           {rule?.render ? (
             <RuleSentence render={rule.render} />
@@ -502,13 +530,18 @@ function RuleCard({
               kiểm chứng.
             </p>
           )}
-          {jsonDirty && rule && <p className="text-xs text-warn">JSON đã được sửa; bản sửa sẽ được dùng khi kiểm chứng.</p>}
+          {jsonDirty && rule && (
+            <p className="flex items-center gap-2 text-[0.8125rem] text-warn">
+              <Icon name="alert" className="size-3.5" />
+              JSON đã được sửa; bản sửa sẽ được dùng khi kiểm chứng.
+            </p>
+          )}
           {compiled && compiled.assumptions.length > 0 && (
-            <div>
-              <p className="mb-2 text-sm font-medium">Giả định (hãy xác nhận):</p>
+            <div className="border-t border-line pt-4">
+              <p className="label mb-2">Giả định (hãy xác nhận)</p>
               <ul className="flex flex-wrap gap-2">
                 {compiled.assumptions.map((a) => (
-                  <li key={a.phrase} className="rounded-full border border-line bg-background px-3 py-1 text-xs">
+                  <li key={a.phrase} className="rounded-md border border-warn-line bg-warn-soft px-2.5 py-1 text-[0.8125rem] leading-5">
                     <span className="font-semibold">“{a.phrase}”</span> = {a.interpretation}
                   </li>
                 ))}
@@ -516,19 +549,18 @@ function RuleCard({
             </div>
           )}
           {compiled && compiled.unsupported_parts.length > 0 && (
-            <div className="rounded-xl bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-950 dark:text-amber-200">
-              <p className="font-semibold">Phần chưa biểu diễn được:</p>
+            <Callout tone="warn" title="Phần chưa biểu diễn được:">
               <ul className="list-disc pl-5">
                 {compiled.unsupported_parts.map((u) => (
                   <li key={u}>{u}</li>
                 ))}
               </ul>
-            </div>
+            </Callout>
           )}
         </div>
       </div>
 
-      <div role="tabpanel" aria-labelledby={`${id}-json-tab`} hidden={tab !== "json"}>
+      <div role="tabpanel" aria-labelledby={`${id}-json-tab`} hidden={tab !== "json"} className="p-4 sm:p-5">
         <label htmlFor={`${id}-json`} className="sr-only">
           Luật dạng JSON
         </label>
@@ -538,7 +570,7 @@ function RuleCard({
           onChange={(e) => onJsonChange(e.target.value)}
           rows={14}
           spellCheck={false}
-          className="w-full rounded-xl border border-zinc-400 bg-background p-3 font-mono text-sm dark:border-zinc-600"
+          className="field field-mono bg-sunken"
         />
       </div>
     </article>

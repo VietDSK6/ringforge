@@ -1,3 +1,4 @@
+import { Icon } from "@/components/Icon";
 import { AUTH_VI, DECISION_VI, formatFieldValue, formatVnd } from "@/lib/format";
 import type { Catalog, Outcome, Transaction } from "@/lib/types";
 
@@ -12,7 +13,7 @@ const MAIN = new Set([
   "receiver_is_verified_merchant",
 ]);
 
-/** Phản ví dụ trình bày như một giao dịch trong app (docs/07 mục 3.4). */
+/** Phản ví dụ trình bày như một giao dịch trong app — biên lai: số tiền to, chi tiết, kết quả của bộ luật (docs/07 mục 3.4). */
 export function CounterexampleCard({
   check,
   catalog,
@@ -32,50 +33,72 @@ export function CounterexampleCard({
       ? "người nhận quen"
       : "người nhận chưa quen";
   const rest = Object.keys(tx).filter((k) => !MAIN.has(k));
+  const daily = Number(tx.daily_total_after) > Number(tx.amount);
 
   return (
-    <div className="rounded-2xl border border-line bg-background p-4">
-      <p className="text-xs font-medium uppercase tracking-wide text-muted">{title}</p>
-      <p className="mt-1 text-3xl font-bold tabular-nums">{formatVnd(Number(tx.amount))}</p>
-      {Number(tx.daily_total_after) > Number(tx.amount) && (
-        <p className="mt-1 text-lg font-semibold tabular-nums">
-          Tổng chi trong ngày (gồm giao dịch này): {formatVnd(Number(tx.daily_total_after))}
-        </p>
-      )}
-      <p className="mt-1 text-sm text-muted">
-        {show("channel")} · {show("hour")} · tài khoản gửi {show("sender_account_age_days")} · {receiver}
-      </p>
+    <div className="overflow-hidden rounded-lg border border-line bg-surface shadow-sm">
+      <div className="flex items-center justify-between gap-3 border-b border-line bg-sunken px-4 py-2 text-[0.8125rem] text-muted">
+        <span className="font-medium">{title}</span>
+        <span className="num">{show("hour")}</span>
+      </div>
+
+      <div className="px-4 pt-4 pb-3">
+        <p className="text-sm text-muted">{show("channel")}</p>
+        <p className="num mt-0.5 text-4xl leading-tight font-bold tracking-tight sm:text-[2.75rem]">{formatVnd(Number(tx.amount))}</p>
+        {daily && (
+          <p className="num mt-1 text-lg font-semibold">
+            Tổng chi trong ngày (gồm giao dịch này): {formatVnd(Number(tx.daily_total_after))}
+          </p>
+        )}
+      </div>
+
+      <dl className="mx-4 grid grid-cols-[auto_1fr] gap-x-6 gap-y-1.5 border-t border-dashed border-line-strong py-3 text-sm">
+        <dt className="text-muted">Tài khoản gửi</dt>
+        <dd className="num text-right font-medium">{show("sender_account_age_days")}</dd>
+        <dt className="text-muted">Người nhận</dt>
+        <dd className="text-right font-medium">{receiver}</dd>
+      </dl>
+
       {check.outcome && (
-        <p className="mt-3 text-sm">
-          Bộ luật cho kết quả:{" "}
-          <span className="font-semibold text-danger line-through decoration-2">
-            {DECISION_VI[check.outcome.decision]} · {AUTH_VI[check.outcome.auth]}
+        <div className="mx-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-t border-dashed border-line-strong py-3 text-sm">
+          <span className="text-muted">Bộ luật cho kết quả</span>
+          <span className="inline-flex items-center gap-1.5 rounded-md bg-fail-soft px-2 py-0.5 font-semibold text-fail">
+            <Icon name="x" className="size-3.5" />
+            <span className="line-through decoration-2">
+              {DECISION_VI[check.outcome.decision]} · {AUTH_VI[check.outcome.auth]}
+            </span>
           </span>
-        </p>
+        </div>
       )}
       {check.outcomes && (
-        <dl className="mt-3 grid gap-1 text-sm sm:grid-cols-[auto_1fr] sm:gap-x-3">
+        <dl className="mx-4 grid grid-cols-[auto_1fr] gap-x-6 gap-y-1.5 border-t border-dashed border-line-strong py-3 text-sm">
           <dt className="text-muted">Trước thay đổi</dt>
-          <dd>
+          <dd className="text-right">
             {DECISION_VI[check.outcomes.before.decision]} · {AUTH_VI[check.outcomes.before.auth]}
           </dd>
           <dt className="text-muted">Sau thay đổi</dt>
-          <dd className="font-semibold">
+          <dd className="text-right font-semibold">
             {DECISION_VI[check.outcomes.after.decision]} · {AUTH_VI[check.outcomes.after.auth]}
           </dd>
         </dl>
       )}
-      <details className="mt-3 text-sm">
-        <summary className="cursor-pointer text-muted">Các trường còn lại của giao dịch</summary>
-        <dl className="mt-2 grid grid-cols-1 gap-x-4 gap-y-1 sm:grid-cols-2">
-          {rest.map((k) => (
-            <div key={k} className="flex justify-between gap-3 border-b border-line py-1">
-              <dt className="text-muted">{field(k)?.label_vi ?? k}</dt>
-              <dd className="text-right tabular-nums">{show(k)}</dd>
-            </div>
-          ))}
-        </dl>
-      </details>
+
+      {rest.length > 0 && (
+        <details className="group border-t border-line text-sm">
+          <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 px-4 text-muted hover:text-foreground [&::-webkit-details-marker]:hidden">
+            <Icon name="arrow" className="size-3.5 transition-transform group-open:rotate-90" />
+            Các trường còn lại của giao dịch
+          </summary>
+          <dl className="grid grid-cols-1 gap-x-6 px-4 pb-3 sm:grid-cols-2">
+            {rest.map((k) => (
+              <div key={k} className="flex justify-between gap-3 border-b border-line py-1.5 last:border-0">
+                <dt className="text-muted">{field(k)?.label_vi ?? k}</dt>
+                <dd className="num text-right">{show(k)}</dd>
+              </div>
+            ))}
+          </dl>
+        </details>
+      )}
     </div>
   );
 }
