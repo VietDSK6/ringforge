@@ -409,3 +409,29 @@ export interface AuditEvent {
   created_at: string;
   ai_call?: { model: string; prompt_version: string; prompt_hash: string; from_cache: boolean; schema_valid: boolean; latency_ms: number };
 }
+
+export interface PackRepairCandidate {
+  source: "ai" | "det";
+  strategy: string;
+  rationale_vi?: string;
+  intent_preserved_vi?: string;
+  intent_lost_vi?: string;
+  rules: Rule[];
+  verdict: Verdict;
+  passes: boolean;
+  stale_params: string[];
+  relations: { invariant: string; before: string; after: string; kept: boolean; message_vi: string }[];
+  relation_ok: boolean;
+  uses_param: boolean;
+  l_net: number;
+  delta: Record<string, number>;
+  rank: number;
+}
+
+export interface PackRepairResponse {
+  needed: boolean;
+  message_vi?: string;
+  candidates: PackRepairCandidate[];
+  rejected: { source: "ai" | "det"; strategy: string; reason_vi: string }[];
+  llm: "used" | "unavailable" | "quota" | "error" | "not_requested" | "not_needed";
+}

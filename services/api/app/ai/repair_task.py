@@ -35,14 +35,14 @@ def _data_json(obj: Any) -> str:
     return json.dumps(obj, ensure_ascii=False).replace("<", "\\u003c").replace(">", "\\u003e")
 
 
-def build_repair_system(pack: dict[str, Any]) -> str:
+def build_repair_system(pack: dict[str, Any], version: str = REPAIR_VERSION) -> str:
     params = [{"name": k, "value": p["value"], "unit": p["unit"], "label_vi": PARAM_LABELS_VI.get(k, k)} for k, p in pack["params"].items()]
     invs = [
         {"id": i["id"], "type": i["type"], "level": i["level"], "when": i["when"], "when_vi": render_condition(i["when"], pack)}
         for i in pack["invariants"]
     ]
     return (
-        _template(REPAIR_VERSION)
+        _template(version)
         .replace("{{CATALOG}}", json.dumps(_catalog_brief(), ensure_ascii=False))
         .replace("{{PARAMS}}", json.dumps(params, ensure_ascii=False))
         .replace("{{INVARIANTS}}", json.dumps(invs, ensure_ascii=False))
@@ -100,12 +100,15 @@ def propose_repairs(
     pack: dict[str, Any],
     client: LLMClient,
     feedback: list[str] | None = None,
+    version: str = REPAIR_VERSION,
+    user: str | None = None,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
-    """Gọi AI một lần → (đề xuất qua VC-01, đề xuất bị loại kèm lý do). LLMError được ném tiếp cho caller."""
-    system = build_repair_system(pack)
-    user = build_repair_user(original, findings, pack, feedback)
+    """Gọi AI một lần → (đề xuất qua VC-01, đề xuất bị loại kèm lý do). LLMError được ném tiếp cho caller.
+    version/user cho phép dùng lại pipeline với prompt khác (ví dụ sửa luật không còn tương thích sau khi đổi Policy Pack)."""
+    system = build_repair_system(pack, version)
+    user = user if user is not None else build_repair_user(original, findings, pack, feedback)
     call_id = new_id()
-    common = dict(id=call_id, task="repair", prompt_version=REPAIR_VERSION, prompt_hash=repo.stable_hash(system),
+    common = dict(id=call_id, task="repair", prompt_version=version, prompt_hash=repo.stable_hash(system),
                   input_hash=repo.stable_hash({"user": user, "pack": pack["version"]}))
     try:
         res = client.complete_json(system, user, repair_schema(list(pack["params"])), "rf_repair")

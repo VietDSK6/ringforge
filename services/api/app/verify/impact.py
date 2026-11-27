@@ -449,3 +449,67 @@ def _fix(
         "remaining_checks": mine,
         "notes_vi": notes,
     }
+
+
+# ---------- Đánh giá bản sửa cho luật bị ảnh hưởng (AI hoặc tất định) ----------
+
+PASSING = ("PASS", "PASS_WITH_WARNINGS")
+
+
+def stale_literals(cond: dict[str, Any], changes: list[dict[str, Any]], fields_of: dict[str, set[str]]) -> list[str]:
+    """Các tham số vừa đổi mà điều kiện vẫn viết cứng giá trị CŨ của nó."""
+    out = []
+    for ch in changes:
+        if ch["op"] != "set_param":
+            continue
+        if any(lf["field"] in fields_of.get(ch["param"], ()) and ch["old"] in [x for x in _values(lf) if _is_int(x)] for lf in leaves(cond)):
+            out.append(ch["param"])
+    return out
+
+
+def evaluate_pack_fix(
+    cand_rules: list[dict[str, Any]], original: dict[str, Any], rules: list[dict[str, Any]],
+    old_pack: dict[str, Any], new_pack: dict[str, Any], changes: list[dict[str, Any]], df, baseline: dict[str, Any],
+    timeout_ms: int = TIMEOUT_MS,
+) -> dict[str, Any]:
+    """Chấm một bản sửa theo Policy Pack MỚI: kiểm chứng đạt, hết mốc viết cứng, giữ quan hệ với phạm vi quy định, backtest."""
+    from app.verify.repair import condition_diff, count_leaves, replace_rule
+
+    proposed = replace_rule(rules, original["id"], cand_rules)
+    report = verify_rules(proposed, new_pack, timeout_ms)
+    union = cand_rules[0]["when"] if len(cand_rules) == 1 else {"any": [r["when"] for r in cand_rules]}
+    fields_of = param_fields([i["when"] for i in old_pack["invariants"]] + [r["when"] for r in rules])
+    stale = stale_literals(union, changes, fields_of)
+
+    changed = {c["param"] for c in changes if c["op"] == "set_param"}
+    old_invs = {i["id"]: i for i in old_pack["invariants"]}
+    z = Z3Box(timeout_ms)
+    relations = []
+    for inv in new_pack["invariants"]:
+        if inv["id"] not in old_invs or not params_used(inv["when"]) & changed:
+            continue
+        before = relation(z, z.enc(original["when"], old_pack["params"]), z.enc(old_invs[inv["id"]]["when"], old_pack["params"]))
+        after = relation(z, z.enc(union, new_pack["params"]), z.enc(inv["when"], new_pack["params"]))
+        relations.append({"invariant": inv["id"], "before": before, "after": after, "kept": before == after,
+                          "message_vi": f"Trước: luật {REL_VI[before]} {inv['id']}; bản sửa (pack mới): {REL_VI[after]} {inv['id']}."})
+    bt = run_backtest(proposed, df, new_pack)
+    ids = {r["id"] for r in cand_rules}
+    mine = [f for f in report["checks"] if f.get("rule_id") in ids or ids & set(f.get("blamed_rules", [])) or f.get("redundant") in ids]
+    return {
+        "rules": [r | {"render": render_rule(r, new_pack)} for r in cand_rules],
+        "verdict": report["verdict"],
+        "passes": report["verdict"] in PASSING,
+        "remaining_checks": mine,
+        "stale_params": stale,
+        "relations": relations,
+        "relation_ok": all(r["kept"] for r in relations),
+        "uses_param": any(params_used(r["when"]) & changed for r in cand_rules),
+        "l_net": bt["l_net"],
+        "delta": {k: int(bt[k]) - int(baseline[k]) for k in ("l_net", "friction_biometric", "fp_hold", "fp_block")},
+        "leaves": sum(count_leaves(r["when"]) for r in cand_rules),
+        "diff": condition_diff(original["when"], cand_rules[0]["when"], new_pack),
+    }
+
+
+def pack_fix_rank_key(c: dict[str, Any]) -> tuple:
+    return (not c["passes"], bool(c["stale_params"]), not c["relation_ok"], not c["uses_param"], c["leaves"], c["l_net"])

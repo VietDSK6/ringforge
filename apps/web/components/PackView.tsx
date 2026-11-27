@@ -11,7 +11,7 @@ import { RuleSentence } from "@/components/RuleSentence";
 import { VerdictBadge } from "@/components/VerdictBadge";
 import { ApiError, api } from "@/lib/api";
 import { AUTH_VI, DECISION_VI, formatInt, formatVnd } from "@/lib/format";
-import type { Catalog, ImpactRule, PackImpact, PatchOp, PolicyPack, Rule } from "@/lib/types";
+import type { Catalog, ImpactRule, PackImpact, PackRepairResponse, PatchOp, PolicyPack, Rule } from "@/lib/types";
 
 const DEMO2 = { param: "biometric_per_tx_threshold", value: 5_000_000 };
 const DEMO_SOURCE = "Kịch bản giả lập Demo 2 — không phải quy định thật";
@@ -139,12 +139,16 @@ export function PackView() {
     }
   }
 
-  async function saveFix(r: ImpactRule) {
-    if (!r.fix?.rule) return;
+  /** Áp dụng pack mới (nếu chưa) rồi lưu các luật của bản sửa — bản sửa đúng theo pack MỚI nên phải áp dụng trước. */
+  async function saveRuleFix(ruleId: string, rules: Rule[]) {
     if (!(await applyPack())) return;
     try {
-      const res = await api.saveRule(sid, withoutRender(r.fix.rule));
-      if (res.saved && res.rule) setSaved((s) => ({ ...s, [r.id]: res.rule!.version }));
+      let version: number | undefined;
+      for (const rule of rules) {
+        const res = await api.saveRule(sid, withoutRender(rule));
+        if (res.saved && res.rule && rule.id === ruleId) version = res.rule.version;
+      }
+      if (version) setSaved((s) => ({ ...s, [ruleId]: version! }));
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Không lưu được bản sửa.");
     }
@@ -350,7 +354,8 @@ export function PackView() {
               applied={applied}
               savedVersion={saved[r.id]}
               busy={busy !== null}
-              onSave={() => saveFix(r)}
+              onSave={() => r.fix?.rule && saveRuleFix(r.id, [r.fix.rule])}
+              ai={{ sid, patch, onSaveRules: (rules) => saveRuleFix(r.id, rules) }}
             />
           ))}
           {byCat("review").map((r) => (
@@ -472,6 +477,7 @@ function AffectedRuleCard({
   savedVersion,
   busy,
   onSave,
+  ai,
 }: {
   r: ImpactRule;
   catalog: Catalog | null;
@@ -479,6 +485,7 @@ function AffectedRuleCard({
   savedVersion?: number;
   busy: boolean;
   onSave?: () => void;
+  ai?: { sid: string; patch: PatchOp[]; onSaveRules: (rules: Rule[]) => void };
 }) {
   const bad = r.category === "incompatible";
   return (
@@ -545,7 +552,122 @@ function AffectedRuleCard({
             ))}
         </div>
       )}
+      {ai && !savedVersion && <AiPackRepair ruleId={r.id} applied={applied} busy={busy} {...ai} />}
     </article>
+  );
+}
+
+const LLM_NOTE: Record<string, string> = {
+  unavailable: "AI hiện không khả dụng — chỉ có bản sửa tất định ở trên.",
+  quota: "Đã hết lượt gọi AI hôm nay — chỉ có bản sửa tất định ở trên.",
+  error: "Gọi AI bị lỗi — chỉ có bản sửa tất định ở trên.",
+};
+
+/** AI đề xuất bản sửa cho luật không còn tương thích; mọi bản được chấm lại theo Policy Pack MỚI trước khi hiện. */
+function AiPackRepair({
+  sid,
+  patch,
+  ruleId,
+  applied,
+  busy,
+  onSaveRules,
+}: {
+  sid: string;
+  patch: PatchOp[];
+  ruleId: string;
+  applied: string | null;
+  busy: boolean;
+  onSaveRules: (rules: Rule[]) => void;
+}) {
+  const [data, setData] = useState<PackRepairResponse | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function run() {
+    setLoading(true);
+    setError(null);
+    try {
+      setData(await api.packRepair(sid, patch, ruleId));
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : "Không tạo được bản sửa.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const aiCands = data?.candidates.filter((c) => c.source === "ai") ?? [];
+  return (
+    <div className="space-y-3">
+      {!data && (
+        <button
+          type="button"
+          onClick={run}
+          disabled={loading || busy}
+          className="min-h-11 rounded-xl border-2 border-accent px-4 text-sm font-semibold text-accent hover:bg-violet-50 disabled:opacity-50 dark:hover:bg-violet-950"
+        >
+          {loading ? "AI đang đề xuất, hệ thống kiểm chứng lại từng bản…" : "Sửa bằng AI"}
+        </button>
+      )}
+      {error && (
+        <p role="alert" className="text-sm text-danger">
+          {error}
+        </p>
+      )}
+      {data && (
+        <div className="space-y-3" role="status">
+          {LLM_NOTE[data.llm] && (
+            <p className="rounded-xl bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-950 dark:text-amber-200">{LLM_NOTE[data.llm]}</p>
+          )}
+          {aiCands.map((c) => (
+            <div key={c.rank} className="space-y-2 rounded-xl border border-line bg-background p-4">
+              <p className="flex flex-wrap items-center gap-2 text-sm font-semibold">
+                Bản AI #{c.rank}
+                <span className="rounded-full bg-violet-100 px-2 py-0.5 text-xs font-medium text-violet-900 dark:bg-violet-950 dark:text-violet-200">
+                  AI đề xuất · đã kiểm chứng lại
+                </span>
+                <VerdictBadge verdict={c.verdict} />
+              </p>
+              {c.rules.map((rule) => rule.render && <RuleSentence key={rule.id} render={rule.render} compact />)}
+              <ul className="space-y-1 text-sm">
+                <li>{c.stale_params.length === 0 ? "✅ Không còn mốc viết cứng giá trị cũ" : "❌ Vẫn viết cứng giá trị cũ"}</li>
+                {c.relations.map((rel) => (
+                  <li key={rel.invariant}>
+                    {rel.kept ? "✅" : "⚠️"} {rel.message_vi}
+                  </li>
+                ))}
+                <li>{c.uses_param ? "✅ Tham chiếu tham số Policy Pack" : "⚠️ Không tham chiếu tham số"}</li>
+                <li className="text-muted">
+                  Δ L_net: {c.delta.l_net === 0 ? "không đổi" : `${c.delta.l_net > 0 ? "+" : "−"}${formatVnd(Math.abs(c.delta.l_net))}`} · Δ giao dịch
+                  thật phải sinh trắc học: {formatInt(c.delta.friction_biometric)} <span className="text-xs">(hệ thống tính)</span>
+                </li>
+              </ul>
+              {c.rationale_vi && <p className="text-sm text-muted">{c.rationale_vi}</p>}
+              <button
+                type="button"
+                onClick={() => onSaveRules(c.rules)}
+                disabled={busy}
+                className="min-h-11 rounded-xl bg-accent px-4 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50 dark:text-zinc-950"
+              >
+                {applied ? "Lưu bản này" : "Áp dụng pack mới và lưu bản này"}
+              </button>
+            </div>
+          ))}
+          {data.llm === "used" && aiCands.length === 0 && <p className="text-sm">Chưa có bản AI nào qua kiểm chứng; dùng bản sửa tất định ở trên.</p>}
+          {data.rejected.length > 0 && (
+            <details className="text-sm text-muted">
+              <summary className="cursor-pointer">{data.rejected.length} đề xuất khác bị loại (bấm xem lý do)</summary>
+              <ul className="mt-2 list-disc space-y-1 pl-5">
+                {data.rejected.map((x, i) => (
+                  <li key={i}>
+                    {x.source === "ai" ? "AI" : "Tất định"} · {x.strategy}: {x.reason_vi}
+                  </li>
+                ))}
+              </ul>
+            </details>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 
