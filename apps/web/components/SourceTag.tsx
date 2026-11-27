@@ -1,22 +1,23 @@
-import { Icon, type IconName } from "@/components/Icon";
-
-/** Nhãn nguồn của nội dung (docs/07 mục 1): AI đề xuất, người viết, hệ thống tính, sửa tất định. */
+/** Nhãn nguồn của nội dung (docs/07 mục 1): AI đề xuất, người viết, hệ thống tính, sửa tất định. Chữ nhỏ, không trang trí. */
 export type Source = "ai" | "cache" | "human" | "system" | "det";
 
-const STYLE: Record<Source, { icon: IconName; label: string; cls: string }> = {
-  ai: { icon: "spark", label: "AI đề xuất", cls: "tone-accent" },
-  cache: { icon: "spark", label: "AI · kết quả đã lưu", cls: "tone-accent" },
-  human: { icon: "user", label: "Người viết", cls: "" },
-  system: { icon: "cpu", label: "Hệ thống tính", cls: "" },
-  det: { icon: "cpu", label: "Tất định", cls: "" },
+const LABEL: Record<Source, string> = {
+  ai: "AI đề xuất",
+  cache: "AI · kết quả đã lưu",
+  human: "Người viết",
+  system: "Hệ thống tính",
+  det: "Tất định",
 };
 
 export function SourceTag({ source, label, className = "" }: { source: Source; label?: string; className?: string }) {
-  const s = STYLE[source];
+  const ai = source === "ai" || source === "cache";
   return (
-    <span className={`chip ${s.cls} ${s.cls ? "" : "text-muted"} ${className}`}>
-      <Icon name={s.icon} className="size-3.5" />
-      {label ?? s.label}
+    <span
+      className={`inline-flex items-center rounded-[3px] border px-1.5 text-xs leading-5 font-medium ${
+        ai ? "border-accent-line text-accent" : "border-line text-muted"
+      } ${className}`}
+    >
+      {label ?? LABEL[source]}
     </span>
   );
 }

@@ -3,7 +3,6 @@
 import { type FormEvent, useId, useState } from "react";
 
 import { Callout } from "@/components/Callout";
-import { Icon } from "@/components/Icon";
 import { SourceTag } from "@/components/SourceTag";
 import { ApiError, api } from "@/lib/api";
 import { formatInt, formatVnd } from "@/lib/format";
@@ -63,11 +62,7 @@ export function RegulationInterpreter({ sid, onUse }: { sid: string; onUse: (pat
             disabled={busy || !text.trim()}
             className="btn btn-primary"
           >
-            {busy ? (
-              <span aria-hidden className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-            ) : (
-              <Icon name="spark" />
-            )}
+            {busy && <span aria-hidden className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />}
             {busy ? "AI đang đọc văn bản…" : "Đề xuất bản vá"}
           </button>
           <button type="button" onClick={() => setText(SAMPLE)} className="btn btn-ghost">

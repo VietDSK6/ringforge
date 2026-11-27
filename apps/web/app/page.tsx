@@ -1,15 +1,13 @@
 import { EnterSandbox } from "@/components/EnterSandbox";
 import { HealthStatus } from "@/components/HealthStatus";
-import { Icon, type IconName } from "@/components/Icon";
 import { Logo } from "@/components/Logo";
 import { VerdictBadge } from "@/components/VerdictBadge";
 import { API_URL } from "@/lib/api";
 
-const DEMOS: { n: number; screen: string; icon: IconName; title: string; body: string; to: string; query: string; ready: boolean }[] = [
+const DEMOS: { n: number; screen: string; title: string; body: string; to: string; query: string; ready: boolean }[] = [
   {
     n: 1,
     screen: "Rule Studio",
-    icon: "studio",
     title: "Bắt lỗi chuyên viên bỏ sót",
     body: "Viết luật “khách thân thiết không cần xác thực thêm” — Z3 tìm ra giao dịch 10.000.001 đ lọt qua sinh trắc học.",
     to: "studio",
@@ -19,7 +17,6 @@ const DEMOS: { n: number; screen: string; icon: IconName; title: string; body: s
   {
     n: 2,
     screen: "Policy Pack",
-    icon: "scale",
     title: "Quy định thay đổi",
     body: "Hạ ngưỡng sinh trắc học từ 10 triệu xuống 5 triệu: luật nào viết cứng con số sẽ bị chỉ ra kèm phản ví dụ.",
     to: "pack",
@@ -29,7 +26,6 @@ const DEMOS: { n: number; screen: string; icon: IconName; title: string; body: s
   {
     n: 3,
     screen: "So sánh",
-    icon: "compare",
     title: "Chọn luật ít tổn thất nhất",
     body: "So sánh các phương án luật chống mule (cửa sổ 15/30/60 phút, giữ hay chặn) bằng tổn thất ròng (VNĐ) trên dữ liệu tổng hợp.",
     to: "compare",
@@ -77,14 +73,14 @@ export default function Landing() {
           <ul className="grid gap-4 md:grid-cols-3">
             {DEMOS.map((d) => (
               <li key={d.title} className="panel flex flex-col gap-3 p-5">
-                <p className="flex items-center gap-2 text-[0.8125rem] text-muted">
-                  <Icon name={d.icon} className="size-4 text-accent" />
-                  Demo {d.n} · {d.screen}
-                </p>
+                <p className="num text-[0.8125rem] text-muted">Demo {d.n}</p>
                 <h3 className="text-[1.0625rem] font-semibold">{d.title}</h3>
                 <p className="flex-1 text-sm leading-6 text-muted">{d.body}</p>
                 {d.ready ? (
-                  <EnterSandbox to={d.to} query={d.query} label="Thử ngay" variant="card" />
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <EnterSandbox to={d.to} query={d.query} label="Thử ngay" variant="card" />
+                    <span className="text-[0.8125rem] text-muted">mở {d.screen}</span>
+                  </div>
                 ) : (
                   <p className="text-sm text-muted">Đang xây dựng</p>
                 )}
@@ -111,7 +107,7 @@ export default function Landing() {
 /** Minh họa tĩnh lấy đúng kết quả của Demo 1 (luật, kết luận, phản ví dụ) — không phải số liệu bịa. */
 function ProofPreview() {
   return (
-    <figure className="panel overflow-hidden shadow-pop">
+    <figure className="panel overflow-hidden">
       <figcaption className="flex items-center justify-between gap-3 border-b border-line bg-sunken px-4 py-2.5 text-[0.8125rem] text-muted">
         <span>Ví dụ: kết quả Demo 1</span>
         <span className="font-mono">DRAFT-0001</span>
@@ -121,7 +117,7 @@ function ProofPreview() {
           <span className="mr-1 font-mono text-[0.8em] font-semibold text-accent">NẾU</span>
           tuổi tài khoản gửi lớn hơn 365 ngày VÀ người nhận quen{" "}
           <span className="mr-1 font-mono text-[0.8em] font-semibold text-accent">THÌ</span>
-          <mark className="rounded-sm bg-fail-soft px-1 font-semibold text-fail underline decoration-fail-line decoration-2 underline-offset-4">
+          <mark className="rounded-sm bg-fail-soft px-1 font-semibold text-fail">
             miễn xác thực bổ sung
           </mark>
         </p>
@@ -136,10 +132,7 @@ function ProofPreview() {
           </div>
           <div className="mx-4 flex flex-wrap items-center justify-between gap-2 border-t border-dashed border-line-strong py-3 text-sm">
             <span className="text-muted">Bộ luật cho kết quả</span>
-            <span className="inline-flex items-center gap-1.5 rounded-md bg-fail-soft px-2 py-0.5 font-semibold text-fail">
-              <Icon name="x" className="size-3.5" />
-              <span className="line-through decoration-2">Cho qua · không xác thực thêm</span>
-            </span>
+            <span className="font-semibold text-fail line-through decoration-2">Cho qua · không xác thực thêm</span>
           </div>
         </div>
       </div>

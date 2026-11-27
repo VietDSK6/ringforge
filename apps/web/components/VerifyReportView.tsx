@@ -2,8 +2,7 @@ import type { ReactNode } from "react";
 
 import { CounterexampleCard } from "@/components/CounterexampleCard";
 import { GroundingLine } from "@/components/GroundingLine";
-import { Icon } from "@/components/Icon";
-import { VERDICT_TONE, VerdictBadge } from "@/components/VerdictBadge";
+import { VerdictBadge } from "@/components/VerdictBadge";
 import type { Catalog, Check, PolicyPack, VerifyReport } from "@/lib/types";
 
 function title(c: Check): string {
@@ -24,8 +23,6 @@ function title(c: Check): string {
   }
 }
 
-const EDGE = { pass: "border-l-pass", warn: "border-l-warn", fail: "border-l-fail", unknown: "border-l-unknown" } as const;
-
 /** Báo cáo kiểm chứng (docs/07 mục 3.4): kết luận lớn, thẻ lỗi có phản ví dụ + grounding + luật gây lỗi. */
 export function VerifyReportView({
   report,
@@ -41,10 +38,9 @@ export function VerifyReportView({
   const source = (id?: string) => pack?.invariants.find((i) => i.id === id)?.source;
   const errors = report.checks.filter((c) => c.severity === "ERROR");
   const warnings = report.checks.filter((c) => c.severity !== "ERROR");
-  const tone = VERDICT_TONE[report.verdict];
   return (
     <section aria-labelledby="report-title" className="space-y-4">
-      <div className={`panel space-y-4 border-l-4 p-4 sm:p-5 ${EDGE[tone]}`}>
+      <div className="panel space-y-4 p-4 sm:p-5">
         <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
           <div className="space-y-2">
             <h2 id="report-title" className="section-title">
@@ -87,12 +83,9 @@ export function VerifyReportView({
         const err = c.severity === "ERROR";
         return (
           <article key={i} className={`panel overflow-hidden ${err ? "border-fail-line" : "border-warn-line"}`}>
-            <header className={`flex gap-3 border-b px-4 py-3 sm:px-5 ${err ? "border-fail-line bg-fail-soft" : "border-warn-line bg-warn-soft"}`}>
-              <span className={`mt-0.5 ${err ? "text-fail" : "text-warn"}`}>
-                <Icon name={err ? "x" : "alert"} className="size-5" />
-              </span>
+            <header className={`border-b px-4 py-3 sm:px-5 ${err ? "border-fail-line bg-fail-soft" : "border-warn-line bg-warn-soft"}`}>
               <div className="min-w-0">
-                <h3 className="font-semibold leading-6">{title(c)}</h3>
+                <h3 className={`font-semibold leading-6 ${err ? "text-fail" : "text-warn"}`}>{title(c)}</h3>
                 {c.code === "VC-04" && source(c.invariant) && (
                   <p className="text-[0.8125rem] text-muted">Nguồn: {source(c.invariant)} (giả lập)</p>
                 )}

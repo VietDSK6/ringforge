@@ -7,7 +7,7 @@ import { Callout } from "@/components/Callout";
 import { CounterexampleCard } from "@/components/CounterexampleCard";
 import { GroundingLine } from "@/components/GroundingLine";
 import { GuidedTour, type TourStep } from "@/components/GuidedTour";
-import { Icon, type IconName } from "@/components/Icon";
+import { Icon } from "@/components/Icon";
 import { PageSkeleton } from "@/components/PageSkeleton";
 import { RegulationInterpreter } from "@/components/RegulationInterpreter";
 import { RuleSentence } from "@/components/RuleSentence";
@@ -210,7 +210,7 @@ export function PackView() {
             return (
               <li
                 key={name}
-                className={`grid gap-3 p-4 sm:px-5 md:grid-cols-[1fr_17rem] md:items-start ${changed ? "bg-accent-soft/60 shadow-[inset_3px_0_0_var(--accent)]" : ""}`}
+                className={`grid gap-3 p-4 sm:px-5 md:grid-cols-[1fr_17rem] md:items-start ${changed ? "bg-accent-soft/50" : ""}`}
               >
                 <div className="min-w-0">
                   <label htmlFor={id} className="font-medium">
@@ -251,8 +251,7 @@ export function PackView() {
         {aiInvariants.length > 0 && (
           <ul className="space-y-2" aria-label="Invariant mới từ bản vá AI đề xuất">
             {aiInvariants.map((op) => (
-              <li key={op.invariant.id} className="flex flex-wrap items-center gap-3 rounded-lg border border-accent-line bg-accent-soft px-3.5 py-1.5 text-sm">
-                <Icon name="spark" className="size-4 text-accent" />
+              <li key={op.invariant.id} className="flex flex-wrap items-center gap-3 rounded-md border border-accent-line bg-accent-soft px-3.5 py-1.5 text-sm">
                 <span>
                   Thêm invariant <span className="font-mono font-semibold">{op.invariant.id}</span> (AI đề xuất)
                 </span>
@@ -288,7 +287,7 @@ export function PackView() {
 
       {impact && (
         <section aria-labelledby={`${formId}-impact`} className="space-y-5">
-          <div className="panel space-y-5 border-l-4 border-l-accent p-4 sm:p-5">
+          <div className="panel space-y-5 p-4 sm:p-5">
             <div className="space-y-2">
               <h2 id={`${formId}-impact`} ref={resultsRef} tabIndex={-1} className="page-title text-[1.375rem] outline-none">
                 Tác động của thay đổi
@@ -312,9 +311,9 @@ export function PackView() {
               </span>
             </div>
             <ul className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-line bg-line sm:grid-cols-4" aria-label="Phân loại luật">
-              <CountCell n={impact.counts.incompatible} label="không còn tương thích" tone="fail" icon="x" />
-              <CountCell n={impact.counts.review} label="cần xem lại" tone="warn" icon="alert" />
-              <CountCell n={impact.counts.adaptive} label="tự thích ứng" tone="pass" icon="check" />
+              <CountCell n={impact.counts.incompatible} label="không còn tương thích" tone="fail" />
+              <CountCell n={impact.counts.review} label="cần xem lại" tone="warn" />
+              <CountCell n={impact.counts.adaptive} label="tự thích ứng" tone="pass" />
               <CountCell n={impact.counts.unaffected} label="không bị ảnh hưởng" />
             </ul>
             <FrictionLine impact={impact} />
@@ -338,8 +337,7 @@ export function PackView() {
 
           {byCat("adaptive").length > 0 && (
             <div className="panel overflow-hidden">
-              <h3 className="flex items-center gap-2.5 border-b border-pass-line bg-pass-soft px-4 py-3 font-semibold sm:px-5">
-                <Icon name="check" className="size-5 text-pass" />
+              <h3 className="border-b border-line px-4 py-3 font-semibold sm:px-5">
                 Luật tự thích ứng — tham chiếu tham số nên tự đúng theo giá trị mới
               </h3>
               <ul className="divide-y divide-line">
@@ -373,8 +371,7 @@ export function PackView() {
 
           <div className="panel flex flex-wrap items-center gap-x-4 gap-y-3 p-4 sm:p-5">
             {applied ? (
-              <p role="status" className="flex items-center gap-2 font-semibold text-pass">
-                <Icon name="check" className="size-5" />
+              <p role="status" className="font-semibold text-pass">
                 Đã áp dụng Policy Pack phiên bản <span className="font-mono">{applied}</span>.
               </p>
             ) : (
@@ -454,11 +451,10 @@ export function PackView() {
   );
 }
 
-function CountCell({ n, label, tone, icon }: { n: number; label: string; tone?: "fail" | "warn" | "pass"; icon?: IconName }) {
+function CountCell({ n, label, tone }: { n: number; label: string; tone?: "fail" | "warn" | "pass" }) {
   const color = n > 0 && tone ? { fail: "text-fail", warn: "text-warn", pass: "text-pass" }[tone] : "text-muted";
   return (
-    <li className="flex items-start gap-2.5 bg-surface p-3">
-      {icon && <Icon name={icon} className={`mt-1 size-4 ${color}`} />}
+    <li className="bg-surface p-3">
       <div>
         <p className={`num text-2xl leading-8 font-bold ${n > 0 && tone ? color : ""}`}>{n}</p>
         <p className="text-[0.8125rem] text-muted">{label}</p>
@@ -523,8 +519,7 @@ function AffectedRuleCard({
         <h3 id={`impact-${r.id}`} className="text-base font-semibold">
           <span className="font-mono">{r.id}</span> — {r.name}
         </h3>
-        <span className={`inline-flex items-center gap-1.5 text-sm font-semibold ${bad ? "text-fail" : "text-warn"}`}>
-          <Icon name={bad ? "x" : "alert"} />
+        <span className={`text-sm font-semibold ${bad ? "text-fail" : "text-warn"}`}>
           {bad ? "Không còn tương thích" : "Cần xem lại"}
         </span>
       </header>
@@ -565,8 +560,7 @@ function AffectedRuleCard({
             </ul>
             {onSave &&
               (savedVersion ? (
-                <p role="status" className="flex items-center gap-2 text-sm font-semibold text-pass">
-                  <Icon name="check" />
+                <p role="status" className="text-sm font-semibold text-pass">
                   Đã lưu {r.id} phiên bản {savedVersion}.
                 </p>
               ) : (
@@ -628,11 +622,7 @@ function AiPackRepair({
     <div className="space-y-3">
       {!data && (
         <button type="button" onClick={run} disabled={loading || busy} className="btn btn-outline-accent">
-          {loading ? (
-            <span aria-hidden className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-          ) : (
-            <Icon name="spark" />
-          )}
+          {loading && <span aria-hidden className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />}
           {loading ? "AI đang đề xuất, hệ thống kiểm chứng lại từng bản…" : "Sửa bằng AI"}
         </button>
       )}

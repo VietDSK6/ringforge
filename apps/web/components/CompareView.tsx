@@ -5,7 +5,6 @@ import { useEffect, useId, useMemo, useRef, useState } from "react";
 
 import { Callout } from "@/components/Callout";
 import { GuidedTour, type TourStep } from "@/components/GuidedTour";
-import { Icon } from "@/components/Icon";
 import { LnetStackedBar, type LnetRow } from "@/components/LnetStackedBar";
 import { PageSkeleton } from "@/components/PageSkeleton";
 import { VerdictBadge } from "@/components/VerdictBadge";
@@ -192,7 +191,6 @@ export function CompareView() {
             onClick={() => setVariants((vs) => [...vs, { ...PRESETS[1], key: nextKey.current++ }])}
             className="btn btn-secondary btn-sm"
           >
-            <Icon name="plus" />
             Thêm phương án
           </button>
         </div>
@@ -211,7 +209,6 @@ export function CompareView() {
                         onClick={() => setVariants((vs) => vs.filter((x) => x.key !== v.key))}
                         className="btn btn-ghost btn-sm -mr-2"
                       >
-                        <Icon name="x" className="size-3.5" />
                         Bỏ phương án này
                       </button>
                     )}
@@ -300,9 +297,7 @@ export function CompareView() {
           <h2 id={`${uid}-assume`} className="section-title">
             Giả định
           </h2>
-          <span className="chip tone-warn">
-            <Icon name="alert" className="size-3.5" />
-            giả định — không phải số thật
+          <span className="chip tone-warn">giả định — không phải số thật
           </span>
         </div>
         <div className="grid gap-x-10 gap-y-2 md:grid-cols-2">
@@ -335,7 +330,6 @@ export function CompareView() {
           })}
         </div>
         <button type="button" onClick={() => setAssumptions(DEFAULT_ASSUMPTIONS)} className="btn btn-ghost btn-sm -ml-2.5">
-          <Icon name="reset" className="size-3.5" />
           Về giả định mặc định
         </button>
       </section>
@@ -357,7 +351,7 @@ export function CompareView() {
         )}
         {!data && !error && <PageSkeleton label="Đang kiểm chứng và backtest…" rows={5} />}
         {best && (
-          <div className="panel flex flex-wrap items-center justify-between gap-x-8 gap-y-4 border-l-4 border-l-accent p-4 sm:p-5">
+          <div className="panel flex flex-wrap items-center justify-between gap-x-8 gap-y-4 p-4 sm:p-5">
             <div className="min-w-0 space-y-1">
               <p className="text-sm text-muted">Tốt nhất theo L_net trong các phương án qua cổng invariant</p>
               <p className="text-lg font-semibold">{best.name}</p>
@@ -454,7 +448,7 @@ function ResultsTable({ uid, rows }: { uid: string; rows: Row[] }) {
             const cell = top ? "bg-accent-soft" : "";
             return (
               <tr key={row.name} className={top ? "font-semibold" : undefined}>
-                <th scope="row" className={`sticky-col text-left ${top ? "bg-accent-soft! shadow-[inset_3px_0_0_var(--accent)]" : ""}`}>
+                <th scope="row" className={`sticky-col text-left ${top ? "bg-accent-soft!" : ""}`}>
                   <span className="block">{row.name}</span>
                   {top && <span className="mt-1 inline-block text-xs font-semibold text-accent">Tốt nhất · hạng 1</span>}
                   {!top && row.rank && <span className="mt-0.5 block text-xs font-normal text-muted">Hạng {row.rank}</span>}
@@ -475,7 +469,6 @@ function ResultsTable({ uid, rows }: { uid: string; rows: Row[] }) {
                     <VerdictBadge verdict={(row.verdict as "PASS") ?? "PASS"} />
                   ) : (
                     <span className="chip tone-fail font-semibold">
-                      <Icon name="x" className="size-3.5" />
                       Không hợp lệ{exp > 0 ? ` · ${formatInt(exp)} giao dịch phạm tuân thủ` : ""}
                     </span>
                   )}

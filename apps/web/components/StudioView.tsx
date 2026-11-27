@@ -5,7 +5,6 @@ import { type FormEvent, type KeyboardEvent, useEffect, useId, useRef, useState 
 
 import { Callout } from "@/components/Callout";
 import { GuidedTour, type TourStep } from "@/components/GuidedTour";
-import { Icon } from "@/components/Icon";
 import { RepairPanel } from "@/components/RepairPanel";
 import { RuleSentence } from "@/components/RuleSentence";
 import { type Source, SourceTag } from "@/components/SourceTag";
@@ -264,7 +263,6 @@ export function StudioView() {
                 disabled={phase === "compiling" || phase === "verifying"}
                 className="btn btn-primary"
               >
-                <Icon name="spark" />
                 Biên dịch
               </button>
               <button type="button" onClick={() => startManualJson(null)} className="btn btn-secondary">
@@ -282,11 +280,10 @@ export function StudioView() {
                     type="button"
                     onClick={() => setText(s)}
                     aria-pressed={text === s}
-                    className={`flex w-full gap-2.5 rounded-md px-2 py-2 text-left text-sm leading-6 ${
-                      text === s ? "bg-accent-soft text-foreground" : "text-muted hover:bg-sunken hover:text-foreground"
+                    className={`block w-full rounded-md px-2 py-2 text-left text-sm leading-6 ${
+                      text === s ? "bg-sunken font-medium text-foreground" : "text-muted hover:bg-sunken hover:text-foreground"
                     }`}
                   >
-                    <Icon name="arrow" className={`mt-1 size-3.5 ${text === s ? "text-accent" : ""}`} />
                     <span>{s}</span>
                   </button>
                 </li>
@@ -310,9 +307,8 @@ export function StudioView() {
             </Callout>
           )}
           {phase === "idle" && !error && (
-            <div className="empty flex min-h-48 flex-col items-center justify-center gap-2 p-6 text-center">
-              <Icon name="studio" className="size-6 text-faint" />
-              <p className="max-w-sm">Luật sau khi biên dịch sẽ hiện ở đây, kèm các giả định để bạn xác nhận trước khi kiểm chứng.</p>
+            <div className="empty p-5">
+              <p className="max-w-md">Luật sau khi biên dịch sẽ hiện ở đây, kèm các giả định để bạn xác nhận trước khi kiểm chứng.</p>
             </div>
           )}
           {compiled && compiled.status !== "OK" && <CompileNotice result={compiled} />}
@@ -330,8 +326,7 @@ export function StudioView() {
             />
           )}
           {canVerify && (
-            <button type="button" onClick={onVerify} data-tour="verify" className="btn btn-primary min-h-14 w-full text-lg shadow-sm">
-              <Icon name="shield" className="size-5" />
+            <button type="button" onClick={onVerify} data-tour="verify" className="btn btn-primary min-h-14 w-full text-lg font-semibold">
               Kiểm chứng
             </button>
           )}
@@ -348,7 +343,6 @@ export function StudioView() {
               <div className="flex flex-wrap items-center gap-3">
                 {blamed && (
                   <button type="button" onClick={onRepair} data-tour="repair" disabled={busy} className="btn btn-primary btn-lg">
-                    <Icon name="spark" />
                     Sửa bằng AI
                   </button>
                 )}
@@ -383,33 +377,21 @@ export function StudioView() {
 /** Tiến trình pipeline của Studio: viết → biên dịch → kiểm chứng → sửa. */
 function Stepper({ steps, done, current, running }: { steps: string[]; done: boolean[]; current: number; running: boolean }) {
   return (
-    <ol aria-label="Tiến trình" className="flex flex-wrap items-center gap-x-2 gap-y-2 text-[0.8125rem]">
+    <ol aria-label="Tiến trình" className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.8125rem]">
       {steps.map((s, i) => {
         const isCurrent = i === current;
         const isDone = done[i] && !isCurrent;
         return (
-          <li key={s} aria-current={isCurrent ? "step" : undefined} className="flex items-center gap-2">
-            {i > 0 && <span aria-hidden className={`hidden h-px w-6 sm:block ${done[i - 1] ? "bg-accent" : "bg-line-strong"}`} />}
-            <span
-              className={`inline-flex items-center gap-1.5 rounded-full border py-0.5 pr-2.5 pl-1 ${
-                isCurrent
-                  ? "border-accent bg-accent-soft font-semibold text-foreground"
-                  : isDone
-                    ? "border-line bg-surface text-foreground"
-                    : "border-dashed border-line-strong text-muted"
-              }`}
-            >
-              <span
-                aria-hidden
-                className={`num inline-flex size-5 items-center justify-center rounded-full text-[0.6875rem] font-semibold ${
-                  isDone ? "bg-accent text-accent-fg" : isCurrent ? "bg-accent text-accent-fg" : "bg-sunken text-muted"
-                } ${isCurrent && running ? "animate-pulse" : ""}`}
-              >
-                {isDone ? <Icon name="check" className="size-3" /> : i + 1}
-              </span>
-              {s}
-              <span className="sr-only">{isDone ? " (xong)" : isCurrent ? " (bước hiện tại)" : ""}</span>
-            </span>
+          <li
+            key={s}
+            aria-current={isCurrent ? "step" : undefined}
+            className={`flex items-baseline gap-1.5 border-b-2 pb-1 ${
+              isCurrent ? "border-foreground font-semibold text-foreground" : isDone ? "border-transparent text-foreground" : "border-transparent text-faint"
+            } ${isCurrent && running ? "animate-pulse" : ""}`}
+          >
+            <span className={`num ${isDone ? "text-pass" : ""}`}>{isDone ? "✓" : `${i + 1}.`}</span>
+            {s}
+            <span className="sr-only">{isDone ? " (xong)" : isCurrent ? " (bước hiện tại)" : ""}</span>
           </li>
         );
       })}
@@ -532,7 +514,6 @@ function RuleCard({
           )}
           {jsonDirty && rule && (
             <p className="flex items-center gap-2 text-[0.8125rem] text-warn">
-              <Icon name="alert" className="size-3.5" />
               JSON đã được sửa; bản sửa sẽ được dùng khi kiểm chứng.
             </p>
           )}

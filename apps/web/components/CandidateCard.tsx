@@ -1,4 +1,3 @@
-import { Icon } from "@/components/Icon";
 import { RuleSentence } from "@/components/RuleSentence";
 import { SourceTag } from "@/components/SourceTag";
 import { VerdictBadge } from "@/components/VerdictBadge";
@@ -56,8 +55,8 @@ export function CandidateCard({ c, onUse, busy }: { c: RepairCandidate; onUse: (
         )}
 
         {!c.scope_ok && (
-          <p className="flex items-center gap-2 text-sm font-medium text-warn">
-            <Icon name="alert" /> Bản sửa mở rộng phạm vi ra ngoài luật gốc.
+          <p className="text-sm font-medium text-warn">
+            Bản sửa mở rộng phạm vi ra ngoài luật gốc.
           </p>
         )}
 

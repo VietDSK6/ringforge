@@ -36,7 +36,7 @@ export function CounterexampleCard({
   const daily = Number(tx.daily_total_after) > Number(tx.amount);
 
   return (
-    <div className="overflow-hidden rounded-lg border border-line bg-surface shadow-sm">
+    <div className="overflow-hidden rounded-md border border-line bg-surface">
       <div className="flex items-center justify-between gap-3 border-b border-line bg-sunken px-4 py-2 text-[0.8125rem] text-muted">
         <span className="font-medium">{title}</span>
         <span className="num">{show("hour")}</span>
@@ -62,11 +62,8 @@ export function CounterexampleCard({
       {check.outcome && (
         <div className="mx-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-t border-dashed border-line-strong py-3 text-sm">
           <span className="text-muted">Bộ luật cho kết quả</span>
-          <span className="inline-flex items-center gap-1.5 rounded-md bg-fail-soft px-2 py-0.5 font-semibold text-fail">
-            <Icon name="x" className="size-3.5" />
-            <span className="line-through decoration-2">
-              {DECISION_VI[check.outcome.decision]} · {AUTH_VI[check.outcome.auth]}
-            </span>
+          <span className="font-semibold text-fail line-through decoration-2">
+            {DECISION_VI[check.outcome.decision]} · {AUTH_VI[check.outcome.auth]}
           </span>
         </div>
       )}

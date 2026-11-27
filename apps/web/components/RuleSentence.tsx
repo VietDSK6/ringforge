@@ -14,7 +14,7 @@ export function RuleSentence({ render, compact = false }: { render: RuleRender; 
         <span key={i}>
           {p}
           {i < parts.length - 1 && (
-            <mark className="rounded-sm bg-fail-soft px-1 font-semibold text-fail underline decoration-fail-line decoration-2 underline-offset-4">
+            <mark className="rounded-sm bg-fail-soft px-1 font-semibold text-fail">
               {EXEMPT}
             </mark>
           )}

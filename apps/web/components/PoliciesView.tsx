@@ -67,7 +67,6 @@ export function PoliciesView() {
         <div className="flex flex-wrap items-center gap-2">
           <ImportExport sid={sid} onImported={() => setVersion((v) => v + 1)} />
           <Link href={`/s/${sid}/studio`} className="btn btn-primary">
-            <Icon name="plus" />
             Thêm luật bằng lời
           </Link>
         </div>
@@ -75,9 +74,7 @@ export function PoliciesView() {
 
       <div
         role="status"
-        className={`panel flex flex-wrap items-center gap-x-4 gap-y-2 border-l-4 px-4 py-3.5 sm:px-5 ${
-          !report ? "border-l-line" : report.verdict === "FAIL" ? "border-l-fail" : report.verdict === "UNKNOWN" ? "border-l-unknown" : report.verdict === "PASS" ? "border-l-pass" : "border-l-warn"
-        }`}
+        className="panel flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 sm:px-5"
       >
         {report ? (
           <>

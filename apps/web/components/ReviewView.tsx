@@ -5,7 +5,6 @@ import { useParams, useSearchParams } from "next/navigation";
 import { useEffect, useId, useState } from "react";
 
 import { Callout } from "@/components/Callout";
-import { Icon, type IconName } from "@/components/Icon";
 import { PageSkeleton } from "@/components/PageSkeleton";
 import { SourceTag } from "@/components/SourceTag";
 import { VerdictBadge } from "@/components/VerdictBadge";
@@ -48,7 +47,6 @@ const ACTION_VI: Record<string, string> = {
   "ruleset.export": "Xuất bộ luật",
 };
 const AUTOMATIC = new Set(["verify.run", "backtest.run"]);
-const ACTOR_ICON: Record<string, IconName> = { ai: "spark", system: "cpu", "user:proposer": "user", "user:approver": "review" };
 
 const time = (iso: string) =>
   new Date(iso).toLocaleString("vi-VN", { hour: "2-digit", minute: "2-digit", second: "2-digit", day: "2-digit", month: "2-digit" });
@@ -106,8 +104,7 @@ export function ReviewView() {
       {sets === null && !error && <PageSkeleton label="Đang tải change set…" rows={3} />}
 
       {sets !== null && sets.length === 0 && (
-        <div className="empty flex flex-col items-center gap-2 px-6 py-10 text-center">
-          <Icon name="review" className="size-6 text-faint" />
+        <div className="empty space-y-1 p-5">
           <p className="font-medium text-foreground">Chưa có change set nào trong phiên này.</p>
           <p>
             Tạo từ{" "}
@@ -134,11 +131,10 @@ export function ReviewView() {
                     aria-current={c.id === selected?.id ? "page" : undefined}
                     className={`relative block rounded-lg border p-3 text-sm ${
                       c.id === selected?.id
-                        ? "border-line-strong bg-surface shadow-sm"
+                        ? "border-line-strong bg-surface font-medium"
                         : "border-transparent text-muted hover:border-line hover:bg-surface hover:text-foreground"
                     }`}
                   >
-                    {c.id === selected?.id && <span aria-hidden className="absolute inset-y-2.5 left-0 w-0.5 rounded-full bg-accent" />}
                     <span className={`chip text-xs font-semibold ${STATE[c.state].cls}`}>{STATE[c.state].label}</span>
                     <span className="mt-1.5 block font-medium text-foreground">{c.items.map((i) => `${OP_VI[i.op]} ${i.rule_id}`).join(", ")}</span>
                     <span className="num block text-xs text-muted">{time(c.created_at)}</span>
@@ -173,8 +169,7 @@ export function ReviewView() {
               <time dateTime={e.created_at} className="num text-muted">
                 {time(e.created_at)}
               </time>
-              <span className={`inline-flex items-start gap-1.5 font-semibold ${e.actor === "ai" ? "text-accent" : ""}`}>
-                <Icon name={ACTOR_ICON[e.actor] ?? "user"} className="mt-0.5 size-4" />
+              <span className={`font-medium ${e.actor === "ai" ? "text-accent" : ""}`}>
                 {ACTOR_VI[e.actor] ?? e.actor}
               </span>
               <div className="min-w-0">
@@ -330,8 +325,7 @@ function ChangeSetDetail({ cs, onDecided }: { cs: ChangeSet; onDecided: () => vo
           <Metric label="Giao dịch thật bị giữ/chặn" before={bt.before.fp_hold + bt.before.fp_block} after={bt.after.fp_hold + bt.after.fp_block} money={false} />
           <Metric label="Giao dịch thật phải sinh trắc học" before={bt.before.friction_biometric} after={bt.after.friction_biometric} money={false} />
         </dl>
-        <p className={`flex flex-wrap items-start gap-x-2 text-sm leading-6 ${bt.after.valid ? "text-pass" : "font-semibold text-fail"}`}>
-          <Icon name={bt.after.valid ? "check" : "x"} className="mt-1 size-4" />
+        <p className={`text-sm leading-6 ${bt.after.valid ? "text-pass" : "font-semibold text-fail"}`}>
           {bt.after.valid
             ? "Không giao dịch nào trong dữ liệu phạm invariant sau thay đổi."
             : `Giao dịch trong dữ liệu phạm invariant sau thay đổi: ${bt.after.compliance_exposure
@@ -370,8 +364,7 @@ function ChangeSetDetail({ cs, onDecided }: { cs: ChangeSet; onDecided: () => vo
       <ShadowSection cs={cs} onDone={onDecided} />
 
       <section aria-labelledby={`${uid}-decide`} className="panel space-y-4 border-line-strong p-4 sm:p-5">
-        <h3 id={`${uid}-decide`} className="section-title flex items-center gap-2">
-          <Icon name="review" className="size-5 text-accent" />
+        <h3 id={`${uid}-decide`} className="section-title">
           Người duyệt
         </h3>
         {open ? (
@@ -397,7 +390,6 @@ function ChangeSetDetail({ cs, onDecided }: { cs: ChangeSet; onDecided: () => vo
                 aria-describedby={blocked ? `${uid}-blocked` : undefined}
                 className="btn btn-primary btn-lg"
               >
-                <Icon name="check" />
                 Phê duyệt
               </button>
               <button
@@ -422,8 +414,7 @@ function ChangeSetDetail({ cs, onDecided }: { cs: ChangeSet; onDecided: () => vo
             )}
           </>
         ) : (
-          <p role="status" className={`flex flex-wrap items-center gap-x-2 text-sm leading-6 ${cs.state === "APPROVED" ? "text-pass" : ""}`}>
-            {cs.state === "APPROVED" && <Icon name="check" />}
+          <p role="status" className={`text-sm leading-6 ${cs.state === "APPROVED" ? "text-pass" : ""}`}>
             {cs.state === "APPROVED" ? "Đã phê duyệt" : "Đã từ chối"}
             {cs.decided_at ? ` lúc ${time(cs.decided_at)}` : ""}
             {cs.decision_note ? ` — “${cs.decision_note}”` : ""}.
@@ -576,7 +567,6 @@ function SummaryBlock({ cs, onDone }: { cs: ChangeSet; onDone: () => void }) {
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="section-title">Tóm tắt cho người duyệt</h3>
         <button type="button" onClick={run} disabled={busy} className="btn btn-secondary btn-sm">
-          {!busy && <Icon name="spark" className="size-3.5" />}
           {busy ? "Đang viết tóm tắt…" : s ? "Viết lại" : "Tạo tóm tắt"}
         </button>
       </div>

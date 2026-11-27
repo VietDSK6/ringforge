@@ -39,7 +39,6 @@ export function SessionNav() {
       aria-label="Điều hướng sandbox"
       className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)] md:sticky md:top-12 md:z-auto md:h-fit md:w-52 md:shrink-0 md:border-0 md:bg-transparent md:pb-0"
     >
-      <p className="mb-2 hidden px-3 text-[0.8125rem] font-medium text-muted md:block">Sandbox của bạn</p>
       <ul className="flex md:flex-col md:gap-0.5">
         {ITEMS.map((it) => {
           const href = `/s/${sid}/${it.href}`;
@@ -49,9 +48,9 @@ export function SessionNav() {
               <Link
                 href={href}
                 aria-current={active ? "page" : undefined}
-                className={`relative flex min-h-14 flex-col items-center justify-center gap-1 px-1 text-xs md:min-h-10 md:flex-row md:justify-start md:gap-2.5 md:rounded-lg md:px-3 md:text-sm ${
+                className={`relative flex min-h-14 flex-col items-center justify-center gap-1 px-1 text-xs md:min-h-10 md:flex-row md:justify-start md:gap-2.5 md:rounded-md md:px-3 md:text-sm ${
                   active
-                    ? "font-semibold text-foreground md:bg-surface md:shadow-sm md:ring-1 md:ring-line"
+                    ? "font-semibold text-foreground md:bg-surface md:ring-1 md:ring-line"
                     : "text-muted hover:text-foreground md:hover:bg-sunken"
                 }`}
               >
@@ -59,10 +58,10 @@ export function SessionNav() {
                 {active && (
                   <span
                     aria-hidden
-                    className="absolute inset-x-3 top-0 h-0.5 rounded-full bg-accent md:inset-x-auto md:inset-y-2 md:left-0 md:h-auto md:w-0.5"
+                    className="absolute inset-x-3 top-0 h-0.5 bg-foreground md:hidden"
                   />
                 )}
-                <Icon name={it.icon} className={`size-5 md:size-4 ${active ? "text-accent" : ""}`} />
+                <Icon name={it.icon} className="size-5 md:size-4" />
                 <span className="md:hidden">{it.short}</span>
                 <span className="hidden md:inline">{it.label}</span>
               </Link>
@@ -74,7 +73,7 @@ export function SessionNav() {
             type="button"
             onClick={reset}
             disabled={resetting}
-            className="flex min-h-14 w-full flex-col items-center justify-center gap-1 px-1 text-xs text-muted hover:text-foreground disabled:opacity-50 md:min-h-10 md:flex-row md:justify-start md:gap-2.5 md:rounded-lg md:px-3 md:text-sm md:hover:bg-sunken"
+            className="flex min-h-14 w-full flex-col items-center justify-center gap-1 px-1 text-xs text-muted hover:text-foreground disabled:opacity-50 md:min-h-10 md:flex-row md:justify-start md:gap-2.5 md:rounded-md md:px-3 md:text-sm md:hover:bg-sunken"
           >
             <Icon name="reset" className="size-5 md:size-4" />
             <span className="md:hidden">{resetting ? "Đang reset…" : "Reset"}</span>

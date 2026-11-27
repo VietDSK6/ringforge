@@ -190,7 +190,7 @@ Nhanh nhất: **New → Blueprint** → chọn repo; Render đọc [`render.yaml
 
 ## Tài sản có sẵn
 
-Không dùng template hay thư viện component UI có sẵn. Khung ban đầu của web tạo bằng `create-next-app` (Next.js). Bảng màu biểu đồ dùng bảng màu phân loại mặc định của hướng dẫn trực quan hóa dữ liệu, đã kiểm độ tương phản và mù màu. Font chữ: **IBM Plex Sans** và **IBM Plex Mono** (IBM, SIL Open Font License 1.1), tải qua `next/font/google` và tự host khi build. Biểu tượng giao diện và logo do đội tự vẽ bằng SVG nội tuyến.
+Không dùng template hay thư viện component UI có sẵn. Khung ban đầu của web tạo bằng `create-next-app` (Next.js). Bảng màu biểu đồ dùng bảng màu phân loại mặc định của hướng dẫn trực quan hóa dữ liệu, đã kiểm độ tương phản và mù màu. Font chữ: **IBM Plex Sans** và **IBM Plex Mono** (IBM, SIL Open Font License 1.1), tải qua `next/font/google` và tự host khi build. Biểu tượng điều hướng do đội tự vẽ bằng SVG nội tuyến.
 
 ## Thư viện mã nguồn mở
 

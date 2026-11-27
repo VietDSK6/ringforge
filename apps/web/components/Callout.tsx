@@ -1,18 +1,16 @@
 import type { ReactNode } from "react";
 
-import { Icon, type IconName } from "@/components/Icon";
-
 type Tone = "warn" | "fail" | "pass" | "info";
 
-const TONE: Record<Tone, { icon: IconName; cls: string }> = {
-  warn: { icon: "alert", cls: "border-warn-line bg-warn-soft" },
-  fail: { icon: "x", cls: "border-fail-line bg-fail-soft" },
-  pass: { icon: "check", cls: "border-pass-line bg-pass-soft" },
-  info: { icon: "help", cls: "border-line bg-sunken" },
+const TONE: Record<Tone, string> = {
+  warn: "border-warn-line bg-warn-soft",
+  fail: "border-fail-line bg-fail-soft",
+  pass: "border-pass-line bg-pass-soft",
+  info: "border-line bg-sunken",
 };
-const ICON_CLS: Record<Tone, string> = { warn: "text-warn", fail: "text-fail", pass: "text-pass", info: "text-muted" };
+const TITLE: Record<Tone, string> = { warn: "text-warn", fail: "text-fail", pass: "text-pass", info: "text-foreground" };
 
-/** Hộp thông báo có biểu tượng + màu ngữ nghĩa (lỗi, cảnh báo, dự phòng AI). */
+/** Hộp thông báo (lỗi, cảnh báo, dự phòng AI): nền nhạt + viền mảnh theo màu ngữ nghĩa. */
 export function Callout({
   tone,
   title,
@@ -28,16 +26,10 @@ export function Callout({
   className?: string;
   id?: string;
 }) {
-  const t = TONE[tone];
   return (
-    <div id={id} role={role} className={`flex gap-3 rounded-lg border px-3.5 py-3 text-sm leading-6 ${t.cls} ${className}`}>
-      <span className={`mt-1 ${ICON_CLS[tone]}`}>
-        <Icon name={t.icon} />
-      </span>
-      <div className="min-w-0 flex-1 space-y-1">
-        {title && <p className="font-semibold">{title}</p>}
-        {children}
-      </div>
+    <div id={id} role={role} className={`space-y-1 rounded-md border px-3.5 py-2.5 text-sm leading-6 ${TONE[tone]} ${className}`}>
+      {title && <p className={`font-semibold ${TITLE[tone]}`}>{title}</p>}
+      {children}
     </div>
   );
 }

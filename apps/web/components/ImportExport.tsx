@@ -3,7 +3,6 @@
 import { type FormEvent, useId, useRef, useState } from "react";
 
 import { Callout } from "@/components/Callout";
-import { Icon } from "@/components/Icon";
 import { ApiError, api } from "@/lib/api";
 import type { VerifyReport } from "@/lib/types";
 
@@ -93,11 +92,9 @@ export function ImportExport({ sid, onImported }: { sid: string; onImported: (re
   return (
     <div className="flex flex-wrap items-center gap-2">
       <button type="button" onClick={download} className="btn btn-secondary">
-        <Icon name="download" />
         Xuất JSON
       </button>
       <button type="button" onClick={() => dialogRef.current?.showModal()} className="btn btn-secondary">
-        <Icon name="upload" />
         Nhập JSON
       </button>
       {note && (
