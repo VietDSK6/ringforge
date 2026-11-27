@@ -1,10 +1,11 @@
 import { Suspense } from "react";
 
+import { PageSkeleton } from "@/components/PageSkeleton";
 import { StudioView } from "@/components/StudioView";
 
 export default function StudioPage() {
   return (
-    <Suspense fallback={<p className="text-muted">Đang tải…</p>}>
+    <Suspense fallback={<PageSkeleton />}>
       <StudioView />
     </Suspense>
   );

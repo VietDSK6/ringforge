@@ -4,14 +4,15 @@ import Link from "next/link";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { Icon, type IconName } from "@/components/Icon";
 import { api } from "@/lib/api";
 
-const ITEMS = [
-  { href: "policies", label: "Bộ luật", icon: "📋" },
-  { href: "studio", label: "Rule Studio", icon: "✍️" },
-  { href: "compare", label: "So sánh", icon: "📊" },
-  { href: "pack", label: "Policy Pack", icon: "⚖️" },
-  { href: "review", label: "Duyệt", icon: "✅" },
+const ITEMS: { href: string; label: string; short: string; icon: IconName }[] = [
+  { href: "policies", label: "Bộ luật", short: "Bộ luật", icon: "rules" },
+  { href: "studio", label: "Rule Studio", short: "Studio", icon: "studio" },
+  { href: "compare", label: "So sánh", short: "So sánh", icon: "compare" },
+  { href: "pack", label: "Policy Pack", short: "Pack", icon: "scale" },
+  { href: "review", label: "Duyệt", short: "Duyệt", icon: "review" },
 ];
 
 /** Thanh bên trái (desktop) / thanh dưới (mobile). Đây là điều hướng trang, không phải tab ARIA. */
@@ -36,9 +37,10 @@ export function SessionNav() {
   return (
     <nav
       aria-label="Điều hướng sandbox"
-      className="fixed inset-x-0 bottom-0 z-10 border-t border-line bg-surface md:sticky md:top-8 md:h-fit md:w-52 md:shrink-0 md:rounded-2xl md:border"
+      className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)] md:sticky md:top-12 md:z-auto md:h-fit md:w-52 md:shrink-0 md:border-0 md:bg-transparent md:pb-0"
     >
-      <ul className="flex md:flex-col md:p-2">
+      <p className="mb-2 hidden px-3 text-[0.8125rem] font-medium text-muted md:block">Sandbox của bạn</p>
+      <ul className="flex md:flex-col md:gap-0.5">
         {ITEMS.map((it) => {
           const href = `/s/${sid}/${it.href}`;
           const active = pathname.startsWith(href);
@@ -47,25 +49,36 @@ export function SessionNav() {
               <Link
                 href={href}
                 aria-current={active ? "page" : undefined}
-                className={`flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-xl px-3 py-2 text-xs md:flex-row md:justify-start md:gap-2 md:text-sm ${
-                  active ? "bg-violet-50 font-semibold text-accent dark:bg-violet-950" : "hover:bg-background"
+                className={`relative flex min-h-14 flex-col items-center justify-center gap-1 px-1 text-xs md:min-h-10 md:flex-row md:justify-start md:gap-2.5 md:rounded-lg md:px-3 md:text-sm ${
+                  active
+                    ? "font-semibold text-foreground md:bg-surface md:shadow-sm md:ring-1 md:ring-line"
+                    : "text-muted hover:text-foreground md:hover:bg-sunken"
                 }`}
               >
-                <span aria-hidden>{it.icon}</span>
-                {it.label}
+                {/* Vạch chỉ báo trang hiện tại: không chỉ dựa vào màu. */}
+                {active && (
+                  <span
+                    aria-hidden
+                    className="absolute inset-x-3 top-0 h-0.5 rounded-full bg-accent md:inset-x-auto md:inset-y-2 md:left-0 md:h-auto md:w-0.5"
+                  />
+                )}
+                <Icon name={it.icon} className={`size-5 md:size-4 ${active ? "text-accent" : ""}`} />
+                <span className="md:hidden">{it.short}</span>
+                <span className="hidden md:inline">{it.label}</span>
               </Link>
             </li>
           );
         })}
-        <li className="flex-1 md:mt-2 md:border-t md:border-line md:pt-2">
+        <li className="flex-1 md:mt-3 md:border-t md:border-line md:pt-3">
           <button
             type="button"
             onClick={reset}
             disabled={resetting}
-            className="flex min-h-12 w-full flex-col items-center justify-center gap-0.5 rounded-xl px-3 py-2 text-xs text-muted hover:bg-background disabled:opacity-50 md:flex-row md:justify-start md:gap-2 md:text-sm"
+            className="flex min-h-14 w-full flex-col items-center justify-center gap-1 px-1 text-xs text-muted hover:text-foreground disabled:opacity-50 md:min-h-10 md:flex-row md:justify-start md:gap-2.5 md:rounded-lg md:px-3 md:text-sm md:hover:bg-sunken"
           >
-            <span aria-hidden>↺</span>
-            {resetting ? "Đang reset…" : "Reset sandbox"}
+            <Icon name="reset" className="size-5 md:size-4" />
+            <span className="md:hidden">{resetting ? "Đang reset…" : "Reset"}</span>
+            <span className="hidden md:inline">{resetting ? "Đang reset…" : "Reset sandbox"}</span>
           </button>
         </li>
       </ul>

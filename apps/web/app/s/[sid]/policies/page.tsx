@@ -1,10 +1,11 @@
 import { Suspense } from "react";
 
+import { PageSkeleton } from "@/components/PageSkeleton";
 import { PoliciesView } from "@/components/PoliciesView";
 
 export default function PoliciesPage() {
   return (
-    <Suspense fallback={<p className="text-muted">Đang tải…</p>}>
+    <Suspense fallback={<PageSkeleton />}>
       <PoliciesView />
     </Suspense>
   );
