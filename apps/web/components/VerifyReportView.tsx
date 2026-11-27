@@ -1,10 +1,43 @@
-import { CounterexampleCard } from "@/components/CounterexampleCard";
-import { VerdictBadge } from "@/components/VerdictBadge";
-import type { Catalog, PolicyPack, VerifyReport } from "@/lib/types";
+import type { ReactNode } from "react";
 
-/** Báo cáo kiểm chứng (bản cơ bản; màn hình đầy đủ + grounding + sửa bằng AI ở T3.5). */
-export function VerifyReportView({ report, pack, catalog }: { report: VerifyReport; pack: PolicyPack | null; catalog: Catalog | null }) {
+import { CounterexampleCard } from "@/components/CounterexampleCard";
+import { GroundingLine } from "@/components/GroundingLine";
+import { VerdictBadge } from "@/components/VerdictBadge";
+import type { Catalog, Check, PolicyPack, VerifyReport } from "@/lib/types";
+
+function title(c: Check): string {
+  const unknown = c.status === "UNKNOWN" ? " — không kết luận được trong thời hạn (không coi là đạt)" : "";
+  switch (c.code) {
+    case "VC-04":
+      return `Vi phạm ${c.invariant}${unknown}`;
+    case "VC-03":
+      return `Luật chết — ${c.rule_id}${unknown}`;
+    case "VC-05":
+      return `Luật thừa — ${c.redundant} (bị ${c.covered_by} bao trùm)`;
+    case "VC-06":
+      return `Xung đột miễn trừ — ${c.rule_id} vô hiệu ${c.conflicts_with} ở vùng chồng lấn`;
+    case "VC-01":
+      return "Luật sai cú pháp/kiểu (VC-01)";
+    default:
+      return c.code;
+  }
+}
+
+/** Báo cáo kiểm chứng (docs/07 mục 3.4): badge lớn, thẻ lỗi có phản ví dụ + grounding + luật gây lỗi. */
+export function VerifyReportView({
+  report,
+  pack,
+  catalog,
+  actions,
+}: {
+  report: VerifyReport;
+  pack: PolicyPack | null;
+  catalog: Catalog | null;
+  actions?: ReactNode;
+}) {
   const source = (id?: string) => pack?.invariants.find((i) => i.id === id)?.source;
+  const errors = report.checks.filter((c) => c.severity === "ERROR");
+  const warnings = report.checks.filter((c) => c.severity !== "ERROR");
   return (
     <section aria-labelledby="report-title" className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
@@ -17,20 +50,26 @@ export function VerifyReportView({ report, pack, catalog }: { report: VerifyRepo
         </span>
       </div>
 
-      {report.verdict === "PASS" && (
+      {errors.length === 0 && report.verdict !== "UNKNOWN" && (
         <p className="rounded-xl border border-line bg-surface p-4 text-sm">
           Với mọi giao dịch trong miền giá trị đã mô hình hóa, bộ luật thỏa tất cả invariant của Policy Pack.
+          {warnings.length > 0 && " Có cảnh báo bên dưới (không chặn phê duyệt)."}
         </p>
       )}
 
-      {report.checks.map((c, i) => (
-        <article key={i} className="space-y-3 rounded-2xl border border-line bg-surface p-4">
+      {actions}
+
+      {[...errors, ...warnings].map((c, i) => (
+        <article
+          key={i}
+          className={`space-y-3 rounded-2xl border bg-surface p-4 ${
+            c.severity === "ERROR" ? "border-red-300 dark:border-red-900" : "border-amber-300 dark:border-amber-800"
+          }`}
+        >
           <header>
             <h3 className="font-semibold">
-              {c.code === "VC-04" && `Vi phạm ${c.invariant}`}
-              {c.code === "VC-03" && `Luật chết — ${c.rule_id}`}
-              {c.code === "VC-01" && "Luật sai cú pháp/kiểu (VC-01)"}
-              {c.status === "UNKNOWN" && " — không kết luận được"}
+              <span aria-hidden>{c.severity === "ERROR" ? "❌ " : "⚠️ "}</span>
+              {title(c)}
             </h3>
             {c.code === "VC-04" && source(c.invariant) && (
               <p className="text-xs text-muted">Nguồn: {source(c.invariant)} (giả lập)</p>
@@ -46,6 +85,7 @@ export function VerifyReportView({ report, pack, catalog }: { report: VerifyRepo
             </ul>
           )}
           <CounterexampleCard check={c} catalog={catalog} />
+          {c.grounding && <GroundingLine g={c.grounding} />}
           {c.blamed_rules && c.blamed_rules.length > 0 && (
             <p className="text-sm">
               Luật gây lỗi: <span className="font-mono font-semibold text-danger">{c.blamed_rules.join(", ")}</span>

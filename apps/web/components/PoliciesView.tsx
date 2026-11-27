@@ -44,6 +44,14 @@ export function PoliciesView() {
 
   const failed = report?.checks.filter((c) => c.code === "VC-04").map((c) => c.invariant) ?? [];
   const nInv = report?.checked.invariants.length ?? 0;
+  const redundant = report?.checks.filter((c) => c.code === "VC-05").map((c) => c.redundant) ?? [];
+  const conflicts = report?.checks.filter((c) => c.code === "VC-06").length ?? 0;
+  const warnText = [
+    redundant.length ? `⚠ ${redundant.length} luật thừa (${redundant.join(", ")})` : "",
+    conflicts ? `⚠ ${conflicts} xung đột miễn trừ` : "",
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
   return (
     <div className="space-y-6">
@@ -65,9 +73,11 @@ export function PoliciesView() {
           <>
             <VerdictBadge verdict={report.verdict} />
             <span className="text-sm">
-              {report.verdict === "PASS"
-                ? `Bộ luật đang chạy qua cả ${nInv} invariant của Policy Pack.`
-                : `Vi phạm: ${failed.join(", ") || "xem Rule Studio"}.`}
+              {failed.length === 0 && report.verdict !== "UNKNOWN"
+                ? `Bộ luật đang chạy qua cả ${nInv} invariant của Policy Pack.${warnText ? ` ${warnText}` : ""}`
+                : report.verdict === "UNKNOWN"
+                  ? "Không kết luận được trong thời hạn — không coi là đạt."
+                  : `Vi phạm: ${failed.join(", ")}.`}
             </span>
             <span className="text-xs text-muted">Kiểm bằng Z3 trong {report.ms} ms</span>
           </>

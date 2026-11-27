@@ -49,10 +49,23 @@ export interface CompileResult {
 
 export type Transaction = Record<string, number | boolean | string>;
 
+export interface Grounding {
+  tx_count: number;
+  amount_sum: number;
+  by_scenario: Record<string, { label_vi: string; count: number; amount_sum: number }>;
+  by_label: Record<string, number>;
+  days: number[];
+  note_vi: string;
+}
+
 export interface Check {
-  code: "VC-01" | "VC-03" | "VC-04" | string;
+  code: "VC-01" | "VC-03" | "VC-04" | "VC-05" | "VC-06" | string;
   severity: "ERROR" | "WARN" | "INFO";
-  status?: "VIOLATED" | "DEAD" | "UNKNOWN";
+  status?: "VIOLATED" | "DEAD" | "UNKNOWN" | "REDUNDANT" | "CONFLICT";
+  grounding?: Grounding;
+  redundant?: string;
+  covered_by?: string;
+  conflicts_with?: string;
   message_vi: string;
   invariant?: string;
   rule_id?: string;
@@ -105,6 +118,35 @@ export interface CatalogField {
 export interface Catalog {
   dsl_version: string;
   fields: CatalogField[];
+}
+
+export interface RepairCandidate {
+  source: "ai" | "det";
+  strategy: "NARROW_SCOPE" | "CHANGE_ACTION" | "SPLIT_RULE" | "OTHER";
+  rationale_vi: string;
+  intent_preserved_vi: string;
+  intent_lost_vi: string;
+  rules: Rule[];
+  verdict: Verdict;
+  passes: boolean;
+  scope_ok: boolean;
+  coverage_bp: number | null;
+  l_net: number;
+  delta: Record<string, number>;
+  leaves: number;
+  diff: { added_vi: string[]; removed_vi: string[] };
+  rank: number;
+}
+
+export interface RepairResponse {
+  needed: boolean | null;
+  message_vi?: string;
+  original?: Rule;
+  violated_invariants?: string[];
+  baseline?: { l_net: number; friction_biometric: number; valid: boolean };
+  candidates: RepairCandidate[];
+  rejected: { source: "ai" | "det"; strategy: string; reason_vi: string }[];
+  llm: "used" | "unavailable" | "quota" | "error" | "not_requested" | "not_needed";
 }
 
 export interface ApiErrorBody {

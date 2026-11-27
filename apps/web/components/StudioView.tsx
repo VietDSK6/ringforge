@@ -3,11 +3,12 @@
 import { useParams, useSearchParams } from "next/navigation";
 import { type FormEvent, type KeyboardEvent, useEffect, useId, useRef, useState } from "react";
 
+import { RepairPanel } from "@/components/RepairPanel";
 import { RuleSentence } from "@/components/RuleSentence";
 import { VerifyReportView } from "@/components/VerifyReportView";
 import { ApiError, api } from "@/lib/api";
 import { KIND_VI } from "@/lib/format";
-import type { Catalog, CompileResult, PolicyPack, Rule, VerifyReport } from "@/lib/types";
+import type { Catalog, CompileResult, PolicyPack, RepairCandidate, RepairResponse, Rule, VerifyReport } from "@/lib/types";
 
 const DEMO1 =
   "Để giảm phiền hà cho khách thân thiết: tài khoản trên 1 năm, chuyển cho người nhận quen thì không cần xác thực thêm.";
@@ -33,7 +34,7 @@ const JSON_TEMPLATE = {
   then: { exempt_auth: true },
 };
 
-type Phase = "idle" | "compiling" | "compiled" | "verifying" | "done";
+type Phase = "idle" | "compiling" | "compiled" | "verifying" | "done" | "repairing";
 
 function withoutRender(rule: Rule): Omit<Rule, "render"> {
   const { render: _render, ...rest } = rule;
@@ -56,7 +57,11 @@ export function StudioView() {
   const [error, setError] = useState<string | null>(null);
   const [pack, setPack] = useState<PolicyPack | null>(null);
   const [catalog, setCatalog] = useState<Catalog | null>(null);
+  const [verified, setVerified] = useState<Record<string, unknown>[]>([]);
+  const [repair, setRepair] = useState<RepairResponse | null>(null);
+  const [savedNote, setSavedNote] = useState<string | null>(null);
   const reportRef = useRef<HTMLDivElement>(null);
+  const repairRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     api.pack(sid).then(setPack).catch(() => undefined);
@@ -80,6 +85,8 @@ export function StudioView() {
     setError(null);
     setBanner(null);
     setReport(null);
+    setRepair(null);
+    setSavedNote(null);
     setManual(false);
     try {
       const res = await api.compile(sid, text);
@@ -98,19 +105,14 @@ export function StudioView() {
     }
   }
 
-  async function onVerify() {
-    let body: unknown;
-    try {
-      body = jsonDirty || !rule ? JSON.parse(jsonText) : withoutRender(rule);
-    } catch {
-      setError("JSON không hợp lệ — kiểm tra lại dấu ngoặc, dấu phẩy.");
-      return;
-    }
+  async function verifyRules(bodies: Record<string, unknown>[]) {
     setError(null);
+    setSavedNote(null);
     setPhase("verifying");
     try {
-      const rep = await api.verify(sid, [body]);
+      const rep = await api.verify(sid, bodies);
       setReport(rep);
+      setVerified(bodies);
       setPhase("done");
       requestAnimationFrame(() => reportRef.current?.focus());
     } catch (err) {
@@ -119,10 +121,66 @@ export function StudioView() {
     }
   }
 
+  async function onVerify() {
+    let body: Record<string, unknown>;
+    try {
+      body = jsonDirty || !rule ? JSON.parse(jsonText) : withoutRender(rule);
+    } catch {
+      setError("JSON không hợp lệ — kiểm tra lại dấu ngoặc, dấu phẩy.");
+      return;
+    }
+    setRepair(null);
+    await verifyRules([body]);
+  }
+
+  async function onRepair() {
+    if (verified.length === 0) return;
+    setError(null);
+    setPhase("repairing");
+    try {
+      setRepair(await api.repair(sid, verified[0]));
+      requestAnimationFrame(() => repairRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Không tạo được bản sửa.");
+    } finally {
+      setPhase("done");
+    }
+  }
+
+  async function onUse(c: RepairCandidate) {
+    const [first] = c.rules;
+    setRule(first);
+    setManual(false);
+    setJsonText(JSON.stringify(withoutRender(first), null, 2));
+    setJsonDirty(false);
+    await verifyRules(c.rules.map((r) => withoutRender(r) as unknown as Record<string, unknown>));
+    requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
+  }
+
+  async function onSave() {
+    try {
+      const results = await Promise.all(verified.map((r) => api.saveRule(sid, r)));
+      const ids = results.filter((r) => r.saved && r.rule).map((r) => `${r.rule!.id} v${r.rule!.version}`);
+      setSavedNote(ids.length ? `Đã lưu ${ids.join(", ")} vào bộ luật của sandbox (trạng thái ứng viên).` : "Không lưu được luật.");
+    } catch (err) {
+      setSavedNote(err instanceof ApiError ? err.message : "Không lưu được luật.");
+    }
+  }
+
   const nInv = pack?.invariants.length ?? 3;
   const progress =
-    phase === "compiling" ? "AI đang biên dịch…" : phase === "verifying" ? `Đang kiểm chứng ${nInv} invariant bằng Z3…` : "";
-  const canVerify = (rule !== null || manual) && phase !== "verifying" && phase !== "compiling";
+    phase === "compiling"
+      ? "AI đang biên dịch…"
+      : phase === "verifying"
+        ? `Đang kiểm chứng ${nInv} invariant bằng Z3…`
+        : phase === "repairing"
+          ? "Đang đề xuất bản sửa, kiểm chứng lại và backtest từng bản…"
+          : "";
+  const busy = phase === "verifying" || phase === "compiling" || phase === "repairing";
+  const canVerify = (rule !== null || manual) && !busy;
+  const draftId = verified[0]?.id;
+  const blamed = report?.checks.some((c) => c.code === "VC-04" && c.blamed_rules?.includes(String(draftId))) ?? false;
+  const passed = report !== null && (report.verdict === "PASS" || report.verdict === "PASS_WITH_WARNINGS");
 
   return (
     <div className="space-y-6">
@@ -241,7 +299,43 @@ export function StudioView() {
 
       {report && (
         <div ref={reportRef} tabIndex={-1} className="outline-none">
-          <VerifyReportView report={report} pack={pack} catalog={catalog} />
+          <VerifyReportView
+            report={report}
+            pack={pack}
+            catalog={catalog}
+            actions={
+              <div className="flex flex-wrap items-center gap-3">
+                {blamed && (
+                  <button
+                    type="button"
+                    onClick={onRepair}
+                    disabled={busy}
+                    className="min-h-12 rounded-xl bg-accent px-6 font-semibold text-white hover:opacity-90 disabled:opacity-60 dark:text-zinc-950"
+                  >
+                    Sửa bằng AI
+                  </button>
+                )}
+                {passed && verified.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={onSave}
+                    className="min-h-12 rounded-xl border border-line px-5 font-semibold hover:bg-background"
+                  >
+                    Lưu vào bộ luật (ứng viên)
+                  </button>
+                )}
+                <p role="status" className="text-sm text-ok">
+                  {savedNote}
+                </p>
+              </div>
+            }
+          />
+        </div>
+      )}
+
+      {repair && (
+        <div ref={repairRef}>
+          <RepairPanel data={repair} onUse={onUse} busy={busy} />
         </div>
       )}
     </div>
@@ -313,7 +407,18 @@ function RuleCard({
     document.getElementById(`${id}-${target}-tab`)?.focus();
   }
 
-  const source = manual ? "Người viết (JSON)" : compiled?.source === "cache" ? "AI · kết quả đã lưu" : "AI đề xuất";
+  const by = rule?.provenance?.created_by;
+  const source = manual
+    ? "Người viết (JSON)"
+    : by === "det_repair"
+      ? "Sửa tất định"
+      : by === "ai_repair"
+        ? "AI sửa"
+        : by === "human"
+          ? "Người viết"
+          : compiled?.source === "cache"
+            ? "AI · kết quả đã lưu"
+            : "AI đề xuất";
 
   return (
     <article className="space-y-4 rounded-2xl border border-line bg-surface p-4">

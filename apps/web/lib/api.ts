@@ -1,5 +1,5 @@
 // Client gọi API RingForge. Lỗi API trả về dạng {error_code, message_vi} → ApiError.
-import type { Catalog, CompileResult, PolicyPack, Rule, VerifyReport } from "./types";
+import type { Catalog, CompileResult, PolicyPack, RepairResponse, Rule, VerifyReport } from "./types";
 
 export const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000").replace(/\/+$/, "");
 
@@ -42,4 +42,11 @@ export const api = {
   catalog: () => request<Catalog>("/catalog"),
   compile: (sid: string, text: string) => post<CompileResult>(`/sessions/${sid}/compile`, { text }),
   verify: (sid: string, rules: unknown[]) => post<VerifyReport>(`/sessions/${sid}/verify`, { rules }),
+  repair: (sid: string, rule: unknown, useAi = true) =>
+    post<RepairResponse>(`/sessions/${sid}/repair`, { rule, use_ai: useAi }),
+  saveRule: (sid: string, rule: Rule | Record<string, unknown>) =>
+    request<{ saved: boolean; rule?: Rule }>(`/sessions/${sid}/rules/${String(rule.id)}`, {
+      method: "PUT",
+      body: JSON.stringify(rule),
+    }),
 };
