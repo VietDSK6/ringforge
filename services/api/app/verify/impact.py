@@ -345,11 +345,11 @@ def pack_impact(
             reason: dict[str, Any] = {"code": "STALE_LITERAL", "severity": "ERROR", "params": [n for n, _, _ in stale]}
             if m is not None:
                 tx = model_to_tx(m, z.v)
-                msg += (" Luật vẫn khớp giao dịch như phản ví dụ dưới đây, dù nếu tham chiếu tham số thì không còn khớp."
-                        if extra else " Luật bỏ sót giao dịch như phản ví dụ dưới đây, dù nếu tham chiếu tham số thì sẽ khớp.")
+                msg += (" Luật vẫn khớp giao dịch nhân chứng dưới đây, dù nếu tham chiếu tham số thì không còn khớp."
+                        if extra else " Luật bỏ sót giao dịch nhân chứng dưới đây, dù nếu tham chiếu tham số thì sẽ khớp.")
                 reason |= {"counterexample": tx, "outcomes": outcomes(m)}
             mask = condition_mask(r["when"], part, new_p) ^ condition_mask(stale_when, part, new_p)
-            g = summarize(part, mask)
+            g = summarize(part, mask) | {"days": list(BACKTEST_DAYS)}
             g["note_vi"] = _data_note(g["tx_count"], g["amount_sum"], "khớp khác đi chỉ vì mốc viết cứng", n_days)
             reason["grounding"] = g
             reason["scope_shift"] = [{k: v for k, v in s.items() if not k.startswith("scope_")} for s in shifts]

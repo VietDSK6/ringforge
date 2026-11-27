@@ -2,7 +2,7 @@ import { formatInt, formatVnd } from "@/lib/format";
 import type { Grounding } from "@/lib/types";
 
 /** Vùng vi phạm lớn cỡ nào trong dữ liệu (docs/07 mục 3.4). Số liệu do hệ thống tính, không phải AI. */
-export function GroundingLine({ g }: { g: Grounding }) {
+export function GroundingLine({ g, what = "rơi vào vùng vi phạm" }: { g: Grounding; what?: string }) {
   if (g.tx_count === 0) {
     return (
       <p className="rounded-xl border-2 border-amber-400 bg-amber-50 p-3 text-sm font-semibold text-amber-900 dark:bg-amber-950 dark:text-amber-200">
@@ -18,7 +18,7 @@ export function GroundingLine({ g }: { g: Grounding }) {
         <strong className="tabular-nums">
           {formatInt(g.tx_count)} giao dịch · {formatVnd(g.amount_sum)}
         </strong>{" "}
-        rơi vào vùng vi phạm. <span className="text-xs text-muted">(hệ thống tính)</span>
+        {what}. <span className="text-xs text-muted">(hệ thống tính)</span>
       </p>
       {scenarios.length > 0 && (
         <ul className="flex flex-wrap gap-2" aria-label="Phân rã theo kịch bản">

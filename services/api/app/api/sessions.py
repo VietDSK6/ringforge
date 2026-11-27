@@ -16,7 +16,7 @@ from app.api.errors import AppError
 from app.backtest.metrics import Assumptions, delta, run_backtest
 from app.config import settings
 from app.data.loader import transactions
-from app.dsl.render_vi import render_rule
+from app.dsl.render_vi import PARAM_LABELS_VI, describe_invariant, render_rule
 from app.dsl.validator import Issue, check_rule, check_rules
 from app.store import repo
 from app.store.db import get_db
@@ -64,7 +64,12 @@ def reset_session(sid: str, db: Db) -> dict[str, Any]:
 @router.get("/{sid}/pack", summary="Policy Pack hiện hành của phiên")
 def get_pack(sid: str, db: Db) -> dict[str, Any]:
     repo.get_session(db, sid)
-    return repo.current_pack(db, sid)
+    pack = repo.current_pack(db, sid)
+    db.commit()
+    return pack | {
+        "params_vi": {k: PARAM_LABELS_VI.get(k, k) for k in pack["params"]},
+        "invariants_vi": {inv["id"]: describe_invariant(inv, pack) for inv in pack["invariants"]},
+    }
 
 
 @router.get("/{sid}/rules", summary="Luật hiện hành + candidate (kèm câu tiếng Việt)")

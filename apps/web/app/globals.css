@@ -69,3 +69,12 @@ select {
   inset: auto 0 0;
   border-block-end: 3px solid var(--accent);
 }
+
+/* Dialog modal: không cuộn trang phía sau (modern-web-guidance: dialog). */
+dialog:modal {
+  overscroll-behavior: contain;
+}
+dialog::backdrop {
+  overflow: hidden;
+  overscroll-behavior: contain;
+}

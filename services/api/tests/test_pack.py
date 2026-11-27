@@ -139,6 +139,8 @@ def test_api_impact_apply_and_reset(client):
     assert applied["pack"]["version"] == "2026.11-sim.2" and applied["previous_version"] == "2026.11-sim.1"
     pack = client.get(f"/sessions/{sid}/pack").json()
     assert pack["params"]["biometric_per_tx_threshold"]["value"] == 5_000_000
+    assert "(hiện 5.000.000 đ) phải xác thực ít nhất bằng sinh trắc học" in pack["invariants_vi"]["INV-AUTH-01"]
+    assert pack["params_vi"]["biometric_per_tx_threshold"] == "ngưỡng sinh trắc học/lần"
     assert [v["version"] for v in client.get(f"/sessions/{sid}/pack/history").json()["versions"]] == ["2026.11-sim.1", "2026.11-sim.2"]
     rules = {r["id"]: r for r in client.get(f"/sessions/{sid}/rules").json()["rules"]}
     assert "5.000.000 đ" in rules["REG-01"]["render"]["sentence_vi"]

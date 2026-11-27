@@ -95,12 +95,20 @@ export interface Invariant {
   source: string;
 }
 
+export interface PackParam {
+  value: number;
+  unit: string;
+  source: string;
+}
+
 export interface PolicyPack {
   id: string;
   version: string;
   disclaimer: string;
-  params: Record<string, { value: number; unit: string; source: string }>;
+  params: Record<string, PackParam>;
   invariants: Invariant[];
+  params_vi?: Record<string, string>;
+  invariants_vi?: Record<string, string>;
 }
 
 export interface CatalogField {
@@ -153,4 +161,107 @@ export interface ApiErrorBody {
   error_code: string;
   message_vi: string;
   details?: unknown;
+}
+
+// ---------- Policy Pack: phân tích tác động (T4.1) + VC-07 (T4.2) ----------
+
+export interface Outcome {
+  decision: Decision;
+  auth: AuthLevel;
+}
+
+export type PatchOp = { op: "set_param"; param: string; value: number; source?: string };
+
+export type PackChange =
+  | { op: "set_param"; param: string; label_vi: string; old: number; new: number; unit: string }
+  | { op: "add_invariant" | "remove_invariant"; invariant_id: string };
+
+export interface ImpactReason {
+  code: "VC-01" | "VC-03" | "VC-04" | "STALE_LITERAL" | "SCOPE_SHIFT" | string;
+  severity: "ERROR" | "WARN";
+  message_vi: string;
+  invariant?: string;
+  counterexample?: Transaction;
+  outcome?: Outcome;
+  outcomes?: { before: Outcome; after: Outcome };
+  grounding?: Grounding;
+}
+
+export type ImpactCategory = "incompatible" | "review" | "adaptive" | "unaffected";
+
+export interface ImpactFix {
+  source: "det";
+  rule: Rule | null;
+  verdict: Verdict;
+  passes: boolean;
+  notes_vi: string[];
+  remaining_checks?: Check[];
+}
+
+export interface ImpactRule {
+  id: string;
+  name: string;
+  kind: RuleKind;
+  status: RuleStatus;
+  locked: boolean;
+  category: ImpactCategory;
+  params_referenced: string[];
+  reasons: ImpactReason[];
+  render_before: RuleRender;
+  render_after: RuleRender;
+  fix?: ImpactFix | null;
+}
+
+export interface DataSummary {
+  tx_count: number;
+  amount_sum: number;
+  by_scenario: Record<string, { label_vi: string; count: number; amount_sum: number }>;
+  by_label: Record<string, number>;
+}
+
+export interface DiffKind {
+  decision: [Decision, Decision] | null;
+  auth: [AuthLevel, AuthLevel] | null;
+  label_vi: string;
+  direction: "stricter" | "looser" | "mixed";
+  before: Outcome;
+  after: Outcome;
+  counterexample: Transaction;
+  data?: DataSummary;
+}
+
+export interface SemanticDiff {
+  code: "VC-07";
+  severity: "INFO";
+  status: "DIFFERENT" | "EQUIVALENT" | "UNKNOWN";
+  complete: boolean;
+  diffs: DiffKind[];
+  grounding?: DataSummary & { days: number[]; other_tx_count: number };
+  message_vi: string;
+}
+
+export interface FrictionSnapshot {
+  friction_biometric: number;
+  friction_otp: number;
+  l_net: number;
+  fn_loss: number;
+  review_cost: number;
+  churn_loss: number;
+  fp_hold: number;
+  fp_block: number;
+  valid: boolean;
+}
+
+export interface PackImpact {
+  pack_before: { version: string; params: Record<string, PackParam> };
+  pack_after: PolicyPack;
+  changes: PackChange[];
+  verify_before: { verdict: Verdict };
+  verify_after: VerifyReport;
+  rules: ImpactRule[];
+  counts: Record<ImpactCategory, number>;
+  semantic_diff: SemanticDiff;
+  pack_findings: Check[];
+  friction: { before: FrictionSnapshot; after: FrictionSnapshot; delta: Record<string, number>; days: number[] };
+  ms: number;
 }

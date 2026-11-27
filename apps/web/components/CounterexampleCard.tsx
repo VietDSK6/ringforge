@@ -1,5 +1,5 @@
 import { AUTH_VI, DECISION_VI, formatFieldValue, formatVnd } from "@/lib/format";
-import type { Catalog, Check } from "@/lib/types";
+import type { Catalog, Outcome, Transaction } from "@/lib/types";
 
 // Các trường đã hiển thị ở phần chính của thẻ.
 const MAIN = new Set([
@@ -13,7 +13,15 @@ const MAIN = new Set([
 ]);
 
 /** Phản ví dụ trình bày như một giao dịch trong app (docs/07 mục 3.4). */
-export function CounterexampleCard({ check, catalog }: { check: Check; catalog: Catalog | null }) {
+export function CounterexampleCard({
+  check,
+  catalog,
+  title = "Giao dịch phản ví dụ (do hệ thống tìm)",
+}: {
+  check: { counterexample?: Transaction; outcome?: Outcome; outcomes?: { before: Outcome; after: Outcome } };
+  catalog: Catalog | null;
+  title?: string;
+}) {
   const tx = check.counterexample;
   if (!tx) return null;
   const field = (name: string) => catalog?.fields.find((f) => f.name === name);
@@ -27,7 +35,7 @@ export function CounterexampleCard({ check, catalog }: { check: Check; catalog: 
 
   return (
     <div className="rounded-2xl border border-line bg-background p-4">
-      <p className="text-xs font-medium uppercase tracking-wide text-muted">Giao dịch phản ví dụ (do hệ thống tìm)</p>
+      <p className="text-xs font-medium uppercase tracking-wide text-muted">{title}</p>
       <p className="mt-1 text-3xl font-bold tabular-nums">{formatVnd(Number(tx.amount))}</p>
       {Number(tx.daily_total_after) > Number(tx.amount) && (
         <p className="mt-1 text-lg font-semibold tabular-nums">
@@ -44,6 +52,18 @@ export function CounterexampleCard({ check, catalog }: { check: Check; catalog: 
             {DECISION_VI[check.outcome.decision]} · {AUTH_VI[check.outcome.auth]}
           </span>
         </p>
+      )}
+      {check.outcomes && (
+        <dl className="mt-3 grid gap-1 text-sm sm:grid-cols-[auto_1fr] sm:gap-x-3">
+          <dt className="text-muted">Trước thay đổi</dt>
+          <dd>
+            {DECISION_VI[check.outcomes.before.decision]} · {AUTH_VI[check.outcomes.before.auth]}
+          </dd>
+          <dt className="text-muted">Sau thay đổi</dt>
+          <dd className="font-semibold">
+            {DECISION_VI[check.outcomes.after.decision]} · {AUTH_VI[check.outcomes.after.auth]}
+          </dd>
+        </dl>
       )}
       <details className="mt-3 text-sm">
         <summary className="cursor-pointer text-muted">Các trường còn lại của giao dịch</summary>

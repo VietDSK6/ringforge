@@ -105,3 +105,15 @@ def render_rule(rule: dict[str, Any], pack: dict[str, Any] | None = None) -> dic
         "sentence_vi": f"NẾU {when} THÌ {then}",
         "has_exemption": bool(rule["then"].get("exempt_auth")),
     }
+
+
+INV_LEVEL_VI = {"NONE": "xác thực mặc định", "OTP": "OTP", "BIOMETRIC": "sinh trắc học"}
+INV_DECISION_VI = {"ALLOW": "cho qua", "MONITOR": "cho qua và giám sát", "HOLD": "giữ lại", "BLOCK": "chặn"}
+
+
+def describe_invariant(inv: dict[str, Any], pack: dict[str, Any] | None = None) -> str:
+    """Câu tiếng Việt cho một invariant của Policy Pack (đặc tả, không phải luật)."""
+    scope = render_condition(inv["when"], pack)
+    if inv["type"] == "AUTH_AT_LEAST":
+        return f"Mọi giao dịch có {scope} phải xác thực ít nhất bằng {INV_LEVEL_VI.get(inv['level'], inv['level'])}."
+    return f"Mọi giao dịch có {scope} chỉ được xử lý tối đa ở mức {INV_DECISION_VI.get(inv['level'], inv['level'])}."

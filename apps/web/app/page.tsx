@@ -12,7 +12,9 @@ const DEMOS = [
   {
     title: "Quy định thay đổi",
     body: "Hạ ngưỡng sinh trắc học từ 10 triệu xuống 5 triệu: luật nào viết cứng con số sẽ bị chỉ ra kèm phản ví dụ.",
-    ready: false,
+    to: "pack",
+    query: "?demo=2",
+    ready: true,
   },
   {
     title: "Chọn luật ít tổn thất nhất",
