@@ -20,7 +20,9 @@ from app.dsl.validator import Issue, check_rule, check_rules
 from app.store import repo
 from app.store.db import get_db
 from app.verify.checks import verify_rules
+from app.verify.det_repair import deterministic_repair
 from app.verify.grounding import ground_findings
+from app.verify.repair import evaluate, rank_key
 
 router = APIRouter(prefix="/sessions", tags=["sessions"])
 Db = Annotated[Session, Depends(get_db)]
@@ -150,6 +152,87 @@ def verify_session(sid: str, req: SessionVerifyRequest, db: Db) -> dict[str, Any
     repo.audit(db, sid, "system", "verify.run", {"verify_run_id": run_id, "verdict": report["verdict"], "changed": [r["id"] for r in changes]})
     db.commit()
     return report | {"verify_run_id": run_id}
+
+
+# ---------- sửa luật (T3.2 tất định, T3.3 AI) ----------
+
+
+class RepairRequest(BaseModel):
+    rule: dict[str, Any] = Field(description="Luật gây vi phạm (thường là luật vừa biên dịch)")
+    use_ai: bool = Field(default=True, description="Gọi AI đề xuất thêm bản sửa (nếu khả dụng)")
+    assumptions: Assumptions = Field(default_factory=Assumptions)
+
+
+def _det_proposal(original: dict[str, Any], findings: list[dict[str, Any]], pack: dict[str, Any]) -> dict[str, Any] | None:
+    fixed = deterministic_repair(original, findings, pack)
+    if fixed is None:
+        return None
+    invs = sorted({f["invariant"] for f in findings if original["id"] in f.get("blamed_rules", [])})
+    return {
+        "source": "det",
+        "strategy": "NARROW_SCOPE",
+        "rationale_vi": f"Thêm điều kiện loại trừ đúng vùng vi phạm của {', '.join(invs)} (sửa tất định, không dùng AI).",
+        "intent_preserved_vi": "Giữ nguyên điều kiện gốc; chỉ bỏ phần giao dịch phạm invariant.",
+        "intent_lost_vi": "Giao dịch trong vùng vi phạm không còn được áp dụng luật này.",
+        "rules": [fixed],
+    }
+
+
+@router.post("/{sid}/repair", summary="Đề xuất bản sửa đã kiểm chứng lại + backtest (AI và tất định)")
+def repair_session(sid: str, req: RepairRequest, db: Db) -> dict[str, Any]:
+    repo.get_session(db, sid)
+    pack = repo.current_pack(db, sid)
+    current = repo.current_rules(db, sid)
+    original, issues = check_rule(req.rule, pack)
+    if original is None:
+        return {"needed": None, "error": vc01_report(issues), "candidates": [], "rejected": []}
+    rules = merge_rules(current, [original])
+    report = verify_rules(rules, pack)
+    violated = sorted({f["invariant"] for f in report["checks"] if f.get("code") == "VC-04" and original["id"] in f.get("blamed_rules", [])})
+    if not violated:
+        return {"needed": False, "message_vi": f"Luật {original['id']} không gây vi phạm invariant nào — không cần sửa.",
+                "candidates": [], "rejected": [], "llm": "not_needed"}
+
+    df = transactions()
+    baseline = run_backtest(current, df, pack, req.assumptions)
+    proposals: list[dict[str, Any]] = []
+    rejected: list[dict[str, Any]] = []
+    if (det := _det_proposal(original, report["checks"], pack)) is not None:
+        proposals.append(det)
+    llm_status = "not_requested"
+    if req.use_ai:
+        llm_status = _ai_proposals(db, sid, original, report, pack, rules, proposals, rejected)
+
+    candidates = []
+    for p in proposals:
+        ev = evaluate(p["rules"], original, current, pack, df, violated, baseline, req.assumptions)
+        entry = {k: v for k, v in p.items() if k != "rules"} | ev
+        if ev["passes"]:
+            candidates.append(entry)
+        else:
+            errs = [c["message_vi"] for c in ev["remaining_checks"] if c["severity"] == "ERROR"]
+            rejected.append({"source": p["source"], "strategy": p["strategy"], "reason_vi": "Không qua kiểm chứng: " + " ".join(errs)})
+    candidates.sort(key=rank_key)
+    for i, c in enumerate(candidates, 1):
+        c["rank"] = i
+    repo.audit(db, sid, "system", "repair.run", {
+        "rule_id": original["id"], "violated": violated, "accepted": len(candidates), "rejected": len(rejected), "llm": llm_status,
+    })
+    db.commit()
+    return {
+        "needed": True,
+        "original": original | {"render": render_rule(original, pack)},
+        "violated_invariants": violated,
+        "baseline": {k: baseline[k] for k in ("l_net", "friction_biometric", "valid")},
+        "candidates": candidates,
+        "rejected": rejected,
+        "llm": llm_status,
+    }
+
+
+def _ai_proposals(db, sid, original, report, pack, rules, proposals, rejected) -> str:
+    """Bản sửa do AI đề xuất — T3.3. Trả trạng thái LLM."""
+    return "unavailable"
 
 
 # ---------- backtest ----------
