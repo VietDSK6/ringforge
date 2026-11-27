@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { Callout } from "@/components/Callout";
+import { Icon } from "@/components/Icon";
 import { ImportExport } from "@/components/ImportExport";
 import { RuleSentence } from "@/components/RuleSentence";
 import { VerdictBadge } from "@/components/VerdictBadge";
@@ -35,12 +37,12 @@ export function PoliciesView() {
 
   if (error) {
     return (
-      <div role="alert" className="rounded-2xl border border-line bg-surface p-6">
+      <Callout tone="fail" role="alert" title="Không tải được bộ luật">
         <p>{error}</p>
-        <Link href="/" className="mt-3 inline-block font-medium text-accent underline">
+        <Link href="/" className="link">
           Về trang đầu
         </Link>
-      </div>
+      </Callout>
     );
   }
 
@@ -49,8 +51,8 @@ export function PoliciesView() {
   const redundant = report?.checks.filter((c) => c.code === "VC-05").map((c) => c.redundant) ?? [];
   const conflicts = report?.checks.filter((c) => c.code === "VC-06").length ?? 0;
   const warnText = [
-    redundant.length ? `⚠ ${redundant.length} luật thừa (${redundant.join(", ")})` : "",
-    conflicts ? `⚠ ${conflicts} xung đột miễn trừ` : "",
+    redundant.length ? `${redundant.length} luật thừa (${redundant.join(", ")})` : "",
+    conflicts ? `${conflicts} xung đột miễn trừ` : "",
   ]
     .filter(Boolean)
     .join(" · ");
@@ -59,70 +61,98 @@ export function PoliciesView() {
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Bộ luật</h1>
-          <p className="text-sm text-muted">Luật đang chạy và ứng viên trong sandbox của bạn.</p>
+          <h1 className="page-title">Bộ luật</h1>
+          <p className="page-lede">Luật đang chạy và ứng viên trong sandbox của bạn.</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <ImportExport sid={sid} onImported={() => setVersion((v) => v + 1)} />
-          <Link
-            href={`/s/${sid}/studio`}
-            className="inline-flex min-h-11 items-center rounded-xl bg-accent px-5 font-semibold text-white hover:opacity-90 dark:text-zinc-950"
-          >
-            + Thêm luật bằng lời
+          <Link href={`/s/${sid}/studio`} className="btn btn-primary">
+            <Icon name="plus" />
+            Thêm luật bằng lời
           </Link>
         </div>
       </header>
 
-      <div role="status" className="flex flex-wrap items-center gap-3 rounded-2xl border border-line bg-surface p-4">
+      <div
+        role="status"
+        className={`panel flex flex-wrap items-center gap-x-4 gap-y-2 border-l-4 px-4 py-3.5 sm:px-5 ${
+          !report ? "border-l-line" : report.verdict === "FAIL" ? "border-l-fail" : report.verdict === "UNKNOWN" ? "border-l-unknown" : report.verdict === "PASS" ? "border-l-pass" : "border-l-warn"
+        }`}
+      >
         {report ? (
           <>
             <VerdictBadge verdict={report.verdict} />
-            <span className="text-sm">
+            <span className="text-sm leading-6">
               {failed.length === 0 && report.verdict !== "UNKNOWN"
                 ? `Bộ luật đang chạy qua cả ${nInv} invariant của Policy Pack.${warnText ? ` ${warnText}` : ""}`
                 : report.verdict === "UNKNOWN"
                   ? "Không kết luận được trong thời hạn — không coi là đạt."
                   : `Vi phạm: ${failed.join(", ")}.`}
             </span>
-            <span className="text-xs text-muted">Kiểm bằng Z3 trong {report.ms} ms</span>
+            <span className="num text-xs text-muted sm:ml-auto">Kiểm bằng Z3 trong {report.ms} ms</span>
           </>
         ) : (
-          <span className="text-sm text-muted">Đang kiểm chứng bộ luật…</span>
+          <span className="flex items-center gap-2 text-sm text-muted">
+            <span aria-hidden className="size-3.5 animate-spin rounded-full border-2 border-accent border-t-transparent" />
+            Đang kiểm chứng bộ luật…
+          </span>
         )}
       </div>
 
-      <div tabIndex={0} role="region" aria-labelledby="rules-caption" className="overflow-x-auto rounded-2xl border border-line bg-surface">
-        <table className="w-full min-w-[640px] text-left text-sm">
+      <div tabIndex={0} role="region" aria-labelledby="rules-caption" className="table-wrap">
+        <table className="data-table min-w-[680px]">
           <caption id="rules-caption" className="sr-only">
             Danh sách luật
           </caption>
-          <thead className="border-b border-line text-xs uppercase tracking-wide text-muted">
+          <thead>
             <tr>
-              <th scope="col" className="px-4 py-3">ID</th>
-              <th scope="col" className="px-4 py-3">Luật</th>
-              <th scope="col" className="px-4 py-3">Loại</th>
-              <th scope="col" className="px-4 py-3">Trạng thái</th>
+              <th scope="col" className="w-32">ID</th>
+              <th scope="col">Luật</th>
+              <th scope="col" className="w-28">Loại</th>
+              <th scope="col" className="w-32">Trạng thái</th>
             </tr>
           </thead>
           <tbody>
             {rules === null && (
               <tr>
-                <td colSpan={4} className="px-4 py-6 text-muted">
+                <td colSpan={4} className="py-8 text-center text-muted">
                   Đang tải…
                 </td>
               </tr>
             )}
             {rules?.map((r) => (
-              <tr key={r.id} className="border-b border-line align-top last:border-0">
-                <td className="whitespace-nowrap px-4 py-3 font-mono font-semibold">
-                  {r.id} {r.locked && <span title="Luật pháp lý bị khóa">🔒</span>}
+              <tr key={r.id}>
+                <td className="whitespace-nowrap">
+                  <span className="inline-flex items-center gap-1.5 font-mono font-semibold">
+                    {r.id}
+                    {r.locked && (
+                      <span title="Luật pháp lý bị khóa" className="text-muted">
+                        <Icon name="lock" className="size-3.5" />
+                        <span className="sr-only">Luật pháp lý bị khóa</span>
+                      </span>
+                    )}
+                  </span>
                 </td>
-                <td className="px-4 py-3">
+                <td className="max-w-[60ch]">
                   <p className="font-medium">{r.name}</p>
-                  {r.render && <RuleSentence render={r.render} compact />}
+                  {r.render && (
+                    <div className="mt-0.5 text-muted">
+                      <RuleSentence render={r.render} compact />
+                    </div>
+                  )}
                 </td>
-                <td className="whitespace-nowrap px-4 py-3">{KIND_VI[r.kind]}</td>
-                <td className="whitespace-nowrap px-4 py-3">{STATUS_VI[r.status]}</td>
+                <td className="whitespace-nowrap">
+                  <span className={`chip text-xs ${r.kind === "REGULATORY" ? "tone-accent" : "text-muted"}`}>{KIND_VI[r.kind]}</span>
+                </td>
+                <td className="whitespace-nowrap">
+                  <span className="inline-flex items-center gap-2 text-sm">
+                    <span
+                      aria-hidden
+                      className={`size-2 rounded-full ${r.status === "ACTIVE" ? "bg-pass" : r.status === "RETIRED" ? "bg-line-strong" : "bg-warn"}`}
+                    />
+                    {STATUS_VI[r.status]}
+                  </span>
+                </td>
               </tr>
             ))}
           </tbody>

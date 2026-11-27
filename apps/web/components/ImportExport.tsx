@@ -2,6 +2,8 @@
 
 import { type FormEvent, useId, useRef, useState } from "react";
 
+import { Callout } from "@/components/Callout";
+import { Icon } from "@/components/Icon";
 import { ApiError, api } from "@/lib/api";
 import type { VerifyReport } from "@/lib/types";
 
@@ -90,18 +92,16 @@ export function ImportExport({ sid, onImported }: { sid: string; onImported: (re
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <button type="button" onClick={download} className="min-h-11 rounded-xl border border-line px-4 text-sm font-medium hover:bg-surface">
+      <button type="button" onClick={download} className="btn btn-secondary">
+        <Icon name="download" />
         Xuất JSON
       </button>
-      <button
-        type="button"
-        onClick={() => dialogRef.current?.showModal()}
-        className="min-h-11 rounded-xl border border-line px-4 text-sm font-medium hover:bg-surface"
-      >
+      <button type="button" onClick={() => dialogRef.current?.showModal()} className="btn btn-secondary">
+        <Icon name="upload" />
         Nhập JSON
       </button>
       {note && (
-        <p role="status" className="w-full text-sm text-ok">
+        <p role="status" className="w-full text-sm text-pass">
           {note}
         </p>
       )}
@@ -109,18 +109,18 @@ export function ImportExport({ sid, onImported }: { sid: string; onImported: (re
       <dialog
         ref={dialogRef}
         aria-labelledby={`${uid}-title`}
-        className="m-auto max-h-[calc(100dvh-2rem)] w-[min(44rem,calc(100%-2rem))] overflow-y-auto rounded-2xl border border-line bg-surface p-6 text-foreground backdrop:bg-black/50"
+        className="m-auto max-h-[calc(100dvh-2rem)] w-[min(44rem,calc(100%-2rem))] overflow-y-auto rounded-xl border border-line bg-surface p-6 text-foreground shadow-pop"
       >
         <form onSubmit={submit} className="space-y-4">
           <h1 id={`${uid}-title`} className="text-lg font-bold">
             Nhập bộ luật / Policy Pack
           </h1>
-          <p className="text-sm text-muted">
+          <p className="text-sm leading-6 text-muted">
             Dán JSON theo rf-dsl/0.1: một mảng luật, hoặc object có <code className="font-mono">rules</code> và/hoặc{" "}
             <code className="font-mono">policy_pack</code> (đúng định dạng file Xuất JSON). Bộ luật được kiểm chứng ngay sau khi nhập.
           </p>
           <div>
-            <label htmlFor={`${uid}-file`} className="text-sm font-medium">
+            <label htmlFor={`${uid}-file`} className="label">
               Chọn file .json
             </label>
             <input
@@ -128,15 +128,15 @@ export function ImportExport({ sid, onImported }: { sid: string; onImported: (re
               type="file"
               accept="application/json,.json"
               onChange={(e) => onFile(e.target.files?.[0])}
-              className="mt-1 block w-full text-sm"
+              className="mt-1 block w-full text-sm file:mr-3 file:min-h-10 file:cursor-pointer file:rounded-md file:border file:border-line-strong file:bg-surface file:px-3 file:font-medium file:text-foreground hover:file:bg-sunken"
             />
           </div>
           <div>
             <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <label htmlFor={`${uid}-json`} className="text-sm font-medium">
+              <label htmlFor={`${uid}-json`} className="label">
                 Hoặc dán JSON
               </label>
-              <button type="button" onClick={() => setText(JSON.stringify(SAMPLE, null, 2))} className="min-h-11 text-sm text-accent underline">
+              <button type="button" onClick={() => setText(JSON.stringify(SAMPLE, null, 2))} className="btn btn-ghost btn-sm">
                 Điền ví dụ
               </button>
             </div>
@@ -148,39 +148,41 @@ export function ImportExport({ sid, onImported }: { sid: string; onImported: (re
               spellCheck={false}
               aria-describedby={errors.length ? `${uid}-err` : undefined}
               aria-invalid={errors.length > 0 || undefined}
-              className="mt-1 w-full rounded-xl border border-zinc-400 bg-background p-3 font-mono text-sm dark:border-zinc-600"
+              className="field field-mono mt-1 bg-sunken"
             />
           </div>
           <fieldset className="space-y-1">
-            <legend className="text-sm font-medium">Cách nhập luật</legend>
-            <label className="flex min-h-11 items-center gap-2 text-sm">
+            <legend className="label">Cách nhập luật</legend>
+            <label className="flex min-h-11 cursor-pointer items-center gap-2.5 text-sm">
               <input type="radio" name={`${uid}-mode`} checked={mode === "merge"} onChange={() => setMode("merge")} />
               Thêm vào bộ luật hiện tại (luật trùng mã sẽ được thay; luật pháp lý khóa được giữ nguyên)
             </label>
-            <label className="flex min-h-11 items-center gap-2 text-sm">
+            <label className="flex min-h-11 cursor-pointer items-center gap-2.5 text-sm">
               <input type="radio" name={`${uid}-mode`} checked={mode === "replace"} onChange={() => setMode("replace")} />
               Thay toàn bộ bộ luật của sandbox bằng bộ luật nhập vào
             </label>
           </fieldset>
           {errors.length > 0 && (
-            <ul id={`${uid}-err`} role="alert" className="list-disc space-y-1 rounded-xl bg-red-50 p-3 pl-7 text-sm text-danger dark:bg-red-950">
-              {errors.map((m, i) => (
-                <li key={i}>{m}</li>
-              ))}
-            </ul>
+            <Callout tone="fail" role="alert" id={`${uid}-err`}>
+              <ul className="list-disc space-y-1 pl-4">
+                {errors.map((m, i) => (
+                  <li key={i}>{m}</li>
+                ))}
+              </ul>
+            </Callout>
           )}
           <div className="flex flex-wrap justify-end gap-3">
             <button
               type="button"
               onClick={() => dialogRef.current?.close()}
-              className="min-h-11 rounded-xl border border-line px-4 font-medium hover:bg-background"
+              className="btn btn-secondary"
             >
               Hủy
             </button>
             <button
               type="submit"
               disabled={busy || !text.trim()}
-              className="min-h-11 rounded-xl bg-accent px-5 font-semibold text-white hover:opacity-90 disabled:opacity-50 dark:text-zinc-950"
+              className="btn btn-primary"
             >
               {busy ? "Đang nhập và kiểm chứng…" : "Nhập và kiểm chứng"}
             </button>
