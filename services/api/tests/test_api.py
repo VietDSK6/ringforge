@@ -18,7 +18,7 @@ def checks_by_inv(body):
 def test_catalog():
     body = client.get("/catalog").json()
     assert body["dsl_version"] == "rf-dsl/0.1"
-    assert len(body["fields"]) == 17
+    assert len(body["fields"]) == 21
     amount = next(f for f in body["fields"] if f["name"] == "amount")
     assert amount == {"name": "amount", "type": "int", "label_vi": "số tiền", "ops": [">", ">=", "<", "<=", "==", "!=", "between"],
                       "available_at_decision": True, "min": 1, "max": 500_000_000, "unit": "VND"}

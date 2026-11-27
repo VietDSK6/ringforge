@@ -21,7 +21,7 @@ from app.dsl.catalog import CATALOG, FIELD_NAMES
 DAY = 86_400
 VN_OFFSET = 7 * 3600
 W_SENDER = 3600  # 60 phút
-W_RECEIVER = 1800  # 30 phút
+W_RECEIVER = (900, 1800, 3600)  # 15, 30, 60 phút
 W_24H = DAY
 
 
@@ -58,7 +58,7 @@ def compute_features(
     prior_pairs: Mapping[tuple[str, str], int],
 ) -> pd.DataFrame:
     """raw cần các cột: tx_id, ts, sender_id, receiver_id, amount, channel, is_new_device, sender_kyc_level.
-    Trả về raw (đã sắp theo ts, tx_id) + 17 cột catalog theo đúng thứ tự catalog."""
+    Trả về raw (đã sắp theo ts, tx_id) + các cột catalog theo đúng thứ tự catalog."""
     df = raw.sort_values(["ts", "tx_id"], kind="stable").reset_index(drop=True)
 
     out_hist: dict[str, deque[tuple[int, int]]] = defaultdict(deque)  # (ts, amount) giao dịch chi, giữ 24h
@@ -98,12 +98,14 @@ def compute_features(
         out_cnt_24 = sum(1 for t, _ in oh if t < ts)
         ratio = (out_amt_60 + amount) * 100 // in_amt if in_amt > 0 else 0
 
-        # Người nhận: nhận vào 30 phút trước.
-        r_cnt, r_senders = 0, set()
+        # Người nhận: nhận vào 15/30/60 phút trước (cửa sổ lồng nhau).
+        r_cnt = dict.fromkeys(W_RECEIVER, 0)
+        r_senders: dict[int, set[str]] = {w: set() for w in W_RECEIVER}
         for t, _, frm in in_hist[r]:
-            if ts - W_RECEIVER <= t < ts:
-                r_cnt += 1
-                r_senders.add(frm)
+            for w in W_RECEIVER:
+                if ts - w <= t < ts:
+                    r_cnt[w] += 1
+                    r_senders[w].add(frm)
 
         d = local_day(ts)
         prev_day, prev_sum = day_out.get(s, (d, 0))
@@ -124,8 +126,9 @@ def compute_features(
         cols["receiver_account_age_days"].append(_clip("receiver_account_age_days", (ts - ra.created_ts) // DAY))
         cols["receiver_is_verified_merchant"].append(ra.verified_merchant)
         cols["receiver_is_familiar"].append(pair_count[(s, r)] >= 3)
-        cols["receiver_inbound_count_30m"].append(_clip("receiver_inbound_count_30m", r_cnt))
-        cols["receiver_distinct_senders_30m"].append(_clip("receiver_distinct_senders_30m", len(r_senders)))
+        for w, tag in zip(W_RECEIVER, ("15m", "30m", "60m")):
+            cols[f"receiver_inbound_count_{tag}"].append(_clip(f"receiver_inbound_count_{tag}", r_cnt[w]))
+            cols[f"receiver_distinct_senders_{tag}"].append(_clip(f"receiver_distinct_senders_{tag}", len(r_senders[w])))
 
         # Cập nhật trạng thái SAU khi tính (chống leakage).
         oh.append((ts, amount))

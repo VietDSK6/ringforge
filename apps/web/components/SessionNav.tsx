@@ -9,6 +9,7 @@ import { api } from "@/lib/api";
 const ITEMS = [
   { href: "policies", label: "Bộ luật", icon: "📋" },
   { href: "studio", label: "Rule Studio", icon: "✍️" },
+  { href: "compare", label: "So sánh", icon: "📊" },
   { href: "pack", label: "Policy Pack", icon: "⚖️" },
 ];
 

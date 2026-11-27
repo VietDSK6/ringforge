@@ -1,5 +1,5 @@
 // Client gọi API RingForge. Lỗi API trả về dạng {error_code, message_vi} → ApiError.
-import type { Catalog, CompileResult, PackImpact, PatchOp, PolicyPack, RepairResponse, Rule, VerifyReport } from "./types";
+import type { Assumptions, BacktestResponse, Catalog, CompileResult, PackImpact, PatchOp, PolicyPack, RepairResponse, Rule, VerifyReport } from "./types";
 
 export const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000").replace(/\/+$/, "");
 
@@ -47,6 +47,12 @@ export const api = {
   packImpact: (sid: string, patch: PatchOp[]) => post<PackImpact>(`/sessions/${sid}/pack/impact`, { patch }),
   packApply: (sid: string, patch: PatchOp[]) =>
     post<{ pack: PolicyPack; previous_version: string }>(`/sessions/${sid}/pack/apply`, { patch }),
+  backtest: (sid: string, variants: unknown[], assumptions: Assumptions, signal?: AbortSignal) =>
+    request<BacktestResponse>(`/sessions/${sid}/backtest`, {
+      method: "POST",
+      body: JSON.stringify({ variants, assumptions }),
+      signal,
+    }),
   saveRule: (sid: string, rule: Rule | Record<string, unknown>) =>
     request<{ saved: boolean; rule?: Rule }>(`/sessions/${sid}/rules/${String(rule.id)}`, {
       method: "PUT",

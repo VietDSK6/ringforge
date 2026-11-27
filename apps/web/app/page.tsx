@@ -18,8 +18,10 @@ const DEMOS = [
   },
   {
     title: "Chọn luật ít tổn thất nhất",
-    body: "So sánh các phương án luật chống mule bằng tổn thất ròng (VNĐ) trên dữ liệu tổng hợp.",
-    ready: false,
+    body: "So sánh các phương án luật chống mule (cửa sổ 15/30/60 phút, giữ hay chặn) bằng tổn thất ròng (VNĐ) trên dữ liệu tổng hợp.",
+    to: "compare",
+    query: "",
+    ready: true,
   },
 ];
 

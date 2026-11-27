@@ -317,10 +317,25 @@ def backtest_session(sid: str, req: BacktestRequest, db: Db) -> dict[str, Any]:
     for v in req.variants:
         rules, issues = _apply_changes(base_rules, v.rule_changes, pack)
         if issues:
-            variants.append({"name": v.name, "error": vc01_report(issues)})
+            variants.append({"name": v.name, "error": vc01_report(issues), "eligible": False})
             continue
         result = run_backtest(rules, df, pack, req.assumptions)
-        variants.append({"name": v.name, "result": result, "delta": delta(result, baseline)})
+        # Cổng invariant (docs/01 Demo 3): chỉ phương án qua kiểm chứng Z3 VÀ exposure tuân thủ = 0 mới được xếp hạng.
+        report = verify_rules(rules, pack)
+        gate_ok = report["verdict"] in ("PASS", "PASS_WITH_WARNINGS")
+        changed = {ch.rule["id"] for ch in v.rule_changes if ch.rule}
+        variants.append({
+            "name": v.name,
+            "result": result,
+            "delta": delta(result, baseline),
+            "verify": {"verdict": report["verdict"],
+                       "errors": [c["message_vi"] for c in report["checks"] if c["severity"] == "ERROR"]},
+            "eligible": gate_ok and result["valid"],
+            "rules_vi": {r["id"]: render_rule(r, pack)["sentence_vi"] for r in rules if r["id"] in changed},
+        })
+    ranked = sorted((v for v in variants if v["eligible"]), key=lambda v: (v["result"]["l_net"], v["name"]))
+    for i, v in enumerate(ranked, 1):
+        v["rank"] = i
     ms = (time.perf_counter_ns() - started) // 1_000_000
     body = {"baseline": baseline, "variants": variants, "ms": ms}
     run_id = repo.add_backtest_run(db, sid, req.model_dump(), body, ms)

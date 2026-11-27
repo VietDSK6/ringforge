@@ -27,14 +27,19 @@ Tất cả đặc trưng được tính **chỉ từ giao dịch xảy ra trư�
 | `receiver_account_age_days` | int | 0 … 3650 | Tuổi tài khoản nhận |
 | `receiver_is_verified_merchant` | bool | | Người nhận là merchant đã xác minh |
 | `receiver_is_familiar` | bool | | Người gửi đã chuyển cho người nhận này ≥ 3 lần trong 90 ngày trước |
+| `receiver_inbound_count_15m` | int | 0 … 5000 | Số giao dịch nhận của người nhận trong 15 phút (thêm 27/11 cho Demo 3) |
+| `receiver_distinct_senders_15m` | int | 0 … 5000 | Số người gửi khác nhau vào người nhận trong 15 phút (thêm 27/11) |
 | `receiver_inbound_count_30m` | int | 0 … 5000 | Số giao dịch nhận của người nhận trong 30 phút |
 | `receiver_distinct_senders_30m` | int | 0 … 5000 | Số người gửi khác nhau vào người nhận trong 30 phút |
+| `receiver_inbound_count_60m` | int | 0 … 5000 | Số giao dịch nhận của người nhận trong 60 phút (thêm 27/11) |
+| `receiver_distinct_senders_60m` | int | 0 … 5000 | Số người gửi khác nhau vào người nhận trong 60 phút (thêm 27/11) |
 
 ### Ràng buộc miền phụ thuộc (domain constraints, dùng trong Z3)
 Để phản ví dụ **khả thi trên thực tế**:
 - `daily_total_after >= amount`
 - `sender_dormant_days <= sender_account_age_days`
-- `receiver_distinct_senders_30m <= receiver_inbound_count_30m`
+- `receiver_distinct_senders_W <= receiver_inbound_count_W` với W = 15m, 30m, 60m
+- Cửa sổ lồng nhau: `receiver_inbound_count_15m <= receiver_inbound_count_30m <= receiver_inbound_count_60m`, tương tự cho `receiver_distinct_senders_*`
 - `sender_inbound_amount_60m == 0 ⇒ sender_distinct_inbound_60m == 0 ∧ sender_outbound_ratio_60m_pct == 0`
 - `sender_distinct_inbound_60m >= 1 ⇒ sender_inbound_amount_60m >= 1`
 - `receiver_is_verified_merchant ⇒ receiver_account_age_days >= 30` (giả định của generator)

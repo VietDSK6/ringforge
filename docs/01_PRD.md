@@ -194,7 +194,7 @@ Làm sao cập nhật chính sách chống gian lận nhanh mà không tạo ra 
 - **Kỳ vọng:** luật nào viết cứng 10.000.000 bị báo không tương thích kèm phản ví dụ; luật tham chiếu tham số tự đúng; hiển thị số giao dịch hợp lệ phải xác thực thêm; AI đề xuất sửa; kiểm chứng lại xanh.
 
 ### Demo 3 — "Tối ưu tổn thất"
-- **Thao tác:** chọn 2–4 phương án cho luật chống mule (cửa sổ 15/30/60 phút; HOLD hay BLOCK).
+- **Thao tác:** chọn 2–4 phương án cho luật chống mule (cửa sổ 15/30/60 phút; HOLD hay BLOCK). Chốt 27/11: luật chặn khoản nạn nhân → mule lớp 1 ở phía người nhận (xem `07` mục 3.5).
 - **Kỳ vọng:** bảng L_net, lọt gian lận, chặn nhầm, phân rã theo kịch bản (flash-sale cho thấy chặn nhầm); kéo thanh trượt giả định thì thứ hạng có thể đổi; chỉ phương án qua cổng invariant được chọn.
 
 ---

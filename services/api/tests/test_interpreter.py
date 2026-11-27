@@ -27,8 +27,12 @@ NEUTRAL = {
     "receiver_account_age_days": 400,
     "receiver_is_verified_merchant": False,
     "receiver_is_familiar": False,
+    "receiver_inbound_count_15m": 0,
+    "receiver_distinct_senders_15m": 0,
     "receiver_inbound_count_30m": 0,
     "receiver_distinct_senders_30m": 0,
+    "receiver_inbound_count_60m": 0,
+    "receiver_distinct_senders_60m": 0,
 }
 
 MULE = {"sender_account_age_days": 5, "sender_dormant_days": 0, "sender_inbound_amount_60m": 20_000_000}

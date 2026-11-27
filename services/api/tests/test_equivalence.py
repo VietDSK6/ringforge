@@ -77,8 +77,12 @@ INTERESTING: dict[str, list[int]] = {
     "sender_outbound_ratio_60m_pct": [0, 80, 90, 1000],
     "sender_outbound_count_24h": [0, 20, 1000],
     "receiver_account_age_days": [0, 7, 30, 3650],
+    "receiver_inbound_count_15m": [0, 2, 10, 5000],
+    "receiver_distinct_senders_15m": [0, 2, 3, 5000],
     "receiver_inbound_count_30m": [0, 10, 30, 5000],
     "receiver_distinct_senders_30m": [0, 30, 5000],
+    "receiver_inbound_count_60m": [0, 3, 30, 5000],
+    "receiver_distinct_senders_60m": [0, 3, 30, 5000],
 }
 
 
@@ -156,7 +160,13 @@ def random_domain_samples(n: int, rng: np.random.Generator) -> pd.DataFrame:
     # Sửa cho thỏa ràng buộc miền phụ thuộc (docs/02 mục 1).
     df["daily_total_after"] = np.maximum(df["daily_total_after"], df["amount"])
     df["sender_dormant_days"] = np.minimum(df["sender_dormant_days"], df["sender_account_age_days"])
-    df["receiver_distinct_senders_30m"] = np.minimum(df["receiver_distinct_senders_30m"], df["receiver_inbound_count_30m"])
+    # Cửa sổ người nhận lồng nhau 15 ⊆ 30 ⊆ 60 phút và distinct ≤ count trong cùng cửa sổ.
+    df["receiver_inbound_count_30m"] = np.maximum(df["receiver_inbound_count_30m"], df["receiver_inbound_count_15m"])
+    df["receiver_inbound_count_60m"] = np.maximum(df["receiver_inbound_count_60m"], df["receiver_inbound_count_30m"])
+    for w in ("15m", "30m", "60m"):
+        df[f"receiver_distinct_senders_{w}"] = np.minimum(df[f"receiver_distinct_senders_{w}"], df[f"receiver_inbound_count_{w}"])
+    df["receiver_distinct_senders_30m"] = np.maximum(df["receiver_distinct_senders_30m"], df["receiver_distinct_senders_15m"])
+    df["receiver_distinct_senders_60m"] = np.maximum(df["receiver_distinct_senders_60m"], df["receiver_distinct_senders_30m"])
     no_in = df["sender_inbound_amount_60m"] == 0
     df.loc[no_in, ["sender_distinct_inbound_60m", "sender_outbound_ratio_60m_pct"]] = 0
     young = df["receiver_is_verified_merchant"] & (df["receiver_account_age_days"] < 30)

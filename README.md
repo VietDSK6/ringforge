@@ -129,5 +129,6 @@ Thứ tự: deploy API → lấy URL API → deploy web với URL đó → lấy
 | pytest, HTTPX | Kiểm thử | MIT, BSD-3-Clause |
 | Next.js, React | Giao diện | MIT |
 | Tailwind CSS | Style | MIT |
+| Recharts | Biểu đồ so sánh L_net (Demo 3) | MIT |
 
 Danh sách sẽ được cập nhật khi thêm thư viện.

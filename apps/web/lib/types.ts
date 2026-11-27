@@ -265,3 +265,57 @@ export interface PackImpact {
   friction: { before: FrictionSnapshot; after: FrictionSnapshot; delta: Record<string, number>; days: number[] };
   ms: number;
 }
+
+// ---------- Backtest nhiều phương án (T4.4) ----------
+
+export interface Assumptions {
+  hold_stop_bp: number;
+  c_review_block: number;
+  churn_hold_bp: number;
+  churn_block_bp: number;
+  margin_bp: number;
+}
+
+export interface MoneyBlock {
+  l_net: number;
+  fn_loss: number;
+  review_cost: number;
+  churn_loss: number;
+  loss_total: number;
+  prevented: number;
+  loss_count: number;
+  loss_stopped_count: number;
+  legit_count: number;
+  fp_hold: number;
+  fp_block: number;
+  mule_flow_stopped: number;
+  mule_flow_total: number;
+}
+
+export interface BacktestResult extends MoneyBlock {
+  friction_biometric: number;
+  compliance_exposure: { invariant: string; count: number; amount_sum: number }[];
+  valid: boolean;
+  by_scenario: Record<string, MoneyBlock & { label_vi: string; count: number }>;
+  n_tx: number;
+  days: number[];
+  ms: number;
+}
+
+export interface BacktestVariant {
+  name: string;
+  result?: BacktestResult;
+  delta?: Record<string, number>;
+  verify?: { verdict: Verdict; errors: string[] };
+  eligible: boolean;
+  rank?: number;
+  rules_vi?: Record<string, string>;
+  error?: VerifyReport;
+}
+
+export interface BacktestResponse {
+  baseline: BacktestResult;
+  variants: BacktestVariant[];
+  ms: number;
+  backtest_run_id: string;
+}

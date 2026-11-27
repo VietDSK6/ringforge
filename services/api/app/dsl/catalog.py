@@ -105,8 +105,12 @@ FIELDS: tuple[Field, ...] = (
         label_false_vi="người nhận không phải merchant đã xác minh",
     ),
     Field("receiver_is_familiar", "bool", "người nhận quen", label_false_vi="người nhận không quen"),
+    Field("receiver_inbound_count_15m", "int", "số giao dịch người nhận nhận vào trong 15 phút", 0, 5000),
+    Field("receiver_distinct_senders_15m", "int", "số người khác nhau chuyển cho người nhận trong 15 phút", 0, 5000),
     Field("receiver_inbound_count_30m", "int", "số giao dịch người nhận nhận vào trong 30 phút", 0, 5000),
     Field("receiver_distinct_senders_30m", "int", "số người khác nhau chuyển cho người nhận trong 30 phút", 0, 5000),
+    Field("receiver_inbound_count_60m", "int", "số giao dịch người nhận nhận vào trong 60 phút", 0, 5000),
+    Field("receiver_distinct_senders_60m", "int", "số người khác nhau chuyển cho người nhận trong 60 phút", 0, 5000),
 )
 
 CATALOG: dict[str, Field] = {f.name: f for f in FIELDS}
@@ -119,7 +123,14 @@ FIELD_NAMES: tuple[str, ...] = tuple(CATALOG)
 DOMAIN_CONSTRAINTS: tuple[tuple[Any, ...], ...] = (
     ("ge", "daily_total_after", "amount"),
     ("ge", "sender_account_age_days", "sender_dormant_days"),
+    ("ge", "receiver_inbound_count_15m", "receiver_distinct_senders_15m"),
     ("ge", "receiver_inbound_count_30m", "receiver_distinct_senders_30m"),
+    ("ge", "receiver_inbound_count_60m", "receiver_distinct_senders_60m"),
+    # Cửa sổ lồng nhau 15 ⊆ 30 ⊆ 60 phút: đếm của cửa sổ lớn không nhỏ hơn cửa sổ nhỏ.
+    ("ge", "receiver_inbound_count_30m", "receiver_inbound_count_15m"),
+    ("ge", "receiver_inbound_count_60m", "receiver_inbound_count_30m"),
+    ("ge", "receiver_distinct_senders_30m", "receiver_distinct_senders_15m"),
+    ("ge", "receiver_distinct_senders_60m", "receiver_distinct_senders_30m"),
     (
         "implies",
         {"field": "sender_inbound_amount_60m", "op": "==", "value": 0},

@@ -24,7 +24,7 @@ def test_shape_and_labels(seed_df):
     assert 80 <= fraud_bp <= 250  # ~1–2% theo số giao dịch
     assert df["tx_id"].is_unique and df["ts"].is_monotonic_increasing
     assert set(df["day"]) == set(range(1, 8))
-    assert list(df.columns[-17:]) == list(FIELD_NAMES)
+    assert list(df.columns[-len(FIELD_NAMES):]) == list(FIELD_NAMES)
 
 
 def test_domain_holds_on_every_row(seed_df):
@@ -119,6 +119,9 @@ def test_features_hand_computed(hand):
     t3, t4, t5, t6, t7 = (hand.loc[k] for k in ("t3", "t4", "t5", "t6", "t7"))
     # Người nhận M thấy 2 lần nhận trước t3 trong 30 phút (không gồm chính t3).
     assert (t3["receiver_inbound_count_30m"], t3["receiver_distinct_senders_30m"]) == (2, 2)
+    # Cửa sổ 15 phút chỉ còn t2 (10 phút trước); 60 phút vẫn là t1, t2.
+    assert (t3["receiver_inbound_count_15m"], t3["receiver_distinct_senders_15m"]) == (1, 1)
+    assert (t3["receiver_inbound_count_60m"], t3["receiver_distinct_senders_60m"]) == (2, 2)
     assert t3["sender_dormant_days"] == 1 and t3["hour"] == 20
     # t4: M nhận 12 tr từ 3 người trong 60 phút; tỷ lệ gồm cả lệnh này: 9/12 = 75%.
     assert (t4["sender_inbound_amount_60m"], t4["sender_distinct_inbound_60m"]) == (12_000_000, 3)
@@ -132,6 +135,9 @@ def test_features_hand_computed(hand):
     # t6: t1 rơi khỏi cửa sổ → vào 8 tr từ 2 người; ra 11,5 tr → 143%; cặp M→X đủ 3 lần → quen.
     assert (t6["sender_inbound_amount_60m"], t6["sender_distinct_inbound_60m"]) == (8_000_000, 2)
     assert t6["sender_outbound_ratio_60m_pct"] == 143 and t6["receiver_is_familiar"] == True  # noqa: E712
+    # X nhận t4 (30 phút 1 giây trước) và t5 (20 phút trước), cùng một người gửi M.
+    assert [t6[f"receiver_inbound_count_{w}"] for w in ("15m", "30m", "60m")] == [0, 1, 2]
+    assert [t6[f"receiver_distinct_senders_{w}"] for w in ("15m", "30m", "60m")] == [0, 1, 1]
     # t7: sang ngày mới (giờ VN) → tổng ngày reset; không có tiền vào → tỷ lệ 0.
     assert (t7["daily_total_after"], t7["hour"], t7["sender_dormant_days"]) == (100_000, 0, 0)
     assert (t7["sender_inbound_amount_60m"], t7["sender_outbound_ratio_60m_pct"]) == (0, 0)

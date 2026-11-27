@@ -10,6 +10,10 @@
   --danger: #b91c1c;
   --ok: #047857;
   --warn: #92400e;
+  /* Biểu đồ: 3 ô đầu của bảng màu phân loại (dataviz palette, đã kiểm CVD cho mọi cặp). */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
 }
 
 @theme inline {
@@ -35,6 +39,9 @@
     --danger: #f87171;
     --ok: #34d399;
     --warn: #fbbf24;
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
   }
 }
 

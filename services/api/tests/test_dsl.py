@@ -49,8 +49,8 @@ def messages(issues):
 # ---------- catalog ----------
 
 
-def test_catalog_has_17_fields_and_no_label_fields():
-    assert len(FIELD_NAMES) == 17
+def test_catalog_has_21_fields_and_no_label_fields():
+    assert len(FIELD_NAMES) == 21
     assert "label" not in CATALOG and "scenario" not in CATALOG
     assert all(f.label_vi for f in CATALOG.values())
     assert all(f.available_at_decision for f in CATALOG.values())
@@ -69,7 +69,7 @@ def test_domain_constraints_reference_catalog_fields():
         if c[0] == "ge":
             assert c[1] in CATALOG and c[2] in CATALOG
     payload = catalog_payload()
-    assert payload["dsl_version"] == "rf-dsl/0.1" and len(payload["fields"]) == 17
+    assert payload["dsl_version"] == "rf-dsl/0.1" and len(payload["fields"]) == 21
 
 
 # ---------- seed ----------

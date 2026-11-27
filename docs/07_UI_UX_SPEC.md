@@ -61,7 +61,7 @@ Bố cục 2 cột:
   - Nút "Chọn bản này → tạo change set".
 
 ### 3.5 So sánh phương án (Demo 3)
-- Chọn luật gốc (mặc định FR-01) và 2–4 biến thể (điền sẵn: cửa sổ 15/30/60 phút, HOLD/BLOCK); giám khảo sửa được ngưỡng.
+- Luật gốc (chốt 27/11): luật mới FR-05 phía người nhận — giữ/chặn khoản chuyển cá nhân vào tài khoản nhận mới mở đang gom tiền từ nhiều người (nạn nhân → mule lớp 1), vì L_net chỉ tính tổn thất trên APP_VICTIM/ATO còn FR-01 chỉ chạm giao dịch MULE_LAYER. 2–4 biến thể điền sẵn: cửa sổ 15/30/60 phút, HOLD/BLOCK, có/không xét tuổi tài khoản nhận; giám khảo sửa được ngưỡng.
 - Bảng: L_net · lọt gian lận · chặn nhầm (HOLD/BLOCK) · chi phí duyệt · mất do khách bỏ · exposure tuân thủ · nhãn "không hợp lệ" nếu exposure > 0. Hàng tốt nhất in đậm.
 - Biểu đồ cột chồng (Recharts) thành phần L_net theo phương án.
 - Bảng phân rã theo kịch bản (mule, chiếm tài khoản, flash-sale, khách thân thiết).
