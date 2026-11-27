@@ -32,6 +32,7 @@ from app.verify.det_repair import deterministic_repair
 from app.verify.encoder import domain, enc, make_vars, model_to_tx, outcome
 from app.verify.grounding import ground_findings, summarize
 from app.verify.optimize import readable_model
+from app.verify.semantic_diff import semantic_diff
 
 # ---------- Bản vá Policy Pack ----------
 
@@ -392,6 +393,7 @@ def pack_impact(
         "verify_after": after,
         "rules": out_rules,
         "counts": counts,
+        "semantic_diff": semantic_diff(rules, old_p, rules, new_p, df, timeout_ms=timeout_ms),
         "pack_findings": [f for f in after["checks"] if f.get("new") and f["code"] == "VC-04" and not f.get("blamed_rules")],
         "friction": {
             "before": pick(bt_before),
