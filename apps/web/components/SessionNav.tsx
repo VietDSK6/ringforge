@@ -11,7 +11,7 @@ const ITEMS: { href: string; label: string; short: string; icon: IconName }[] = 
   { href: "policies", label: "Bộ luật", short: "Bộ luật", icon: "rules" },
   { href: "studio", label: "Rule Studio", short: "Studio", icon: "studio" },
   { href: "compare", label: "So sánh", short: "So sánh", icon: "compare" },
-  { href: "pack", label: "Policy Pack", short: "Pack", icon: "scale" },
+  { href: "pack", label: "Policy Pack", short: "Pack", icon: "pack" },
   { href: "review", label: "Duyệt", short: "Duyệt", icon: "review" },
 ];
 

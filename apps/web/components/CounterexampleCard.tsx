@@ -83,7 +83,7 @@ export function CounterexampleCard({
       {rest.length > 0 && (
         <details className="group border-t border-line text-sm">
           <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 px-4 text-muted hover:text-foreground [&::-webkit-details-marker]:hidden">
-            <Icon name="arrow" className="size-3.5 transition-transform group-open:rotate-90" />
+            <Icon name="chevron" className="size-3.5 transition-transform group-open:rotate-90" />
             Các trường còn lại của giao dịch
           </summary>
           <dl className="grid grid-cols-1 gap-x-6 px-4 pb-3 sm:grid-cols-2">

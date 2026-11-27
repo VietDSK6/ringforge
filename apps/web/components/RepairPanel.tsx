@@ -39,7 +39,7 @@ export function RepairPanel({
       {data.rejected.length > 0 && (
         <details className="group text-sm text-muted">
           <summary className="inline-flex min-h-11 cursor-pointer list-none items-center gap-2 hover:text-foreground [&::-webkit-details-marker]:hidden">
-            <Icon name="arrow" className="size-3.5 transition-transform group-open:rotate-90" />
+            <Icon name="chevron" className="size-3.5 transition-transform group-open:rotate-90" />
             {data.rejected.length} đề xuất khác bị loại vì không qua kiểm chứng (bấm xem lý do)
           </summary>
           <ul className="mt-1 list-disc space-y-1 pl-10">

@@ -357,7 +357,7 @@ export function PackView() {
 
           <details className="group panel text-sm">
             <summary className="flex min-h-12 cursor-pointer list-none items-center gap-2 px-4 font-medium sm:px-5 [&::-webkit-details-marker]:hidden">
-              <Icon name="arrow" className="size-3.5 text-muted transition-transform group-open:rotate-90" />
+              <Icon name="chevron" className="size-3.5 text-muted transition-transform group-open:rotate-90" />
               {impact.counts.unaffected} luật không bị ảnh hưởng
             </summary>
             <ul className="space-y-1 border-t border-line px-4 py-3 sm:px-5">
@@ -674,7 +674,7 @@ function AiPackRepair({
           {data.rejected.length > 0 && (
             <details className="group text-sm text-muted">
               <summary className="inline-flex min-h-11 cursor-pointer list-none items-center gap-2 hover:text-foreground [&::-webkit-details-marker]:hidden">
-                <Icon name="arrow" className="size-3.5 transition-transform group-open:rotate-90" />
+                <Icon name="chevron" className="size-3.5 transition-transform group-open:rotate-90" />
                 {data.rejected.length} đề xuất khác bị loại (bấm xem lý do)
               </summary>
               <ul className="mt-1 list-disc space-y-1 pl-10">
