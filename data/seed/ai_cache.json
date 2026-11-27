@@ -1,0 +1,187 @@
+{
+  "3694053e52f290f80c3d8b0b5c1f7978ab015c00c6bf45ab46075f492f220a9f": {
+    "assumptions": [
+      {
+        "editable": true,
+        "interpretation": "tuổi tài khoản gửi lớn hơn 365 ngày",
+        "phrase": "tài khoản trên 1 năm"
+      },
+      {
+        "editable": true,
+        "interpretation": "người nhận được đánh dấu là quen (receiver_is_familiar = true); không giới hạn kênh giao dịch",
+        "phrase": "chuyển cho người nhận quen"
+      }
+    ],
+    "clarifying_questions": [],
+    "rule": {
+      "description": "Miễn xác thực bổ sung khi tài khoản lâu năm giao dịch với người nhận quen.",
+      "kind": "FRICTION",
+      "name": "Miễn xác thực cho khách thân thiết",
+      "then": {
+        "auth": null,
+        "decision": null,
+        "exempt_auth": true,
+        "hold_seconds": null
+      },
+      "when": {
+        "all": [
+          {
+            "field": "sender_account_age_days",
+            "op": ">",
+            "value": 365
+          },
+          {
+            "field": "receiver_is_familiar",
+            "op": "==",
+            "value": true
+          }
+        ]
+      }
+    },
+    "status": "OK",
+    "unsupported_parts": []
+  },
+  "622410a08c72b1efae8a8864f2faf8d2b84b94b354bcc33e6c0a7f991929a938": {
+    "assumptions": [
+      {
+        "editable": true,
+        "interpretation": "giờ giao dịch là 0",
+        "phrase": "lúc nửa đêm"
+      },
+      {
+        "editable": true,
+        "interpretation": "kênh chuyển tiền cá nhân (P2P)",
+        "phrase": "chuyển tiền"
+      }
+    ],
+    "clarifying_questions": [],
+    "rule": {
+      "description": "Giám sát chuyển tiền từ 5 triệu đồng trở lên lúc nửa đêm đến tài khoản nhận mới mở dưới 3 ngày.",
+      "kind": "FRAUD",
+      "name": "Chuyển tiền lúc nửa đêm đến tài khoản mới",
+      "then": {
+        "auth": null,
+        "decision": "MONITOR",
+        "exempt_auth": false,
+        "hold_seconds": null
+      },
+      "when": {
+        "all": [
+          {
+            "field": "channel",
+            "op": "==",
+            "value": "P2P"
+          },
+          {
+            "field": "amount",
+            "op": ">=",
+            "value": 5000000
+          },
+          {
+            "field": "hour",
+            "op": "==",
+            "value": 0
+          },
+          {
+            "field": "receiver_account_age_days",
+            "op": "<",
+            "value": 3
+          }
+        ]
+      }
+    },
+    "status": "OK",
+    "unsupported_parts": []
+  },
+  "7ddb56f96044734715d54e6ecb903c5f5f2dfc6d3e7d4364c04a11287a8f113c": {
+    "assumptions": [],
+    "clarifying_questions": [],
+    "rule": {
+      "description": "Miễn xác thực bổ sung cho khoản thanh toán QR dưới 500.000 VND tại merchant đã xác minh.",
+      "kind": "FRICTION",
+      "name": "Miễn xác thực cho thanh toán QR nhỏ tại merchant đã xác minh",
+      "then": {
+        "auth": null,
+        "decision": null,
+        "exempt_auth": true,
+        "hold_seconds": null
+      },
+      "when": {
+        "all": [
+          {
+            "field": "channel",
+            "op": "==",
+            "value": "MERCHANT_QR"
+          },
+          {
+            "field": "receiver_is_verified_merchant",
+            "op": "==",
+            "value": true
+          },
+          {
+            "field": "amount",
+            "op": "<",
+            "value": 500000
+          }
+        ]
+      }
+    },
+    "status": "OK",
+    "unsupported_parts": []
+  },
+  "8692aaa729c4084be002e1d4715fa8610400df587a2a67ba45937366c1fb8ae6": {
+    "assumptions": [
+      {
+        "editable": false,
+        "interpretation": "cửa sổ 60 phút của các trường sender_*_60m",
+        "phrase": "trong 1 giờ"
+      },
+      {
+        "editable": true,
+        "interpretation": "tỷ lệ chuyển ra/nhận vào trong 60 phút đạt ít nhất 80%",
+        "phrase": "chuyển đi gần hết"
+      }
+    ],
+    "clarifying_questions": [],
+    "rule": {
+      "description": "Giữ giao dịch để xác minh khi tài khoản mới nhận tiền từ nhiều người trong một giờ rồi chuyển đi gần hết.",
+      "kind": "FRAUD",
+      "name": "Tài khoản mới nhận tiền từ nhiều người rồi chuyển đi",
+      "then": {
+        "auth": null,
+        "decision": "HOLD",
+        "exempt_auth": false,
+        "hold_seconds": 120
+      },
+      "when": {
+        "all": [
+          {
+            "field": "sender_account_age_days",
+            "op": "<",
+            "value": 7
+          },
+          {
+            "field": "sender_distinct_inbound_60m",
+            "op": ">=",
+            "value": 5
+          },
+          {
+            "field": "sender_outbound_ratio_60m_pct",
+            "op": ">=",
+            "value": 80
+          }
+        ]
+      }
+    },
+    "status": "OK",
+    "unsupported_parts": []
+  },
+  "_meta": {
+    "built_at": "2026-11-27T11:26:28+00:00",
+    "model": "openai/gpt-6-luna",
+    "pack_version": "2026.11-sim.1",
+    "prompt_version": "compile.v1",
+    "samples": 4,
+    "task": "compile"
+  }
+}

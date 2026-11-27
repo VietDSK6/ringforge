@@ -66,6 +66,12 @@ def client():
 
 @pytest.fixture
 def use_llm(monkeypatch):
+    # Các test này đo đường gọi LLM: tắt cache câu mẫu đã commit (data/seed/ai_cache.json), nếu không câu Demo 1
+    # được phục vụ từ cache và LLM giả không bao giờ được gọi. Cache có test riêng ở test_ai_cache.py.
+    from app.ai import tasks
+
+    monkeypatch.setattr(tasks, "_seed_cache", lambda: {})
+
     def _set(fake):
         monkeypatch.setattr(sessions_api, "get_client", lambda: fake)
         return fake

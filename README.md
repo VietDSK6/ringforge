@@ -182,7 +182,7 @@ Nhanh nhất: **New → Blueprint** → chọn repo; Render đọc [`render.yaml
 ## Công cụ AI
 
 - **Dùng khi phát triển:** **Claude Code** (Anthropic, model Claude Opus 5.5) hỗ trợ dựng khung, viết mã, test và tài liệu theo đặc tả trong `docs/`; prompt các phiên làm việc lưu ở [`KICKOFF_PROMPTS.md`](KICKOFF_PROMPTS.md). Mọi thay đổi do đội đọc lại và chịu trách nhiệm.
-- **Dùng trong sản phẩm:** `openai/gpt-6-luna` (dự phòng `openai/gpt-4o-mini`) qua OpenRouter, Chat Completions với Structured Outputs (JSON Schema strict, chỉ định tuyến tới nhà cung cấp hỗ trợ schema); đổi bằng `LLM_PROVIDER`/`LLM_MODEL`/`LLM_MODEL_FALLBACK`. Kết quả `eval/run_tune.py` ghi lại tại đây sau khi chạy. Prompt có phiên bản: `compile.v1`, `repair.v1`, `pack_repair.v1`, `interpret.v1`, `summary.v1` (`services/api/app/ai/prompts/`).
+- **Dùng trong sản phẩm:** `openai/gpt-6-luna` (dự phòng `openai/gpt-4o-mini`) qua OpenRouter, Chat Completions với Structured Outputs (JSON Schema strict, chỉ định tuyến tới nhà cung cấp hỗ trợ schema); đổi bằng `LLM_PROVIDER`/`LLM_MODEL`/`LLM_MODEL_FALLBACK`. Chốt sau khi chạy `eval/run_tune.py` ngày 27/11 trên 10 câu tune ([`eval/tune_report.md`](eval/tune_report.md)): hợp lệ schema ngay lần đầu 10/10, qua VC-01 10/10, đúng status 10/10, tương đương logic với gold (Z3) 8/9, 2,4–5,2 giây/câu. Kết quả AI cho 4 câu mẫu được ghi sẵn bằng chính model này (`data/seed/ai_cache.json`). Prompt có phiên bản: `compile.v1`, `repair.v1`, `pack_repair.v1`, `interpret.v1`, `summary.v1` (`services/api/app/ai/prompts/`).
 
 ## Tài sản có sẵn
 
