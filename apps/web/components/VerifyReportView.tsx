@@ -84,7 +84,9 @@ export function VerifyReportView({
               ))}
             </ul>
           )}
-          <CounterexampleCard check={c} catalog={catalog} />
+          <div data-tour="cex">
+            <CounterexampleCard check={c} catalog={catalog} />
+          </div>
           {c.grounding && <GroundingLine g={c.grounding} />}
           {c.blamed_rules && c.blamed_rules.length > 0 && (
             <p className="text-sm">

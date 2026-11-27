@@ -3,6 +3,7 @@
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { type FormEvent, type KeyboardEvent, useEffect, useId, useRef, useState } from "react";
 
+import { GuidedTour, type TourStep } from "@/components/GuidedTour";
 import { RepairPanel } from "@/components/RepairPanel";
 import { RuleSentence } from "@/components/RuleSentence";
 import { VerifyReportView } from "@/components/VerifyReportView";
@@ -33,6 +34,19 @@ const JSON_TEMPLATE = {
   },
   then: { exempt_auth: true },
 };
+
+const TOUR: TourStep[] = [
+  { target: "req", text: "Câu Demo 1 đã điền sẵn; bạn có thể sửa câu chữ." },
+  { target: "compile", text: "Bấm Biên dịch: AI chuyển câu thành luật có cấu trúc.", advanceOn: "click" },
+  {
+    target: "verify",
+    text: "Bấm Kiểm chứng: Z3 xét mọi giao dịch có thể có.",
+    advanceOn: "click",
+    waiting: "Chờ luật biên dịch xong (AI tắt thì dùng mẫu JSON).",
+  },
+  { target: "cex", text: "Phản ví dụ: một giao dịch cụ thể lọt qua sinh trắc học.", waiting: "Chờ kết quả kiểm chứng…" },
+  { target: "repair", text: "Bấm Sửa bằng AI: mọi bản sửa đều được kiểm chứng lại.", advanceOn: "click" },
+];
 
 type Phase = "idle" | "compiling" | "compiled" | "verifying" | "done" | "repairing";
 
@@ -198,6 +212,7 @@ export function StudioView() {
 
   return (
     <div className="space-y-6">
+      <GuidedTour id="demo1" steps={TOUR} enabled={search.get("demo") === "1"} />
       <header>
         <h1 className="text-2xl font-bold tracking-tight">Rule Studio</h1>
         <p className="text-sm text-muted">Viết luật bằng tiếng Việt → AI biên dịch → Z3 kiểm chứng với Policy Pack.</p>
@@ -218,6 +233,7 @@ export function StudioView() {
             </label>
             <textarea
               id="requirement"
+              data-tour="req"
               name="requirement"
               rows={5}
               maxLength={1000}
@@ -234,6 +250,7 @@ export function StudioView() {
             <div className="flex flex-wrap items-center gap-3">
               <button
                 type="submit"
+                data-tour="compile"
                 disabled={phase === "compiling" || phase === "verifying"}
                 className="min-h-11 rounded-xl bg-accent px-5 font-semibold text-white hover:opacity-90 disabled:opacity-60 dark:text-zinc-950"
               >
@@ -303,6 +320,7 @@ export function StudioView() {
             <button
               type="button"
               onClick={onVerify}
+              data-tour="verify"
               className="min-h-14 w-full rounded-2xl bg-zinc-900 text-lg font-bold text-white shadow hover:opacity-90 dark:bg-white dark:text-zinc-900"
             >
               Kiểm chứng
@@ -323,6 +341,7 @@ export function StudioView() {
                   <button
                     type="button"
                     onClick={onRepair}
+                    data-tour="repair"
                     disabled={busy}
                     className="min-h-12 rounded-xl bg-accent px-6 font-semibold text-white hover:opacity-90 disabled:opacity-60 dark:text-zinc-950"
                   >

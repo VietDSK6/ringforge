@@ -1,8 +1,9 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 
+import { GuidedTour, type TourStep } from "@/components/GuidedTour";
 import { LnetStackedBar, type LnetRow } from "@/components/LnetStackedBar";
 import { VerdictBadge } from "@/components/VerdictBadge";
 import { ApiError, api } from "@/lib/api";
@@ -50,6 +51,14 @@ const SLIDERS: { key: keyof Assumptions; label: string; min: number; max: number
   { key: "margin_bp", label: "Lợi nhuận mất trên mỗi đồng giao dịch bị bỏ", min: 0, max: 500, step: 10, fmt: pct },
 ];
 
+const TOUR: TourStep[] = [
+  { target: "variants", text: "Bốn phương án: cửa sổ 15, 30, 60 phút; giữ hay chặn." },
+  { target: "results", text: "Hàng in đậm có L_net thấp nhất trong các phương án hợp lệ.", waiting: "Đang backtest…" },
+  { target: "slider", text: "Kéo lên 100%: giữ lại hiệu quả như chặn, thứ hạng đổi." },
+  { target: "scenarios", text: "Phân rã kịch bản: flash-sale cho thấy chặn nhầm giao dịch thật." },
+  { target: "changeset", text: "Tạo change set để người duyệt ký trước khi bật.", advanceOn: "click" },
+];
+
 const ACTION_VI: Record<Action, string> = { HOLD: "Giữ 120 giây", BLOCK: "Chặn" };
 const SCENARIO_ORDER = ["S1_MULE", "S2_ATO", "S3_FLASH_SALE", "S4_FAMILIAR_HIGH", "S0_NORMAL"];
 
@@ -87,6 +96,7 @@ function commitInt(input: HTMLInputElement, lo: number, hi: number): number | nu
 export function CompareView() {
   const { sid } = useParams<{ sid: string }>();
   const router = useRouter();
+  const search = useSearchParams();
   const uid = useId();
   const nextKey = useRef(PRESETS.length);
   const [variants, setVariants] = useState<VariantForm[]>(() => PRESETS.map((p, key) => ({ ...p, key })));
@@ -158,6 +168,7 @@ export function CompareView() {
 
   return (
     <div className="space-y-8">
+      <GuidedTour id="demo3" steps={TOUR} enabled={search.get("demo") === "3"} />
       <header className="space-y-2">
         <h1 className="text-2xl font-bold tracking-tight">So sánh phương án</h1>
         <p className="max-w-3xl text-sm text-muted">
@@ -181,7 +192,7 @@ export function CompareView() {
             + Thêm phương án
           </button>
         </div>
-        <ul className="grid gap-4 lg:grid-cols-2">
+        <ul className="grid gap-4 lg:grid-cols-2" data-tour="variants">
           {variants.map((v, i) => {
             const id = `${uid}-v${v.key}`;
             const sentence = data?.variants[i]?.rules_vi?.[RULE_ID];
@@ -296,6 +307,7 @@ export function CompareView() {
                 </div>
                 <input
                   id={id}
+                  data-tour={s.key === "hold_stop_bp" ? "slider" : undefined}
                   type="range"
                   min={s.min}
                   max={s.max}
@@ -344,6 +356,7 @@ export function CompareView() {
             .{" "}
             <button
               type="button"
+              data-tour="changeset"
               onClick={() => proposeChangeSet(data!.variants.indexOf(best))}
               disabled={running}
               className="ml-1 min-h-11 rounded-xl bg-accent px-4 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50 dark:text-zinc-950"
@@ -365,7 +378,7 @@ type Row = { name: string; r: BacktestResult; rank?: number; eligible: boolean; 
 function ResultsTable({ uid, rows }: { uid: string; rows: Row[] }) {
   const exposure = (r: BacktestResult) => r.compliance_exposure.reduce((n, e) => n + e.count, 0);
   return (
-    <div tabIndex={0} role="region" aria-labelledby={`${uid}-cmp-cap`} className="overflow-x-auto rounded-2xl border border-line bg-surface">
+    <div tabIndex={0} role="region" aria-labelledby={`${uid}-cmp-cap`} data-tour="results" className="overflow-x-auto rounded-2xl border border-line bg-surface">
       <table className="w-full min-w-[880px] border-separate border-spacing-0 text-left text-sm">
         <caption id={`${uid}-cmp-cap`} className="px-4 pt-3 text-left text-sm text-muted">
           L_net = lọt gian lận + chi phí duyệt + mất do khách bỏ (đ, làm tròn xuống theo nhóm). Hàng in đậm là phương án tốt nhất.
@@ -424,7 +437,7 @@ function ResultsTable({ uid, rows }: { uid: string; rows: Row[] }) {
 function ScenarioTable({ uid, rows }: { uid: string; rows: Row[] }) {
   const scenarios = SCENARIO_ORDER.filter((s) => rows[0]?.r.by_scenario[s]);
   return (
-    <div tabIndex={0} role="region" aria-labelledby={`${uid}-sc-cap`} className="overflow-x-auto rounded-2xl border border-line bg-surface">
+    <div tabIndex={0} role="region" aria-labelledby={`${uid}-sc-cap`} data-tour="scenarios" className="overflow-x-auto rounded-2xl border border-line bg-surface">
       <table className="w-full min-w-[720px] border-separate border-spacing-0 text-left text-sm">
         <caption id={`${uid}-sc-cap`} className="px-4 pt-3 text-left text-sm font-semibold">
           Phân rã theo kịch bản: lọt gian lận và số giao dịch thật bị giữ/chặn nhầm

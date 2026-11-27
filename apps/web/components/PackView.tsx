@@ -5,6 +5,7 @@ import { type FormEvent, useEffect, useId, useRef, useState } from "react";
 
 import { CounterexampleCard } from "@/components/CounterexampleCard";
 import { GroundingLine } from "@/components/GroundingLine";
+import { GuidedTour, type TourStep } from "@/components/GuidedTour";
 import { RuleSentence } from "@/components/RuleSentence";
 import { VerdictBadge } from "@/components/VerdictBadge";
 import { ApiError, api } from "@/lib/api";
@@ -16,6 +17,14 @@ const DEMO_SOURCE = "Kịch bản giả lập Demo 2 — không phải quy đị
 
 const fmtParam = (value: number, unit: string) =>
   unit === "VND" ? formatVnd(value) : `${formatInt(value)}${unit ? ` ${unit === "s" ? "giây" : unit}` : ""}`;
+
+const TOUR: TourStep[] = [
+  { target: "param", text: "Ngưỡng sinh trắc học/lần đã hạ sẵn từ 10 xuống 5 triệu." },
+  { target: "analyze", text: "Bấm Phân tích tác động: kiểm chứng lại toàn bộ bộ luật.", advanceOn: "click" },
+  { target: "incompatible", text: "LG-07 viết cứng 10.000.000 nên không còn tương thích, kèm nhân chứng.", waiting: "Đang phân tích…" },
+  { target: "friction", text: "Ma sát: thêm bao nhiêu giao dịch thật phải sinh trắc học." },
+  { target: "fix", text: "Lưu bản sửa tham chiếu tham số; đã kiểm chứng lại.", advanceOn: "click" },
+];
 
 const digits = (s: string) => s.replace(/\D/g, "");
 
@@ -139,6 +148,7 @@ export function PackView() {
 
   return (
     <div className="space-y-8">
+      <GuidedTour id="demo2" steps={TOUR} enabled={isDemo} />
       <header className="space-y-2">
         <h1 className="text-2xl font-bold tracking-tight">Policy Pack</h1>
         <p className="text-sm text-muted">
@@ -182,6 +192,7 @@ export function PackView() {
                   <input
                     id={id}
                     name={name}
+                    data-tour={name === DEMO2.param ? "param" : undefined}
                     type="text"
                     inputMode="numeric"
                     autoComplete="off"
@@ -210,6 +221,7 @@ export function PackView() {
         <div className="flex flex-wrap items-center gap-3">
           <button
             type="submit"
+            data-tour="analyze"
             disabled={busy !== null || pending.length === 0}
             className="min-h-12 rounded-xl bg-accent px-6 font-semibold text-white hover:opacity-90 disabled:opacity-50 dark:text-zinc-950"
           >
@@ -399,7 +411,7 @@ function FrictionLine({ impact }: { impact: PackImpact }) {
   const d = impact.friction.delta.friction_biometric;
   const days = impact.friction.days.length;
   return (
-    <p className="text-base">
+    <p className="text-base" data-tour="friction">
       Ma sát:{" "}
       <strong className="tabular-nums">
         {d >= 0 ? "+" : "−"}
@@ -431,6 +443,7 @@ function AffectedRuleCard({
   return (
     <article
       aria-labelledby={`impact-${r.id}`}
+      data-tour={bad ? "incompatible" : undefined}
       className={`space-y-4 rounded-2xl border-2 bg-surface p-5 ${bad ? "border-red-300 dark:border-red-900" : "border-amber-300 dark:border-amber-800"}`}
     >
       <header className="flex flex-wrap items-baseline justify-between gap-2">
@@ -481,6 +494,7 @@ function AffectedRuleCard({
             ) : (
               <button
                 type="button"
+                data-tour="fix"
                 onClick={onSave}
                 disabled={busy || !r.fix.passes}
                 className="min-h-11 rounded-xl bg-accent px-4 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50 dark:text-zinc-950"
